@@ -451,7 +451,9 @@ class BlockQuote(SectionElem):
 
 @dataclass
 class OptSpec(SectionElem):
-    # TODO: not sure what this needs.
+    scope: Scope = None
+    opt: Opt = None
+    help_text: str = None
     token: Token = None
 
 GrammarElems = constants({

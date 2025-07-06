@@ -17,10 +17,53 @@ TODO:
         x without_degen_group()
         x drop_degenerate_groups()
         x Convert ParseElem => list[GE.Section]
+        x GE.OptSpec: add attributes: see PE.OptSpec.as_gelem()
 
         __HERE__
 
-        - GE.OptSpec: add attributes: see PE.OptSpec.as_gelem()
+        - OptSpec.opt: needs:
+            - normalize_quantifiers()
+            - drop_degenerate_groups()
+            
+            - That raises issues because those methods are currently on Grammar.
+                - sort of yes, sort of no.
+                - The actual work is done in methods on GrammarElem.
+                    - That might be sufficient for an OptSpec.
+
+            - QUESTION:
+
+                - notes.txt:
+                    - Opt-spec can include quantifiers; opt-descs do not.
+                    - Opt-spec can "fully configure an Opt".
+
+                - To what degree can the Opt-spec include groups?
+
+                    - Degenerate group purely for optionality:
+
+                        [--foo]
+                        [<x>]
+
+                    - Degenerate group (parent or child has singular quantifier):
+
+                        [-v]{1,3}
+                        [<x>]{3}
+
+                    - Non-degenerate groups:
+
+                        [-v{1,3}]{4}
+                        [<x>{2}]{3}
+
+                    - Tentative decision:
+                        - YES for any degenerate group situation.
+                        - Rationale:
+                            - An opt-spec fully configures one Opt -- but no more.
+                            - It does not configure Opt plus enclosing group(s).
+
+            - QUESTION:
+
+                - Can I enforce those rules during initial spec-parsing?
+
+                - If not, when to raise the error.
 
         - unify/reconcile: opt-specs <=> variants.
 
@@ -595,7 +638,13 @@ class OptSpec(ParseElem):
     token: Token
 
     def as_gelem(self):
-        return GE.OptSpec()
+        s = self.scope
+        return GE.OptSpec(
+            scope = s.as_gelem() if s else None,
+            opt = self.opt,
+            help_text = self.text,
+            token = self.token,
+        )
 
 @dataclass
 class SectionTitle(ParseElem):
@@ -1705,6 +1754,10 @@ class SpecParser:
 
         # Convert PE.Section to GE.Section.
         sections = [s.as_gelem() for s in pe_sections]
+
+        ####
+        # __HERE__
+        ####
 
         # TODO: opts: unify/reconcile: opt-specs <=> variants.
         pass
