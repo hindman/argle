@@ -5554,6 +5554,22 @@ Opt-descs: why they excludes quantifiers:
             - But examples like these illustrate that individual opt-descs are
               not up to the task of fully conveying grammar in complex cases.
 
+An opt-spec group, if any, must be degenerate:
+
+    - For syntactic convenience, an opt-spec can include a degenerate-group:
+
+        [--foo]
+        [<x>]
+        [-v]{1,3}
+        [<x>]{3}
+
+    - That group will be removed when converting parsed spec into a Grammer.
+
+    - If an opt-spec includes a non-degenerate group (plural quantifiers
+      for both parent and child), an error will be raised.
+
+        - An opt-spec fully configures one Opt -- but no more.
+
 The <options> placeholder, opt-descs, and quantifiers:
 
     - Summary:

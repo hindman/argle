@@ -249,10 +249,6 @@ class GrammarElem(TreeElem):
         else:
             return 'elems'
 
-@dataclass
-class Grammar(GrammarElem):
-    variants: list['Variant']
-
     def normalize_quantifiers(self):
         for we in self.traverse():
             we.val.qnormalize()
@@ -270,6 +266,10 @@ class Grammar(GrammarElem):
             old_elems = getattr(e, e.elems_attr)
             new_elems = [c.without_degen_group() for c in old_elems]
             setattr(e, e.elems_attr, new_elems)
+
+@dataclass
+class Grammar(GrammarElem):
+    variants: list['Variant']
 
 @dataclass
 class Variant(GrammarElem):
