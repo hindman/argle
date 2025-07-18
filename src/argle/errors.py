@@ -15,7 +15,10 @@ ErrMsgs = cons(
     choice_sep_last = 'Choice separator (|) cannot be last element in variant or group',
     quant_range_ordering = 'Invalid quantifier-range {m-n}: n cannot be less than m',
     quant_range_empty = 'Invalid quantifier-range {m-n}: n cannot be 0',
+    opt_spec_group = 'Invalid opt-spec: group, if any, must be degenerate',
 )
+
+# [--foo{2}] : hello
 
 ErrKinds = constants(ErrMsgs.keys())
 
@@ -27,5 +30,5 @@ class ArgleError(Kwexception):
 class SpecParseError(ArgleError):
 
     def __str__(self):
-        return super().__str__() + self.parse_context
+        return super().__str__() + (self.parse_context or '')
 

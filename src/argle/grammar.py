@@ -450,7 +450,7 @@ class BlockQuote(SectionElem):
     token: Token = None
 
 @dataclass
-class OptSpec(SectionElem):
+class OptSpec(SectionElem, TreeElem):   # TODO: good idea?
     scope: Scope = None
     opt: Opt = None
     help_text: str = None

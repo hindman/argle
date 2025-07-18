@@ -18,13 +18,12 @@ TODO:
         x drop_degenerate_groups()
         x Convert ParseElem => list[GE.Section]
         x GE.OptSpec: add attributes: see PE.OptSpec.as_gelem()
+        x OptSpec.opt:
+            x normalize_quantifiers()
+            x drop_degenerate_groups()
+        x error() need ability to raise via error() after parsing is done
 
         __HERE__
-
-        - OptSpec.opt: needs:
-            - normalize_quantifiers()
-            - drop_degenerate_groups()
-                - error() if Group wrapping the OptSpec.opt is not degenerate.
 
         - unify/reconcile: opt-specs <=> variants.
 
@@ -38,6 +37,8 @@ TODO:
                 query-elem
 
         - USE_NEW = False: DROP
+
+    - error() and get_context() are awkward when called after spec-parsing
 
     - Full recheck of tests/data/got.
 
@@ -600,9 +601,10 @@ class OptSpec(ParseElem):
 
     def as_gelem(self):
         s = self.scope
+        o = self.opt
         return GE.OptSpec(
             scope = s.as_gelem() if s else None,
-            opt = self.opt,
+            opt = o.as_gelem(),
             help_text = self.text,
             token = self.token,
         )
@@ -669,18 +671,15 @@ class Section(ParseElem):
     elems: list[ParseElem] = field(default_factory = list)
 
     def as_gelem(self):
-
         scope = None
         title = None
         token = None
         elems = [e.as_gelem() for e in self.elems]
-
         t = self.title
         if t:
             scope = t.scope.as_gelem() if t.scope else None
             title = t.title
             token = t.token
-
         return GE.Section(
             scope = scope,
             title = title,
@@ -1716,6 +1715,18 @@ class SpecParser:
         # Convert PE.Section to GE.Section.
         sections = [s.as_gelem() for s in pe_sections]
 
+        # Process OptSpecs in the sections.
+        # - normalize quantifiers
+        # - drop degenerate-groups
+        # - error() if a Group remains on the OptSpec at the end
+        for s in sections:
+            for e in s.elems:
+                if isinstance(e, GE.OptSpec):
+                    e.opt.normalize_quantifiers()
+                    e.opt = e.opt.without_degen_group()
+                    if isinstance(e.opt, GE.Group):
+                        self.error(ErrKinds.opt_spec_group, tok = e.token)
+
         ####
         # __HERE__
         ####
@@ -1751,15 +1762,43 @@ class SpecParser:
                 elems.append(e)
         return elems
 
-    def error(self, error_kind, **kws):
+    def error(self, error_kind, tok = None, **kws):
         # Called when spec-parsing fails.
         # Raises ArgleError with kws, plus position/token info.
 
+        # Token and positional info:
+        # tok
+        # mode
+        # pos
+        # line
+        # col
+        # next_token
+
         # Setup.
+        got_tok = bool(tok)
         lex = self.lexer
-        tok = lex.curr
+
+        if got_tok:
+            tok = tok
+            mode = None
+            pos = tok.pos
+            line = tok.line
+            col = tok.col
+            next_token = None
+            parse_stack = None
+            parse_context = lex.get_context(tok = tok)
+        else:
+            tok = lex.curr
+            mode = self.mode
+            pos = lex.pos
+            line = lex.line
+            col = lex.col
+            next_token = tok
+            parse_stack = self.parse_stack
+            parse_context = lex.get_context()
+
         if tok:
-            tok = distilled(lex.curr, 'kind', 'text')
+            tok = distilled(tok, 'kind', 'text')
 
         # Assemble the exception keyword args, in a specific order.
         err_kws = dict(
@@ -1768,16 +1807,16 @@ class SpecParser:
         )
         err_kws.update(kws)
         err_kws.update(
-            mode = self.mode,
-            pos = lex.pos,
-            line = lex.line,
-            col = lex.col,
-            next_token = tok,
-            parse_stack = self.parse_stack,
+            mode = mode,
+            pos = pos,
+            line = line,
+            col = col,
+            next_token = next_token,
+            parse_stack = parse_stack,
         )
 
         # Create error, attach parse context, and raise.
         err = SpecParseError(**err_kws)
-        err.parse_context = lex.get_context().for_error
+        err.parse_context = parse_context.for_error
         raise err
 

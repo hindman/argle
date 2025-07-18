@@ -8,6 +8,7 @@ from pathlib import Path
 
 from argle import bargparse as bp
 
+from argle.grammar import OptSpec, Grammar
 from argle.spec_parser import (
     SpecParser,
     Option,
@@ -90,10 +91,19 @@ def main(args):
         print(spec.rstrip())
 
     g = None
+    sections = None
+    opt_specs = None
     if opts.parse:
         sp = SpecParser(spec, debug = opts.debug)
         pspec = sp.parse()
         g = pspec.grammar
+        sections = pspec.sections
+        opt_specs = [
+            e
+            for s in sections
+            for e in s.elems
+            if isinstance(e, OptSpec)
+        ]
         print('# SPEC-OK')
 
     if g:
@@ -102,6 +112,11 @@ def main(args):
             msg = g.pretty(omit_closing = True, indent_size = 2)
             print('# TREE')
             print(msg)
+            if opt_specs:
+                print('# OPT-SPECS')
+                for e in opt_specs:
+                    msg = e.pretty(omit_closing = True, indent_size = 2)
+                    print(msg)
 
         if opts.elems:
             print('# ELEMS')

@@ -219,12 +219,14 @@ class RegexLexer(object):
     # Getting contextual text surround the current position.
     ####
 
-    def get_context(self):
-        return ParseContext(
-            line = get(self.lines, self.line - 1),
-            col = self.col,
-        )
-
+    def get_context(self, tok = None):
+        if tok:
+            line = get(self.lines, tok.line - 1)
+            col = tok.col
+        else:
+            line = get(self.lines, self.line - 1)
+            col = self.col
+        return ParseContext(line = line, col = col)
 
     ####
     # Helpers to print debugging information.
