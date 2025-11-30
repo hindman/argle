@@ -8,6 +8,8 @@
 /.noseids
 /.python-version
 /tags
+/mtags
+/.ctags.d/
 
 # Building, distribution, packaging.
 /.profile
