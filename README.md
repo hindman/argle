@@ -187,7 +187,7 @@ p = Parser('''
     [-v --invert-match] : Select non-matching lines
     [-m --max-count <n>] : Stop searching after N matches
     [-C --context <n>] : Print N lines of before/after context
-    [--color red|green|blue] : Highlight matching text
+    [--color <red|green|blue>] : Highlight matching text
 ''')
 
 p.config('rgx', convert = re.compile)
@@ -260,7 +260,7 @@ wrapping the lines sensibly or by extracting help text into a separate data
 structure to de-bulk the main configuration code.
 
 ```python
-ap = argparse.ArgumentParser(prog = 'wrangle')
+ap = argparse.ArgumentParser()
 
 sps = ap.add_subparsers(dest = 'task', help = 'Task to perform', metavar = '<task>')
 sp1 = sps.add_parser('grep', help = 'Emit lines matching pattern')
@@ -312,7 +312,7 @@ argparse, at the cost of looking up even more API. Argle simply builds on a
 usage syntax already known to many developers: a pipe to delimit alternatives.
 
 ```python
-p = Parser('''wrangle
+p = Parser('''
     <task=grep>   [--ignore-case] [--invert-match] [--max-count] [--context]
                   [--color <red|green|blue>]
                   <rgx> [<path>...]
@@ -577,7 +577,7 @@ not (the more common case); if defined, a variant name is mainly useful as a
 convenient label/handle when using the Parser's configuration API.
 
 ```python
-p = Parser('''name-db
+p = Parser('''
     Add      : <task=add> (<name> <id>)...
     Delete   : <task=delete> <id>{1-5} [--archive [--json [--indent] | --xml]]
     Examples : --examples

@@ -182,7 +182,7 @@ p = parser(
         'version      : * --version',
         'examples     : * --examples',
         'autocomplete : * --autocomplete',
-        'other1       : [-x] [-y] (<a> <b> <c>)...{1,4}',
+        'other1       : [-x] [-y] (<a> <b> <c>)...{1-4}',
     ],
     usage_sections = [
         ('Usage'            , GRAMMAR_SPEC),   # Use grammar-spec (text). Or AUTO: use grammar API config.

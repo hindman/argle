@@ -329,6 +329,8 @@ specification: Specification
 spec-syntax: Spec syntax
 --------
 
+COPIED_OUT: misc/spec-syntax.md
+
 spec:
 
     [usage-section]
@@ -779,6 +781,8 @@ Hierarchy:
 --------
 syntax-examples: Syntax examples
 --------
+
+COPIED_OUT: misc/spec-examples.md
 
 pgrep: README example-1: EX_README_1
 

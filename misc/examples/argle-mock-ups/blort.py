@@ -21,8 +21,8 @@ Usage:
     blort submit -c <> -r <> [--start-job] [--person <name> <age>] [<general-options>]
     blort get -j <> [--json [--indent <n>] | --b64 | --yaml] [<general-options>]
     blort drop <method> <n> [--print] [<general-options>]                                ## NOTE_815
-    blort <fubb>... (--fast | --slow) [-a] [-b] [-x] [chat-options]
-    blort <triple>{2-7} [-x] [-y] [chat-options]                                         ## NOTE_1240
+    blort <fubb>... (--fast | --slow) [-a] [-b] [-x] [<chat-options>]
+    blort <triple>{2-7} [-x] [-y] [<chat-options>]                                       ## NOTE_1240
 
     General options:
         --verbose         : Blah blah
