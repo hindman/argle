@@ -1,11 +1,21 @@
 # Status
 
-Last updated: 2026-10-09
+Last updated: 2026-10-16
 
 ## Done
 
-- Extracted `spec-syntax` and `syntax-examples` sections into
-  `misc/spec-syntax.md` and `misc/spec-examples.md`.
+- Started the work of breaking `notes.txt` into smaller, more focused files.
+
+      notes.txt
+
+      status.md
+      road-map.md
+      dev-notes.md
+
+      spec-syntax.md
+      spec-examples.md
+      terminology.md
+      classes.md
 
 - Resolved a review of spec-syntax issues. Decisions:
     - Quantifier ranges: `{m-n}`, `{m}`, `{m+}`; non-negative integers. The
@@ -32,11 +42,7 @@ Last updated: 2026-10-09
 
 ## Next candidates
 
-- Extract `terminology` (likely `misc/glossary.md`) and
-  `classes-and-attributes` (`misc/classes.md`; drop `Variant.ntimes`) from
-  the Specification section of notes.txt.
-
-- Then survey the remaining notes.txt sections (`argle-notes` at the top,
-  `discussion`, `reference`) and decide what to extract.
+- Continue extracting and organizing the remaining `notes.txt` sections.
 
 - Decide whether to continue from the existing `src/argle/` code or restart.
+
