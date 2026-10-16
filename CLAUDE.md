@@ -28,8 +28,7 @@ In priority order:
   authoritative. We may continue from it or restart; TBD. Don't fix it
   unless asked.
 
-Archival, ignore unless asked: `misc/old*`, `misc/other_projects/`,
-`misc/examples/spec-vs-api/` (older spec syntax).
+Archival, ignore unless asked: `misc/archive/`.
 
 ## Decomposing notes.txt
 

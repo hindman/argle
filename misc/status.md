@@ -42,7 +42,22 @@ Last updated: 2026-10-16
 
 ## Next candidates
 
+Planned order: env setup, then `notes.txt`, then the code assessment.
+
+- First step on restart (Monty): create a fresh `argle-3.14.8` virtualenv
+  (the old `argle-3.9.4` is out of date). Then verify with `pytest tests` and
+  `misc/scripts/spec-check tests/data/specs/blort.txt -t`. Open questions:
+  whether to include `mhutils`; whether to add `pyperclip` (used by
+  `misc/scripts/`) to the `dev` extras in `setup.py`.
+
 - Continue extracting and organizing the remaining `notes.txt` sections.
+  Do this before the code assessment, so our conceptual understanding is
+  solid first.
 
 - Decide whether to continue from the existing `src/argle/` code or restart.
+
+- Examine the material under `misc/examples/` to decide what we keep vs move
+  to `misc/archive/`. Defer until more of `notes.txt` is processed and the
+  overall vision is clearer. (spec-vs-api was once labeled archival, but the
+  basis for that is unknown.)
 
