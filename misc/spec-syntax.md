@@ -27,7 +27,7 @@
   ## opt-help-text
   ## variant-def
   ## variant-elem
-  ## quantifer
+  ## quantifier
   ## partial-usage
   ## any-group
   ## named-group
@@ -193,7 +193,7 @@
     [opt-spec-elem]
 
 - The group cannot be named.
-- It only function to support a quantifer.
+- It only function to support a quantifier.
 
 ## python-name
 
@@ -232,7 +232,7 @@
         choice-sep
     )
 
-- All take a quantifer except:
+- All take a quantifier except:
     - choice-sep (|)
     - literal
     - partial-usage (user can wrap in a group).
@@ -274,7 +274,7 @@
           {m+}           # Repetition: m or more.
           ?              # Non-greedy for preceding quantifier.
 
-## quantifer
+## quantifier
 
     triple-dot[?]
     quant-range[?]
@@ -459,18 +459,10 @@ Spec:
 
 ## Spec-syntax hierarchy in compact form
 
-This material condenses the material in spec-syntax into a structure that can
-be used for quick-reference.
+This material condenses the material in spec-syntax into a hierarchy
+displaying the relationships among the elements.
 
-    - spec
-        - usage-section
-            - variant [BELOW]
-            - section-content-elem [BELOW]
-        - section
-            - any-section-title
-                - section-scope [BELOW]
-                - section-title
-            - section-content-elem [BELOW]
+Start with the components of a variant:
 
     - variant
         - valid-name
@@ -503,8 +495,10 @@ be used for quick-reference.
                     - quantifier
                 - literal
                 - partial-usage
-                    - python-name
+                    - valid-name
                 - choice-sep
+
+Then the components that can reside in a section:
 
     - section-content-elem
         - heading
@@ -513,10 +507,22 @@ be used for quick-reference.
             - opt-scope
                 - query-path
                     - query-elem
-            - positional [ABOVE]
+            - positional
             - aliases-and-option
                 - bare-option
-                - option [ABOVE]
+                - option
             - opt-help-text
                 - rest-of-line + continuation-lines
+
+And the components of the full spec:
+
+    - spec
+        - usage-section
+            - variant
+            - section-content-elem
+        - section
+            - any-section-title
+                - section-scope
+                - section-title
+            - section-content-elem
 
