@@ -29,6 +29,7 @@
   ## variant-elem
   ## quantifier
   ## partial-usage
+  ## choice-sep
   ## any-group
   ## named-group
   ## group
@@ -107,7 +108,7 @@
 
 ## section-content-elem
 
-    [heading | opt-spec | block-quote]...
+    heading | opt-spec | block-quote
 
 ## heading
 
@@ -223,19 +224,12 @@
 
 ## variant-elem
 
-    (
-        option |
-        positional |
-        any-group |
-        literal |
-        partial-usage |
-        choice-sep
-    )
+    (option | positional | any-group) [quantifier]
+    literal
+    partial-usage
+    choice-sep
 
-- All take a quantifier except:
-    - choice-sep (|)
-    - literal
-    - partial-usage (user can wrap in a group).
+- To quantify a partial-usage, wrap it in a group.
 
 - Examples with comments:
 
@@ -296,6 +290,10 @@
 ## partial-usage
 
     valid-name!
+
+## choice-sep
+
+    |
 
 ## any-group
 
@@ -465,8 +463,7 @@ displaying the relationships among the elements.
 Start with the components of a variant:
 
     - variant
-        - valid-name
-            - python-name
+        - valid-name [!]
         - variant-def
             - variant-elem
                 - option
@@ -483,7 +480,7 @@ Start with the components of a variant:
                     - quantifier
                         - triple-dot
                         - quant-range
-                        - question
+                        - ? (non-greedy)
                 - positional
                     - valid-name
                     - choices
@@ -507,10 +504,15 @@ Then the components that can reside in a section:
             - opt-scope
                 - query-path
                     - query-elem
-            - positional
-            - aliases-and-option
-                - bare-option
-                - option
+            - opt-spec-def => opt-spec-group | opt-spec-elem
+                - opt-spec-group
+                    - opt-spec-elem
+                    - quantifier
+                - opt-spec-elem => positional | aliases-and-option
+                    - positional
+                    - aliases-and-option
+                        - bare-option
+                        - option
             - opt-help-text
                 - rest-of-line + continuation-lines
 
