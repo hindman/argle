@@ -167,11 +167,6 @@ Other possibilities:
 
 --------------------------
 
-The hierarchy and the grammar now agree, apart from the `opt-spec-group`
-quantifier I flagged last time. The real problems are in the grammar itself:
-some places can be parsed more than one way, and two parts contradict each
-other. Here they are, most serious first.
-
 ## Ambiguities: the same text, two parses
 
 1. `<foo>` as a parameter. A parameter can be `< valid-name >` or `< choices
@@ -230,9 +225,12 @@ other. Here they are, most serious first.
 
 12. Dangling references:
     - "details below" (line 92) points to nothing.
+      - FIXED
     - "opt-independence" (line 163) isn't in this doc.
+      - FIXED IN TEMP WAY FOR NOW
     - The `` ```! `` table row ("if block-quote needs to start with !")
       doesn't say what to write.
+      - I'm baffled by those two rows in the table: why are they needed?
 
 13. Asymmetry: parameters have a `< choices >` form, but positionals don't.
     This is presumably on purpose, since a positional needs a name for its
@@ -243,16 +241,4 @@ other. Here they are, most serious first.
       `<name=choices>`.
     - Whether whitespace is allowed before the non-greedy `?` isn't stated.
     - `-1` style short options are excluded by `first-char`, without comment.
-
-## Overall
-
-The basic design holds up. Distinguishing variants by a leading name and
-colon, the colon rule for opt-specs, and the separate markers (`:`/`::`/`:::`,
-`>>`, `!`) mostly keep line types distinct. Problems 1, 2, 4, and 5 are the
-ones a parser author would get stuck on. Each needs one sentence to resolve,
-not a new construct. Problems 6–9 are plain errors or contradictions. I'd
-fix those first, since they're cheap.
-
-Do you want me to draft any of these fixes, or would you rather decide 1–5
-first? Those are design decisions, not wording.
 

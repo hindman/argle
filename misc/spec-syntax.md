@@ -89,7 +89,7 @@
     section-scope >> section-title
 
 - A section-scope applied to a section is a shortcut for applying the scope to
-  all opt-specs within the section (details below).
+  all opt-specs within the section.
 
 ## section-scope
 
@@ -160,7 +160,7 @@
   configurations are merged:
 
   - Opt-spec configuration is connected to the relevant Opt from the
-    grammar (see opt-independence for details).
+    grammar (see opt-independence in notes.txt for details).
 
   - Opt declared in the grammar can use an abbrievated form (an
     opt-mention), leaving the full configuration to the opt-spec.
