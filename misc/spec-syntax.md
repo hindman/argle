@@ -190,11 +190,12 @@
 
 ## opt-spec-group
 
-    (opt-spec-elem)
-    [opt-spec-elem]
+    (opt-spec-elem) [quantifier]
+    [opt-spec-elem] [quantifier]
 
 - The group cannot be named.
-- It only function to support a quantifier.
+- A () group is useful only with a quantifier.
+- A [] group makes its contents optional.
 
 ## python-name
 
@@ -287,6 +288,14 @@
 
 - The ? marker makes preceding quantifier non-greedy.
 
+- A [] group adds 0 to the allowed quantities. For example, [x]{3-4}
+  allows 0, 3, or 4.
+
+- An element takes only one quantifier (no stacking). For more complex
+  quantification, nest groups:
+
+      (<x>{2}){1-3}
+
 ## partial-usage
 
     valid-name!
@@ -327,7 +336,7 @@
 
 ## any-parameter
 
-    parameter | parameter-group
+    (parameter | parameter-group) [quantifier]
 
 ## parameter
 
@@ -477,6 +486,7 @@ Start with the components of a variant:
                                     - literal
                         - parameter-group
                             - parameter
+                        - quantifier
                     - quantifier
                         - triple-dot
                         - quant-range
