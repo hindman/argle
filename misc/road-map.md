@@ -199,19 +199,6 @@ Other possibilities:
 
 ## Contradictions
 
-6. The edge-case quoting example is wrong under the grammar. `` `\\`foo\\`` ``
-   reads as an opening backquote, then `\\` (a literal backslash), then a
-   backquote that closes the literal. It doesn't produce `` \`foo\` ``. The
-   correct spec would be `` `\\\`foo\\\`` ``.
-
-7. The grammar and the quoting table disagree about what gets escaped. In the
-   grammar, `quoted-char3` excludes every backquote, so a single backquote
-   inside a block-quote must be escaped, one backquote at a time. The table
-   and the ```` ```\```foo\`````` ```` example treat a run of three backquotes
-   as the thing being escaped. Pick one model. The per-character model is
-   simpler and matches the grammar. If you keep it, the example becomes ````
-   ```\`\`\`foo\`\`\```` ````.
-
 8. An empty opt-scope inside a scoped section. A section-scope means "apply
    the scope to all opt-specs in the section." An empty `>>` takes as its
    parent the preceding non-scoped opt-spec. In a scoped section, every
@@ -223,15 +210,6 @@ Other possibilities:
 11. `query-elem`: the note says "positive integer," but `digit...` allows 0.
     What an integer query-elem means (an index?) is never explained.
 
-12. Dangling references:
-    - "details below" (line 92) points to nothing.
-      - FIXED
-    - "opt-independence" (line 163) isn't in this doc.
-      - FIXED IN TEMP WAY FOR NOW
-    - The `` ```! `` table row ("if block-quote needs to start with !")
-      doesn't say what to write.
-      - I'm baffled by those two rows in the table: why are they needed?
-
 13. Asymmetry: parameters have a `< choices >` form, but positionals don't.
     This is presumably on purpose, since a positional needs a name for its
     dest, but one line saying so would help.
@@ -241,4 +219,6 @@ Other possibilities:
       `<name=choices>`.
     - Whether whitespace is allowed before the non-greedy `?` isn't stated.
     - `-1` style short options are excluded by `first-char`, without comment.
+
+------------------------
 

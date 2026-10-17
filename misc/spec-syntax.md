@@ -127,6 +127,9 @@
     - Opening quote must be first on its line.
     - Triple-quotes can sit on their own line, or not.
     - Quoted-text3 can span multiple lines.
+    - A marker (! or #) must immediately follow the opening quote.
+    - To start the text with a literal ! or #, escape it: ```\!foo```
+      is a wrapped block-quote whose text is !foo. See Quoting rules.
 
 ## literal
 
@@ -136,15 +139,17 @@
 
 ## quoted-text3 and quoted-text1
 
-    (literal-backslash | literal-backquote | quoted-char3)...
-    (literal-backslash | literal-backquote | quoted-char1)...
+    quoted-text3:  (escape | quoted-char3)...
+    quoted-text1:  (escape | quoted-char1)...
 
 - Where:
 
-      literal-backslash | \\
-      literal-backquote | \`
-      quoted-char3      | Any char except backquote
-      quoted-char1      | Any char except backquote, tab, newline
+      escape       | Backslash escapes; see Quoting rules
+      quoted-char3 | Any char; but three backquotes in a row end the text
+      quoted-char1 | Any char except backquote, newline
+
+- A block-quote ends at the first three unescaped backquotes. One or two
+  backquotes in a row are ordinary text.
 
 ## variant
 
@@ -399,31 +404,38 @@
 
 ## Quoting rules
 
-If the special quoting characters are needed literally within the
-quoted-text, they can be preceded by backslash, in the usual fashion.
+Most text needs no escaping. Backslashes are ordinary text, and so are
+one or two backquotes in a block-quote.
 
-    Quote | Situation
-    ------------------------------------------
-    `     | In literal
-    ```   | In block-quote
-    ```!  | If block-quote needs to start with !
-    ```#  | If block-quote needs to start with #
+Escaping is needed only where a character would otherwise be read as
+syntax. These are the special characters:
 
-    Spec              | Resulting quoted-text
-    ---------------------------------------------
-    `\`foo\``         | `foo`
-    ```\```foo\`````` | ```foo```
+    Char          | Where                          | Otherwise read as
+    --------------------------------------------------------------------
+    `             | In a literal                   | Closing quote
+    ` (1st of 3)  | In a block-quote               | Closing quote
+    ! or #        | Right after the opening quote  | Marker
 
-That approach can be taken one final step to handle the truly edge cases like
-this:
+To make a special character ordinary, put a backslash before it.
 
-Desired quoted-text:
+Edge case: to put a literal backslash right before a special character,
+double it. In a run of backslashes before a special character, each \\
+yields \, and a leftover single \ escapes the character.
 
-    \`foo\`
+Examples:
 
-Spec:
-
-    `\\`foo\\``
+    Spec              | Result      | Note
+    ------------------------------------------------------------------
+    `\`foo\``         | `foo`       | .
+    ```\```foo\`````` | ```foo```   | .
+    ```see `foo\````  | see `foo`   | .
+    ```\!foo```       | !foo        | Wrapped
+    ```!#foo```       | #foo        | No-wrap; # after marker is text
+    ```C:\temp```     | C:\temp     | Backslash is ordinary
+    ```\\server```    | \\server    | No special char follows
+    ```foo\\```       | foo\        | .
+    ```\\!foo```      | \!foo       | .
+    `\\\`foo\\\``     | \`foo\`     | .
 
 ## Whitespace rules
 
