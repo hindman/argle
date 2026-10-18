@@ -52,14 +52,10 @@ documentation and policy documents a lot.
 
 Remaining issues from latest spec-syntax review:
 
-  2. What follows an option. `option = bare-option [any-parameter...]` takes as
-     much as it can, and `<x>` is valid as both a parameter and a positional. So
-     in `--foo <x> <y>`, both are parameters, and you can only get a positional
-     after an option by reordering or grouping. The same applies to `--foo (<a>
-     <b>)`, which could be a parameter-group or a separate group of positionals.
-     Both readings are probably intended, but the grammar should state the rule
-     (parameters attach to the option before them; a group whose contents are
-     all parameters is a parameter-group).
+  2b. parameter-group grammar is flat (`( parameter... )`), but notes.txt
+      (opt-and-varinput-configuration) shows an inner quantifier:
+      `--foo (<x>{2} <y>){3}`. Widen the rule (inner quantifiers, nesting,
+      maybe `|`) or declare the narrowing deliberate.
 
   5. How line types are told apart. `title-text` is never defined, and there's
      no order of checks across line types. A line like `--foo : see below::` can
@@ -91,12 +87,6 @@ Remaining issues from latest spec-syntax review:
       required and an opt-spec declares it optional (or vice versa), does the
       opt-spec's quantity win, or is a mismatch an error? Can an opt-spec set
       quantity at all for an Opt already declared in the variants?
-
-  16. Quantifier after a parameter. Since any-parameter takes a quantifier,
-      `--foo <x>...` could attach the `...` to `<x>` (nargs) or to the option
-      (ntimes). Greedy/innermost presumably means `<x>`, so repeating an
-      option with parameters requires a group: `(--foo <x>)...`. State the
-      rule. Related to #2.
 
 # Temp work area
 

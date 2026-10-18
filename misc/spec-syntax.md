@@ -305,6 +305,12 @@
 
       (<x>{2}){1-3}
 
+- A quantifier binds to the element just before it. After a parameter, it
+  sets the parameter's nargs. To repeat the option, wrap it in a group:
+
+      --foo <x>...             # One option, 1+ values (nargs).
+      (--foo <x>)...           # Option repeated 1+ times (ntimes).
+
 ## partial-usage
 
     valid-name!
@@ -349,6 +355,16 @@
 ## option
 
     bare-option [any-parameter...]
+
+- Options attach to any-parameter greedily. That is consistent with Argle
+  policy in various areas. Reorder the spec or add groups where needed. Some
+  examples:
+
+      --point <x> <y>          # Option with 2 parameters.
+      (--point) <x> <y>        # Flag and 2 positionals.
+      <x> <y> --point          # Same.
+      [--point <x> <y>] <z>    # Option with 2 parameters, then a positional.
+      --help [<topic>]         # Option with an optional parameter.
 
 ## any-parameter
 
