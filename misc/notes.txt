@@ -64,6 +64,8 @@ toc: Table of contents
         parser-serialization           | Parser serialization
         man-pages-and-argle            | Argle and man-pages
         readme-next-version            | README for next version
+        choice-sep-loose-binding       | Why the choice-sep (|) binds loosely
+        usage-title-and-prog-via-api   | Usage-section title and prog: API only
 
     reference | Reference
 
@@ -4980,6 +4982,100 @@ Ultimately, readme should be more how-to than why.
 As lib evolves, shorten readme to have very short intro; how to use; then brief
 discussion of why its better (maybe bullet points even), with links to longer
 discussions of why-build-it and how-it-is-better.
+
+--------
+choice-sep-loose-binding: Why the choice-sep (|) binds loosely
+--------
+
+Policy:
+
+    - The choice-sep separates the alternatives of a variant or group. It
+      binds most loosely.
+
+        a b | c d       # Means (a b) | (c d).
+        a (b | c) d     # Use a group to narrow it.
+
+Reasons:
+
+    - Usage-text convention:
+
+        - The spec-syntax is meant to resemble familiar usage syntax.
+
+        - In man-pages, git, docopt, and POSIX usage text, the | separates
+          whole alternatives. Example from git commit (simplified):
+
+            git commit [(-c | -C | --squash) <commit> | --fixup <commit>]
+
+            - Loose binding is how Git interprets the grammar:
+
+                (-c | -C | --squash) <commit>     # Usage variant #1
+                --fixup <commit>                  # Variant #2
+
+            - Tight binding would be nonsensical:
+
+                (-c | -C | --squash) (<commit> | --fixup) <commit>
+
+    - Precedent in other notations programmers know:
+
+        - BNF/EBNF and regex are two examples.
+
+        - BND if like spec-syntax in separating sequence elements with
+          whitespace, and the sequence binds tighter than the choice-sep.
+
+            Domain | Example            | Meaning
+            -------------------------------------------------------
+            BNF    | rule ::= a b | c d | (a b) | (c d)
+            Argle  | <a> <b> | <c> <d>  | (<a> <b>) | (<c> <d>)
+            Regex  | ab|cd              | (ab)|(cd)
+
+    - Consistency with variants:
+
+        - A variant is a whole sequence, and the variants are alternatives of
+          one another (see variants-needed).
+
+        - With loose binding, a b | c d inside a group is the inline
+          equivalent of two variant lines: one mental model at both levels.
+
+--------
+usage-title-and-prog-via-api: Usage-section title and prog: API only
+--------
+
+The policy:
+
+    - The spec-syntax cannot set the usage-section title or the prog name.
+
+    - Usage-section title:
+        - Defaults to "Usage".
+        - Configurable only via the API.
+
+    - Prog name:
+        - Not part of the spec.
+        - Configurable only via the API.
+        - Inferred from the script name by default.
+
+History:
+
+    - Earlier versions of the spec-syntax supported both:
+
+        - Program name: optional in the spec.
+
+        - Usage-section title: optional, with "Usage" as the default.
+
+    - Both were dropped in the same simplification pass of the spec-syntax
+      (usage-section title dropped in commit 59d6263, 2025-05-03).
+
+Why move them to the API:
+
+    - Each required spec-syntax elements that were less than intuitive:
+
+        - Usage-section title: including it in the spec led to ambiguity
+          between it and the start of the first non-usage section (see
+          usage-section-spec-syntax).
+
+        - Prog name: supporting in the spec led to ambiguity with variant
+          names.
+
+    - Neither is a high-demand configuration need for programmers writing scripts.
 
 --------------------------------------------------------------------------------
 reference: Reference

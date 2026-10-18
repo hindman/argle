@@ -26,6 +26,7 @@
   ## valid-name
   ## opt-help-text
   ## variant-def
+  ## alternative
   ## variant-elem
   ## quantifier
   ## partial-usage
@@ -226,6 +227,10 @@
 
 ## variant-def
 
+    alternative [choice-sep alternative]...
+
+## alternative
+
     variant-elem...
 
 ## variant-elem
@@ -233,7 +238,6 @@
     (option | positional | any-group) [quantifier]
     literal
     partial-usage
-    choice-sep
 
 - To quantify a partial-usage, wrap it in a group.
 
@@ -309,6 +313,13 @@
 
     |
 
+- Separates the alternatives of a variant or group, so it binds most
+  loosely: a b | c d means (a b) | (c d). Use a group to narrow it:
+  a (b | c) d.
+
+- Because every alternative has at least one variant-elem, a leading,
+  trailing, or doubled | is an error.
+
 ## any-group
 
     named-group | group
@@ -319,8 +330,8 @@
 
 ## group
 
-    ( variant-elem... )
-    [ variant-elem... ]
+    ( variant-def )
+    [ variant-def ]
 
 ## aliases-and-option
 
@@ -349,6 +360,10 @@
     < valid-name = choices >
     < choices >
     < >
+
+- A bare < valid-name > is always a name. The choices-only form needs
+  two or more choices, or a literal: <red|green>, <`red`>. For a single
+  choice, use the named form: <color=red>.
 
 ## choices
 
@@ -486,36 +501,37 @@ Start with the components of a variant:
     - variant
         - valid-name [!]
         - variant-def
-            - variant-elem
-                - option
-                    - bare-option
-                    - any-parameter
-                        - parameter
-                            - valid-name
-                            - choices
-                                - choice
-                                    - valid-name
-                                    - literal
-                        - parameter-group
+            - alternative
+                - variant-elem
+                    - option
+                        - bare-option
+                        - any-parameter
                             - parameter
+                                - valid-name
+                                - choices
+                                    - choice
+                                        - valid-name
+                                        - literal
+                            - parameter-group
+                                - parameter
+                            - quantifier
                         - quantifier
-                    - quantifier
-                        - triple-dot
-                        - quant-range
-                        - ? (non-greedy)
-                - positional
-                    - valid-name
-                    - choices
-                    - quantifier
-                - any-group => named-group | group
-                    - valid-name
-                    - group
-                        - variant-elem
-                    - quantifier
-                - literal
-                - partial-usage
-                    - valid-name
-                - choice-sep
+                            - triple-dot
+                            - quant-range
+                            - ? (non-greedy)
+                    - positional
+                        - valid-name
+                        - choices
+                        - quantifier
+                    - any-group => named-group | group
+                        - valid-name
+                        - group
+                            - variant-def
+                        - quantifier
+                    - literal
+                    - partial-usage
+                        - valid-name
+            - choice-sep
 
 Then the components that can reside in a section:
 
