@@ -66,6 +66,7 @@ toc: Table of contents
         readme-next-version            | README for next version
         choice-sep-loose-binding       | Why the choice-sep (|) binds loosely
         usage-title-and-prog-via-api   | Usage-section title and prog: API only
+        parameter-group-limits         | Parameter-groups: what they can contain
 
     reference | Reference
 
@@ -734,6 +735,50 @@ Literals as a grammatical dividers:
     - A Literal creates a strict boundary between stuff to its left/right.
     - A Positional is similar, but less strict:
         - A divider only among other positionals.
+
+    - The divider ability is the main reason Literal exists:
+
+        - Argle does not support Literal for the sake of completeness.
+        - In real command-line grammars, literal tokens are overwhelmingly
+          used as strong dividers or delimiters.
+
+    - Unix examples:
+
+        # End of options (POSIX convention).
+        --
+
+        # Revisions vs paths.
+        git log [<rev>...] -- <path>...
+
+        # Terminator for variable-length args.
+        find ... -exec cmd args... ;
+
+        # Repeated separator between groups.
+        parallel cmd ::: a b ::: c d
+
+        # Parens scope options to a sub-stack.
+        convert a.png ( b.png -resize 50% ) -composite out.png
+
+    - Also see Argle examples (see spec-examples.md): separator grammars.
+
+    - Literal-like tokens that do not divide:
+
+        - Example: iproute2 keywords that introduce values.
+
+            ip route add <prefix> via <addr> dev <iface>
+
+        - These are really option names without dashes.
+        - Model them in Argle as single-choice Positionals or Parameters,
+          which order like any other var-input and do not divide.
+
+    - So the spec-syntax offers two tools:
+
+        `word`      # Literal: a strict divider.
+        <x=word>    # Single-choice var-input: a keyword with normal ordering.
+
+        - Both look the same in usage-text.
+        - Docs should steer users to <x=word> when they want a keyword
+          rather than a divider.
 
     - Implement divider-behavior using existing concepts:
 
@@ -3778,7 +3823,7 @@ Summary of new policy:
     - Second phase:
 
         - Clarify the single-quantifier rule:
-            
+
             - An element can have only one *substantive* quantifier.
             - Option can have both nargs (derived) and ntimes (substantive).
 
@@ -3994,7 +4039,7 @@ Option.ntimes: a principled case:
         - Option.ntimes:
             - A substantive quantifier for the element in question.
             - Governs existence and repetition.
-            
+
     - Meaning of nargs and ntimes:
 
         nargs  | N arguments (ie VarInputs)
@@ -5076,6 +5121,148 @@ Why move them to the API:
           names.
 
     - Neither is a high-demand configuration need for programmers writing scripts.
+
+--------
+parameter-group-limits: Parameter-groups: what they can contain
+--------
+
+Start with the most restrictive policy:
+
+    - A parameter-group contains only simple parameters: no quantifiers,
+      groups, or anything else inside it.
+
+        --point (<x> <y>)...
+        --help [<topic>]
+
+    - The parameter-group itself can be quantified or optional ([]).
+
+Elements one could add to make the policy more expansive:
+
+    1. Quantifiers on inner parameters.
+
+        --foo (<x>{2} <y>){3}
+
+    2. Nested parameter-groups, each with its own quantifier.
+
+        --foo (<x> (<y> <z>)...)
+
+    3. Optional [] groups inside.
+
+        --help [<topic> [<subtopic>]]
+
+    4. Names on parameter-groups.
+
+        --result scores=(<lo> <hi>)...
+
+    5. Alternatives.
+
+        --style <name> (<color=red|blue|green> | <mood=calm|active> <brightness=light|dark>)
+
+    6. Literals.
+
+        --range <a> `to` <b>
+
+    7. Partials: a reusable parameter sequence.
+
+        --foo params!
+
+    Not candidates:
+
+        - Options and positionals: by definition, not parameters.
+        - Choices: they belong to the parameter itself, not the group.
+
+Why parameter-groups should exclude literals:
+
+    - A Literal is a strong command-line divider. That is the main reason it
+      exists (see opts-revised-OO-plan).
+
+    - So it operates at a high level in a variant's grammar: above the level
+      where it could be a child of a parameter-group.
+
+        - Compare: variants reside above the level of quantification (see
+          quantifiers-revisited).
+
+    - Even find's terminator does not need a Literal inside a
+      parameter-group. Put the Literal at the group level, where it acts as
+      a divider:
+
+        find ... -exec cmd args... ;
+
+        (--exec <cmd> <arg>...? `;`)
+
+    - Inside a parameter-group, a single-choice parameter covers any need
+      for a fixed word, while remaining a var-input:
+
+        --range <a> <sep=to> <b>
+
+Why parameter-groups should exclude partials:
+
+    - A partial is a larger construct: it can contain options, positionals,
+      literals, and full-blown groups. None of those can be children of a
+      parameter-group.
+
+    - Allowing partials would require either a parameter-only kind of
+      partial, or partial contents that change meaning by context.
+
+Why 1-5 are allowed:
+
+    - Burden of proof:
+
+        - Positionals and Parameters are closely similar: both are VarInputs,
+          both have nargs (not ntimes), neither is a container. The only
+          difference: a Parameter is always a child of an Option, never a
+          top-level Opt (see quantifiers-revisited).
+
+        - Positionals can reside in groups with the full set of features
+          (see groups-can-be-parameters).
+
+        - Unlike Literals and partials, items 1-5 fit within that symmetry.
+
+        - So the question is not why allow them, but why prohibit them. A
+          prohibition needs a concrete harm that positional groups do not
+          already have.
+
+    - No such harm was found:
+
+        - 1-3: Inner quantifiers, nesting, optional groups.
+
+            - Objections: no compelling use case; allows incoherent
+              combinations, such as this, where <v>... consumes everything
+              and the outer repetition never runs:
+
+                --map (<k> <v>...)...
+
+            - Under Argle's libertarian stance, the lack of a use case is not
+              a reason to prohibit.
+
+            - The same incoherent combinations are possible among positionals
+              in variants, which Argle allows.
+
+        - 4: Names.
+
+            - Cost: deeper query paths and Result nesting.
+            - Identical to named positional groups.
+
+        - 5: Alternatives.
+
+            - Option.nargs becomes a range: already true with quantifiers.
+
+            - Result must reflect which branch matched: distinct parameter
+              names handle that, as for positionals.
+
+            - Argument-parsing must try alternatives: already true for
+              positional alternatives.
+
+            - Choices make branches distinguishable by value, not just by
+              count:
+
+                --style <name> (<color=red|blue|green> | <mood=calm|active> <tone=light|dark>)
+
+            - The spec-parser's fallback (retry a failed parameter-group parse
+              as a regular group) works the same way with |.
+
+    - Implementation status (as of 2026-10-19): the existing spec-parser
+      supports 1-4, but not 5.
 
 --------------------------------------------------------------------------------
 reference: Reference

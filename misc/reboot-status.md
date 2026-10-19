@@ -24,11 +24,11 @@ documentation and policy documents a lot.
 
 - Deal with spec-syntax-remaining-issues (below).
 
-- Monty will create a fresh `argle-3.14.8` virtualenv (the old `argle-3.9.4`
-  is out of date). Then verify with `pytest tests` and
-  `misc/scripts/spec-check tests/data/specs/blort.txt -t`. Open questions:
-  whether to include `mhutils`; whether to add `pyperclip` (used by
-  `misc/scripts/`) to the `dev` extras in `setup.py`.
+- Create a `argle-3.14.8` virtualenv (the old `argle-3.9.4` is out of date).
+  Then verify with `pytest tests` and `misc/scripts/spec-check
+  tests/data/specs/blort.txt -t`. Open questions: whether to include
+  `mhutils`; whether to add `pyperclip` (used by `misc/scripts/`) to the `dev`
+  extras in `setup.py`.
 
 - Continue extracting and organizing the remaining `notes.txt` sections into
   smaller, more-focused markdown files. Do this before the code assessment, so
@@ -52,10 +52,7 @@ documentation and policy documents a lot.
 
 Remaining issues from latest spec-syntax review:
 
-  2b. parameter-group grammar is flat (`( parameter... )`), but notes.txt
-      (opt-and-varinput-configuration) shows an inner quantifier:
-      `--foo (<x>{2} <y>){3}`. Widen the rule (inner quantifiers, nesting,
-      maybe `|`) or declare the narrowing deliberate.
+  91. MH: edit parameter-group-limits in notes.txt.
 
   5. How line types are told apart. `title-text` is never defined, and there's
      no order of checks across line types. A line like `--foo : see below::` can

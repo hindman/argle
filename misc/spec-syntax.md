@@ -42,6 +42,7 @@
   ## choices
   ## choice
   ## parameter-group
+  ## parameter-group-def
   ## positional
   ## opt-mention
   ## var-input
@@ -409,8 +410,12 @@
 
 ## parameter-group
 
-    ( parameter... )
-    [ parameter... ]
+    [valid-name =] ( parameter-group-def )
+    [valid-name =] [ parameter-group-def ]
+
+## parameter-group-def
+
+    any-parameter... [choice-sep any-parameter...]...
 
 ## positional
 
@@ -529,7 +534,10 @@ Start with the components of a variant:
                                         - valid-name
                                         - literal
                             - parameter-group
-                                - parameter
+                                - valid-name
+                                - parameter-group-def
+                                    - any-parameter
+                                    - choice-sep
                             - quantifier
                         - quantifier
                             - triple-dot
