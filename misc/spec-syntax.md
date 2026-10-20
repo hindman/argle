@@ -47,6 +47,7 @@
   ## opt-mention
   ## var-input
   ## Quoting rules
+  ## Line types
   ## Whitespace rules
   ## Spec-syntax hierarchy in compact form
 
@@ -84,7 +85,10 @@
 
     title-text
 
-- Text and marker must be on one line.
+- title-text: any text on one line. Surrounding whitespace is stripped
+  for the purpose of generating end-user-facing help text.
+
+- See Line types.
 
 ## scoped-section-title
 
@@ -114,10 +118,9 @@
 
 ## heading
 
-    heading-text :::
+    title-text :::
 
-- The heading-text must be on one line.
-- The marker must end the line.
+- See section-title and Line types.
 
 ## block-quote
 
@@ -223,8 +226,12 @@
 ## opt-help-text
 
 - The rest of the line, plus continuation lines.
+
 - Colon marker without opt-help-text can be used to distinguish opt-spec
   from variant (to avoid ambiguity).
+
+- The first line's last word cannot be :: or ::: (see Line types). To get
+  such text, put it on a continuation line. The first line can be empty.
 
 ## variant-def
 
@@ -473,6 +480,20 @@ Examples:
     ```\\!foo```      | \!foo       | .
     `\\\`foo\\\``     | \`foo\`     | .
 
+## Line types
+
+Each line is classified by the first rule that applies:
+
+- Inside a block-quote: quoted text.
+
+- Contiguous with an opt-spec or variant, and indented more than its first
+  line: a continuation line.
+
+- Last word is ::: (heading) or :: (section-title). The marker must be its
+  own word, so the text can end in anything.
+
+- Otherwise: variant or opt-spec.
+
 ## Whitespace rules
 
 - Line and indentation requirements:
@@ -485,7 +506,7 @@ Examples:
   - Opt-spec and variant continuation lines must be indented more than
     the first line and be contiguous with it.
 
-  - Section titles must entirely on one line, ending in marker.
+  - Section titles and headings: see Line types.
 
 - Line breaks not allowed:
 

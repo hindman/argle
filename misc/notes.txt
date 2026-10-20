@@ -57,6 +57,7 @@ toc: Table of contents
         usage-section-spec-syntax      | Usage section in the spec-syntax
         usage-text-and-named-groups    | Usage-text and named groups or choices
         headings-in-spec-syntax        | Spec-syntax support for headings
+        line-types-in-spec-syntax      | Telling titles, headings, and opt-specs apart
         choices-in-usage-text          | Choices in usage-text
         groups-need-names              | Why Group needs both dest and name
         degenerate-groups              | Degenerate groups with only one element
@@ -730,7 +731,7 @@ Why Literals do not support quantifiers and dests:
         - The existence of a better workaround implies that a Literal also has
           no need for a dest.
 
-Literals as a grammatical dividers:
+Literals as strong grammatical dividers:
 
     - A Literal creates a strict boundary between stuff to its left/right.
     - A Positional is similar, but less strict:
@@ -751,7 +752,7 @@ Literals as a grammatical dividers:
         git log [<rev>...] -- <path>...
 
         # Terminator for variable-length args.
-        find ... -exec cmd args... ;
+        find ... -exec cmd1 args1... ; -exec cmd2 args2...
 
         # Repeated separator between groups.
         parallel cmd ::: a b ::: c d
@@ -759,7 +760,7 @@ Literals as a grammatical dividers:
         # Parens scope options to a sub-stack.
         convert a.png ( b.png -resize 50% ) -composite out.png
 
-    - Also see Argle examples (see spec-examples.md): separator grammars.
+    - Also see separator-based Argle examples (spec-examples.md).
 
     - Literal-like tokens that do not divide:
 
@@ -4665,6 +4666,51 @@ Triple vs double colons for headings:
     - Leaves open possiblity of supporting subheadings.
 
 --------
+line-types-in-spec-syntax: Telling titles, headings, and opt-specs apart
+--------
+
+The problem:
+    - Section-title and heading are designated in spec-syntax via special
+      markers at the end of the line (`::` and `:::`).
+    - But what if the user wants to end a section-title, heading, or opt-spec
+      help text in those markers -- ie a literal double/triple colon?
+
+Where the problem does NOT apply:
+    - Opt-spec continuation lines. They are identified strictly on contiguity
+      with their parent opt-spec and indentation. So they can end any
+      way the user wants.
+    - Inside block quotes. Almost all text in such quotes is literal,
+      so colons are never a problem.
+
+Policies to solve the problem:
+
+    - The most useful change was requiring the colon markers to
+      be their own word.
+
+          Foo section title::: ::                      # Section-title, not heading.
+
+          Bar heading:: :::                            # Heading.
+
+          --foo <bar> : Some opt-spec help text:::     # Opt-spec, not heading
+
+    - Otherwise, a line whose last word is ::: is a heading, and one whose
+      last word is :: is a section title. This check comes before opt-spec.
+
+Workarounds:
+
+    - Using the approach shown above, section-title and heading can end any
+      way the user wants: just end the line with the needed colon marker
+      as its own word.
+
+    - If user needs opt-spec help text ending in one of the markers,
+      they can put the help text on a continuation line:
+
+        --foo :
+                Help ending in colons ::
+
+    - Or use the API, which can configure anything the spec can.
+
+--------
 choices-in-usage-text: Choices in usage-text
 --------
 
@@ -5128,48 +5174,45 @@ parameter-group-limits: Parameter-groups: what they can contain
 
 Start with the most restrictive policy:
 
-    - A parameter-group contains only simple parameters: no quantifiers,
-      groups, or anything else inside it.
+    - A parameter-group contains only simple parameters: no inner quantifiers,
+      inner groups, alternatives, etc.
 
         --point (<x> <y>)...
         --help [<topic>]
 
-    - The parameter-group itself can be quantified or optional ([]).
-
 Elements one could add to make the policy more expansive:
 
-    1. Quantifiers on inner parameters.
+    - Quantifiers on inner parameters.
 
         --foo (<x>{2} <y>){3}
 
-    2. Nested parameter-groups, each with its own quantifier.
+    - Nested parameter-groups, each with its own quantifier.
 
         --foo (<x> (<y> <z>)...)
 
-    3. Optional [] groups inside.
+    - Optional [] groups inside.
 
         --help [<topic> [<subtopic>]]
 
-    4. Names on parameter-groups.
+    - Names on parameter-groups.
 
         --result scores=(<lo> <hi>)...
 
-    5. Alternatives.
+    - Alternatives.
 
         --style <name> (<color=red|blue|green> | <mood=calm|active> <brightness=light|dark>)
 
-    6. Literals.
+    - Literals.
 
         --range <a> `to` <b>
 
-    7. Partials: a reusable parameter sequence.
+    - Partials: a reusable parameter sequence.
 
         --foo params!
 
-    Not candidates:
-
-        - Options and positionals: by definition, not parameters.
-        - Choices: they belong to the parameter itself, not the group.
+    - NOT candidates because they make no sense as children of options:
+        - Other options.
+        - Positionals.
 
 Why parameter-groups should exclude literals:
 
@@ -5177,34 +5220,36 @@ Why parameter-groups should exclude literals:
       exists (see opts-revised-OO-plan).
 
     - So it operates at a high level in a variant's grammar: above the level
-      where it could be a child of a parameter-group.
+      where it could be a child of a parameter-group. This point is similar in
+      spirit to the decision that variants reside above the level of
+      quantification (see quantifiers-revisited).
 
-        - Compare: variants reside above the level of quantification (see
-          quantifiers-revisited).
+    - An objection to this logic might say that the semicolon in `find` looks
+      like a literal as a parameter of `--exec`. But it is not. As the logic
+      and the `find` example above illustrate, the semicolon separates
+      multiple `--exec` options (or, more generally, it separates options
+      generally). The semicolon literal is not a parameter in the grammar of
+      `find`.
 
-    - Even find's terminator does not need a Literal inside a
-      parameter-group. Put the Literal at the group level, where it acts as
-      a divider:
-
-        find ... -exec cmd args... ;
-
-        (--exec <cmd> <arg>...? `;`)
-
-    - Inside a parameter-group, a single-choice parameter covers any need
-      for a fixed word, while remaining a var-input:
-
-        --range <a> <sep=to> <b>
+    - If a user needs a literal inside a parameter-group, they can fall back
+      on a single-choice parameter -- arguably a more powerful choice anyway.
 
 Why parameter-groups should exclude partials:
 
-    - A partial is a larger construct: it can contain options, positionals,
-      literals, and full-blown groups. None of those can be children of a
-      parameter-group.
+    - A partial is a larger construct that can contain elements that
+      could never belong to a parameter-group (options, positionals).
 
     - Allowing partials would require either a parameter-only kind of
       partial, or partial contents that change meaning by context.
 
-Why 1-5 are allowed:
+Why parameter-groups should allow the other elements listed above:
+
+    - The elements, listed again:
+        - Quantifiers on inner parameters.
+        - Nested parameter-groups (optionally with quantifiers).
+        - Optional [] groups.
+        - Names on parameter-groups.
+        - Alternatives.
 
     - Burden of proof:
 
@@ -5216,53 +5261,14 @@ Why 1-5 are allowed:
         - Positionals can reside in groups with the full set of features
           (see groups-can-be-parameters).
 
-        - Unlike Literals and partials, items 1-5 fit within that symmetry.
+        - Unlike literals and partials, elements listed above fit within that
+          symmetry.
 
-        - So the question is not why allow them, but why prohibit them. A
+        - So the question is not why allow them, but why prohibit them? A
           prohibition needs a concrete harm that positional groups do not
           already have.
 
-    - No such harm was found:
-
-        - 1-3: Inner quantifiers, nesting, optional groups.
-
-            - Objections: no compelling use case; allows incoherent
-              combinations, such as this, where <v>... consumes everything
-              and the outer repetition never runs:
-
-                --map (<k> <v>...)...
-
-            - Under Argle's libertarian stance, the lack of a use case is not
-              a reason to prohibit.
-
-            - The same incoherent combinations are possible among positionals
-              in variants, which Argle allows.
-
-        - 4: Names.
-
-            - Cost: deeper query paths and Result nesting.
-            - Identical to named positional groups.
-
-        - 5: Alternatives.
-
-            - Option.nargs becomes a range: already true with quantifiers.
-
-            - Result must reflect which branch matched: distinct parameter
-              names handle that, as for positionals.
-
-            - Argument-parsing must try alternatives: already true for
-              positional alternatives.
-
-            - Choices make branches distinguishable by value, not just by
-              count:
-
-                --style <name> (<color=red|blue|green> | <mood=calm|active> <tone=light|dark>)
-
-            - The spec-parser's fallback (retry a failed parameter-group parse
-              as a regular group) works the same way with |.
-
-    - Implementation status (as of 2026-10-19): the existing spec-parser
-      supports 1-4, but not 5.
+        - No such harm was found.
 
 --------------------------------------------------------------------------------
 reference: Reference

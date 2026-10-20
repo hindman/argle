@@ -52,15 +52,6 @@ documentation and policy documents a lot.
 
 Remaining issues from latest spec-syntax review:
 
-  91. MH: edit parameter-group-limits in notes.txt.
-
-  5. How line types are told apart. `title-text` is never defined, and there's
-     no order of checks across line types. A line like `--foo : see below::` can
-     be read as an opt-spec or as a section title. You need a rule such as "a
-     line ending in `::` (or `:::`) is a title/heading, and is checked first."
-     With that rule, opt-help-text can't end in those markers unless something
-     escapes them.
-
   8. An empty opt-scope inside a scoped section. A section-scope means "apply
      the scope to all opt-specs in the section." An empty `>>` takes as its
      parent the preceding non-scoped opt-spec. In a scoped section, every
