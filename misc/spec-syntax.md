@@ -95,7 +95,7 @@
     section-scope >> section-title
 
 - A section-scope applied to a section is a shortcut for applying the scope to
-  all opt-specs within the section.
+  all regular opt-specs within the section.
 
 ## section-scope
 
@@ -169,57 +169,38 @@
 
     [[opt-scope] >>] opt-spec-def [: [opt-help-text]]
 
-- If Opts are declared in variants and later in opt-specs, the two
-  configurations are merged:
+- An opt-spec can:
+  - Declare and configure a new Opt.
+  - Add configuration to Opt(s) that were declared above:
+    - Either in the variants.
+    - Or in a preceding regular opt-spec (see below).
 
-  - Opt-spec configuration is connected to the relevant Opt from the
-    grammar (see opt-independence in notes.txt for details).
+    - How matching works: see opt-independence.
 
-  - Opt declared in the grammar can use an abbrievated form (an
-    opt-mention), leaving the full configuration to the opt-spec.
+- Two flavors:
+  - Regular opt-spec.
+  - Sub-spec: an opt-spec with empty scope (just the `>>` marker).
 
-- An opt-scope has the same format as a section-scope. The only difference
-  is that an opt-scope can be empty (marker only).
+- Opt-scope:
 
-- The opt-scope marker (>>) declares a parent-child relationship.
+  - Format: same as a section-scope (or empty in a sub-spec).
 
-  - The child is always the current opt-spec.
+  - The scope declares a parent-child relationship:
+    - Child: current opt-spec.
+    - Parent: Opt(s) defined in variants or prior opt-specs.
 
-  - The marker's purpose is to declare the Opt(s) to which the opt-spec's
-    configuration should be connected.
+  - Determining the parent(s):
 
-  - The parent(s) vary between empty and non-empty scope:
-
-    - If non-empty scope:
-
+    - Child is regular opt-spec:
       - Parent(s) are the matching Opts from the variants.
 
-      - Purpose of the marker: connect opt-spec configuration to Opts declared
-        in variants.
-
-    - If empty scope:
-
-      - Purpose: configure the parameters or choices of the nearest Opt above,
-        and state the presentation order for those items in the generated help
-        text.
-
-      - Parent: the immediately preceding opt-spec that does not itself have
-        an empty scope. Anything else in between (heading, block-quote)
-        breaks the run.
-
-      - The child must match the parent's Opt or an element within it.
-        Matching works as for any opt-spec:
-
-        - Same name and kind.
-        - Scope agreement.
-        - Child's configuration must be additive.
-        - See opt-independence.
-        - In practice, the child will be:
-            - Parameter (parameter-specific help text).
-            - Choice of a Positional/Parameter (declaring a choice and/or help
-              text for it).
-
-  - If no match: error.
+    - Child is a sub-spec:
+      - Parent: the immediately preceding regular opt-spec.
+      - No intervening material is allowed between the child sub-spec and its
+        parent opt-spec (other than sibling sub-specs).
+      - The child must match:
+        - The parent's Opt.
+        - Or an element within it (eg parameter or choice).
 
 ## opt-spec-def
 
