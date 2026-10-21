@@ -94,8 +94,8 @@
 
     section-scope >> section-title
 
-- A section-scope applied to a section is a shortcut for applying the scope to
-  all regular opt-specs within the section.
+- A section-scope applied to a section is a shortcut for applying the scope
+  prefix to all regular opt-specs within the section (see opt-spec-scopes).
 
 ## section-scope
 
@@ -187,7 +187,7 @@
 
   - The scope declares a parent-child relationship:
     - Child: current opt-spec.
-    - Parent: Opt(s) defined in variants or prior opt-specs.
+    - Parent: Opt(s) defined in variants; or in preceding opt-spec.
 
   - Determining the parent(s):
 
@@ -198,9 +198,8 @@
       - Parent: the immediately preceding regular opt-spec.
       - No intervening material is allowed between the child sub-spec and its
         parent opt-spec (other than sibling sub-specs).
-      - The child must match:
-        - The parent's Opt.
-        - Or an element within it (eg parameter or choice).
+      - The child must match a sub-component within the parent Opt (see
+        opt-spec-scopes).
 
 ## opt-spec-def
 

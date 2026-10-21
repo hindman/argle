@@ -28,6 +28,7 @@ toc: Table of contents
         ambiguous-grammars             | Ambiguous grammars are not an issue
         opt-choices-vs-choice          | Opt.choices vs Opt.choice
         opt-independence               | Opt independence, duplicate names/dest, and opt-spec scope
+        opt-spec-scopes                | Opt-spec scopes
         parsed-data-structure          | Parsed data structure
         parsed-data-with-context       | Including Context with the Result
         eager-attachment-at-bounary    | Eager option attachment at repetition boundaries
@@ -1686,10 +1687,9 @@ Example: a small and plausible sub-command program:
         [--bar <b1> [<b2>]] : Bar parameter or range (inclusive)
         [-x] : Extended mode, with regex
 
-    - How would Argle know to connect the opt-specs to the correct Opts in
-      the usage grammar?
+    - How would Argle connect opt-specs to correct Opts from the variants?
 
-        - Natural home for some likely configuration differences is the spec:
+        - The spec is a natural home for some likely configuration differences:
             - Help text.
             - Aliases.
             - The grammar within the Opt's arguments (as shown above).
@@ -1798,7 +1798,7 @@ Policy decisions:
 
             - If no opts match, Argle will raise.
 
-        - If variant covers the grammar for an opt via its quantifier, does
+        - If a variant covers the grammar for an opt via its quantifier, does
           the opt-spec have to include the quantifier too?
 
             - Example: a variant and its two opt-specs:
@@ -1886,7 +1886,7 @@ Discussion of the policy across various domains:
             - But the alternative is worse:
                 - Do not unify the Opts.
                 - Such error messages would list only one choice!
-            - Real solution a more sensible spec from the user.
+            - Real solution: a more sensible spec from the user.
 
         - Better to keep arg-parsing simpler.
             - At the moment of invalid input, get the valid choices from the
@@ -1976,6 +1976,122 @@ Background for the opt-scope syntax:
             <foo>  # A var-input.
             foo >  # Opt-spec scope or a var-input typo?
             foo>   # Ditto, but even more likely to confuse.
+
+--------
+opt-spec-scopes: Opt-spec scopes
+--------
+
+The scope marker (>>) is used in three contexts:
+
+  - (1) Regular opt-spec:
+
+    - Purpose:
+      - The scope connects the child (the current opt-spec) to matching
+        parent Opt(s) defined in the variants.
+
+    - Example:
+
+        foo >> --bar : Help text for Option(bar) in Variant(foo)
+
+  - (2) Section-title:
+
+    - Purpose:
+      - The scope is simply a shortcut to apply a scope to all regular
+        opt-specs within the section.
+
+  - (3) Sub-spec:
+
+    - Purpose:
+      - The scope itself is empty.
+      - The marker designates that the child (current sub-spec) should connect
+        to the immediately preceding regular opt-spec (where the only
+        intervening material allowed are sibling sub-specs).
+      - The sub-specs also play a layout role: specifying the order in which
+        to document an Opt's sub-components in generated help text.
+      - Sub-specs configure these sub-components:
+        - Parameter of an Option (parameter-specific help text).
+        - A choice of a Positional or Parameter (help text for a choice). A
+          sub-spec can add a new choice or configure an existing one.
+
+    - Example:
+
+          --point <x> <y> : Help for Option(point)
+          >> <x> : Help for Parameter(x)
+          >> <y> : Help for Parameter(y)
+
+Scope format:
+  - The scope is a query-path.
+  - See grammar-querying-api.
+
+Matching, by scope use case:
+
+  - (1) Regular opt-spec:
+    - Candidates:
+        - Opts in the variants.
+        - That match the scope's query results.
+        - Can match multiple Opts.
+    - Same Opt.name.
+    - Same Opt type (option or positional).
+    - Opt-spec configuration must be additive (not conflicting)
+      relative to the parent's configuration.
+    - If no match is found, Argle raises.
+
+  - (2) Section-title:
+    - The scope declared on the section-title becomes a scope prefix that is
+      attached to all regular opt-specs within the section.
+    - Those opt-specs can have no scope of their own, or they can include a
+      scope, which further refines the scope coming from the section-title.
+    - Otherwise, the matching logic is the same as for regular opt-specs.
+
+  - (3) Sub-spec:
+    - Candidates:
+        - Sub-components of the parent Opt (preceding regular opt-spec).
+        - Those sub-components will be parameters or choices:
+
+            - Parameter of the parent Option:
+
+                --point <x> <y>
+                >> <x> : Help text for Parameter(x)
+
+            - Choice of a parent Positional or of a parent Option's Parameter:
+
+                <speed=fast|slow> : Help Positional(speed).
+                >> <speed=fast>   : Help for Choice(fast)
+
+            - Note that sub-specs are the only way in a spec to reach a
+              Parameter or choice. Regular opt-specs (scoped or not) match
+              Opts, not sub-components.
+
+    - Matching requires name agreement with the relevant Opt or Parameter.
+    - It also requires additive (not conflicting) configuration.
+
+    - A sub-spec can match multiple sub-components (rare, but possible).
+    - If no match, Argle raises.
+
+More examples:
+
+  - Example: -x Opts needing different help text, by index.
+
+        --foo [-x] | --bar [-f] [-x] | --blort [-x]
+
+        x.2 >> [-x] : blah x-for-blort
+        x.0 >> [-x] : blah x-for-foo
+        x.1 >> [-x] : blah x-for-bar
+
+  - Example: help text for parameter and each choice.
+
+        --mode <speed=fast|slow> : Blah mode
+        >> <speed>               : Blah mode-speed
+        >> <speed=fast>          : Blah mode-speed-fast
+        >> <speed=slow>          : Blah mode-speed-slow
+
+Why sub-specs require strict proximity to their parent Opt:
+
+  - Because sub-specs necessarily play a help-text layout role in setting the
+    order in which to document an Opt's sub-components.
+  - That documentation would be a scattered mess (and useless for end-users)
+    if intervening material were allowed. See examples in
+    opt-specs-and-opt-descs.
 
 --------
 parsed-data-structure: Parsed data structure
