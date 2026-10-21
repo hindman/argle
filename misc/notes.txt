@@ -1774,7 +1774,7 @@ Policy decisions:
         - Opts having choice(s).
         - These will be unified under the shared name.
 
-    - Connection opt-spec configurations to Opts from the variants:
+    - Connecting opt-spec configurations to Opts from the variants:
 
         - An opt-spec will be connected to all Opts in the grammar having
           compatible configurations.
@@ -1960,7 +1960,7 @@ Background for the opt-scope syntax:
 
     - It borrows from CSS syntax for parent-child.
 
-        PARENT > CHILD
+        PARENT >> CHILD
 
     - Why double the marker?
 
@@ -1976,10 +1976,6 @@ Background for the opt-scope syntax:
             <foo>  # A var-input.
             foo >  # Opt-spec scope or a var-input typo?
             foo>   # Ditto, but even more likely to confuse.
-
-    - I discussed the syntax with ChatGPT and got an impressive answer.
-
-        https://chatgpt.com/share/67e1c05f-f654-8003-9c07-c556cea6c368
 
 --------
 parsed-data-structure: Parsed data structure

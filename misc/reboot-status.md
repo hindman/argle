@@ -57,9 +57,8 @@ Remaining issues from latest spec-syntax review:
      parent the preceding non-scoped opt-spec. In a scoped section, every
      opt-spec is scoped, so that preceding opt-spec doesn't exist. Either the
      empty scope ignores section scoping, or it's an error. Say which.
-
-  11. `query-elem`: the note says "positive integer," but `digit...` allows 0.
-      What an integer query-elem means (an index?) is never explained.
+  
+      NEXT: cl -c to wrap this up
 
   13. Asymmetry: parameters have a `< choices >` form, but positionals don't.
       This is presumably on purpose, since a positional needs a name for its

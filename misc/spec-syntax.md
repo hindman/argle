@@ -109,8 +109,10 @@
 
     glob-char... | digit...
 
-- Can be a name/dest glob pattern or a positive integer.
-- glob-char: valid-name characters, plus wildcards (? and *).
+- Can be a name/dest glob pattern or a non-negative integer.
+- A glob-char includes valid-name characters, plus wildcards (? and *).
+- An all-digit query-elem is an integer, not a glob pattern, and functions as
+  an index. See grammar-querying-api.
 
 ## section-content-elem
 
@@ -186,9 +188,17 @@
     - Declares the Opt to which the opt-spec should be connected.
 
   - Empty opt-scope:
-    - Parent: preceding (non-scoped) opt-spec.
+    - Parent: nearest preceding opt-spec that does not have an empty
+      opt-scope. The parent can have a scope of its own (opt-scope or
+      section-scope).
     - Child: current opt-spec.
-    - Child configures an Parameter or Choice of the parent.
+    - Child configures a Parameter or Choice of the parent.
+    - No such opt-spec earlier in the same section: error.
+    - Example, in a scoped section:
+
+          configure >> Configure task ::
+              --env <host> : Blah env
+              >> <host>    : Blah host
 
 ## opt-spec-def
 
