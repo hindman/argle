@@ -52,13 +52,8 @@ documentation and policy documents a lot.
 
 Remaining issues from latest spec-syntax review:
 
-  8. An empty opt-scope inside a scoped section. A section-scope means "apply
-     the scope to all opt-specs in the section." An empty `>>` takes as its
-     parent the preceding non-scoped opt-spec. In a scoped section, every
-     opt-spec is scoped, so that preceding opt-spec doesn't exist. Either the
-     empty scope ignores section scoping, or it's an error. Say which.
-  
-      NEXT: cl -c to wrap this up
+  99. Trim "## opt-spec" in spec-syntax.md to essentials. It is becoming
+      policy dicussion, not a syntax doc.
 
   13. Asymmetry: parameters have a `< choices >` form, but positionals don't.
       This is presumably on purpose, since a positional needs a name for its

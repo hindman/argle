@@ -111,8 +111,9 @@
 
 - Can be a name/dest glob pattern or a non-negative integer.
 - A glob-char includes valid-name characters, plus wildcards (? and *).
-- An all-digit query-elem is an integer, not a glob pattern, and functions as
-  an index. See grammar-querying-api.
+- An all-digit query-elem is an integer, not a glob pattern. It is a
+  0-based index into the elements matched by the path so far (x.2: the
+  third element matching x). See grammar-querying-api.
 
 ## section-content-elem
 
@@ -182,23 +183,43 @@
 
 - The opt-scope marker (>>) declares a parent-child relationship.
 
-  - With a opt-scope:
-    - Parent: Opt from variants.
-    - Child: current opt-spec.
-    - Declares the Opt to which the opt-spec should be connected.
+  - The child is always the current opt-spec.
 
-  - Empty opt-scope:
-    - Parent: nearest preceding opt-spec that does not have an empty
-      opt-scope. The parent can have a scope of its own (opt-scope or
-      section-scope).
-    - Child: current opt-spec.
-    - Child configures a Parameter or Choice of the parent.
-    - No such opt-spec earlier in the same section: error.
-    - Example, in a scoped section:
+  - The marker's purpose is to declare the Opt(s) to which the opt-spec's
+    configuration should be connected.
 
-          configure >> Configure task ::
-              --env <host> : Blah env
-              >> <host>    : Blah host
+  - The parent(s) vary between empty and non-empty scope:
+
+    - If non-empty scope:
+
+      - Parent(s) are the matching Opts from the variants.
+
+      - Purpose of the marker: connect opt-spec configuration to Opts declared
+        in variants.
+
+    - If empty scope:
+
+      - Purpose: configure the parameters or choices of the nearest Opt above,
+        and state the presentation order for those items in the generated help
+        text.
+
+      - Parent: the immediately preceding opt-spec that does not itself have
+        an empty scope. Anything else in between (heading, block-quote)
+        breaks the run.
+
+      - The child must match the parent's Opt or an element within it.
+        Matching works as for any opt-spec:
+
+        - Same name and kind.
+        - Scope agreement.
+        - Child's configuration must be additive.
+        - See opt-independence.
+        - In practice, the child will be:
+            - Parameter (parameter-specific help text).
+            - Choice of a Positional/Parameter (declaring a choice and/or help
+              text for it).
+
+  - If no match: error.
 
 ## opt-spec-def
 
