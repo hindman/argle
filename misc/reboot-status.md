@@ -37,6 +37,12 @@ documentation and policy documents a lot.
   `mhutils`; whether to add `pyperclip` (used by `misc/scripts/`) to the `dev`
   extras in `setup.py`.
 
+- Flesh out the `Opt.spec` attribute. What does it contain?
+
+- Conduct another full review of the spec-syntax to spot any problems, gaps,
+  lack of clarity, etc. That last review raised several important issues, so
+  we'll keep repeating the review process until we stop finding crucial stuff.
+
 - Continue extracting and organizing the remaining `notes.txt` sections into
   smaller, more-focused markdown files. Do this before the code assessment, so
   our conceptual understanding is solid first.
@@ -57,125 +63,225 @@ documentation and policy documents a lot.
 
 # spec-syntax-remaining-issues
 
-Remaining issues from latest spec-syntax review:
+41. Opt-spec vs variant quantity conflict.
 
-13. Asymmetry: parameters have a `< choices >` form, but positionals don't.
-    This is presumably on purpose, since a positional needs a name for its
-    dest, but one line saying so would help.
+  - In progress: see below.
 
-Yes, positionals require a name, as discussed in notes.txt. If the formal
-definitions in spec-syntax.md require a name for positionals (and they do),
-are further notes needed? I'm inclined to say no.
+42. The first-char spec does not allow short options like `-1`:
 
-14a. The whitespace rule for `=` covers named groups but not `<name=choices>`.
+  - Current code: `short_option` is `-` followed by `\w`, so the lexer already
+    accepts `-1`. It also accepts non-ASCII letters, since Python's `\w` is
+    Unicode-aware. Only the doc is out of step.
 
-The restriction for named groups had a compelling reason, if my hazy memory is
-correct. Maybe the rule makes recognizing that "this is a group" during spec
-parsing more straightforward? Or maybe the free-floating group name could be
-confused for another grammatical element? Or maybe it just looks confusing to
-a reader of a spec? Do notes.txt speak on this topic? In any case, within a
-`<...>` structure, I don't see similar practical parsing or readability
-concerns. What does the current spec parsing code allow or do? My inclination
-is to leave policy as-is.
+  - Suggested doc change for bare-option:
 
-14b. Whether whitespace is allowed before the non-greedy `?` isn't stated.
+        - first-char
+        -- valid-name
 
-What does the spec parsing code do today? My inclination is to NOT allow
-whitespace beween the quantifier and the non-greedy `?`.
+        - Where first-char here is a letter, digit, or underscore.
+        - An Opt needs a valid name/dest. A digit short option like -1 is
+          fine as long as the Opt also has a long form.
 
-15. Opt-spec vs variant quantity conflict. If a variant declares an Opt as
-    required and an opt-spec declares it optional (or vice versa), does the
-    opt-spec's quantity win, or is a mismatch an error? Can an opt-spec set
-    quantity at all for an Opt already declared in the variants?
+  - Two follow-ons to decide:
 
-This issue is clear: configuration in an opt-spec must be additive, not
-conflicting. I think our current docs state that even more clearly now
-after our recent editing efforts. Any more need to be done?
+    - Should `\w` become `[A-Za-z0-9_]`, to match the ASCII-only valid-name?
 
-14c. `-1` style short options are excluded by `first-char`, without comment.
+    - At parse time, `-1` collides with negative-number arguments (argparse's
+      long-standing headache). If digit short options are allowed, we need a
+      policy for how `-1` vs a negative value is read at end-user parse time.
+      That's not a spec-syntax issue, but it should go on the TODO list.
 
-We need to fix this in the spec-syntax. An Option does require a valid
-name/dest, but as long as the Option has that (via its long option form), 
-a short form like `-1` should be allowed.
+43. Re-assess the whitespace rules in spec-syntax. I think we still have some
+    overly strict rules that lack a strong rationale.
+
+# Variant vs opt-spec conflicts: draft policy
+
+Key policy goals/decisons and findings:
+
+  - P1. We do want an opt-spec to be able to add aliases or a long-name for an
+    Option. That's handy, it allows the user to have super readable variants,
+    and even the README does it.
+
+  - P2. We do want to support per-choice help text. That's a feature I have
+    wanted many times as a long-suffering argparse user.
+
+  - P3. We do want opt-specs to be able to add parameters to an Option. This
+    is similar to P1 because it allows for a compact/readable command-line
+    grammar, leaving the fleshing out to opts-specs.
+
+  - P4. At the level of an individual Opt, it's impossible to fully specify
+    quantity/required correctly in an opt-spec because those attributes can
+    derive from parent containers in the command-line grammar.
+
+Name and aliases:
+
+- Matching: an opt-spec matches a variant Option if the variant's form (eg
+  `-i`) is any of the opt-spec's option strings.
+
+- The opt-spec is authoritative for names. The matched Option takes its full
+  set of names from the opt-spec. Indeed, a variant has no way to supply more
+  than one name.
+
+- The last bare-option is the Opt's name (and supplies its default dest).
+  The others are aliases. Rationale: the form closest to the parameters reads
+  as the most important, and the typical short-then-long ordering makes the
+  long form the name.
+
+      -x --blort --fubb <a> <b> : Fubb help text    # Name: fubb.
+
+- Aliases can be short or long (an alias is any bare-option). Real programs
+  have long aliases too (eg GNU tar: `-x, --extract, --get`).
+
+- No conflict is possible. If the variant's form is not among the opt-spec's
+  option strings, the opt-spec does not match that Option. The variant
+  states only one form, so it has nothing else to contradict.
+
+- Positionals: the name is the match key and there are no aliases, so an
+  opt-spec cannot rename a positional.
+
+- Ordering of aliases and the name in the spec syntax is independent of
+  ordering in generated help text (the latter will be configurable in
+  at least a couple of ways).
 
 # Temp work area
 
-Claude's replies to spec-syntax-remaining-issues:
+# Temp work area for issue #15: conflict between variants and opt-descs
 
-13. Agreed: no note needed. The positional rule requires valid-name, and the
-    parameter section already says when choices-only is allowed. Done.
+Issues to be decided:
 
-14a. Code: the lexer makes `name=(` and `name=[` single tokens
-(`paren_open_named`, `brack_open_named` in tokens.py), so no whitespace is
-possible there. Inside `<...>`, `valid_name`, `assign`, and choices are
-separate tokens and whitespace tokens are discarded, so
-`< color = red | green >` parses today.
+  - choices [see below]
 
-notes.txt: I found no stated rationale for the named-group restriction. My
-guess at the real reason: as one token, `foo=(` is unambiguous at lex time,
-and a spaced-out `foo = (` reads like three unrelated things on a usage line.
-Inside `<...>` the brackets already bind everything, so neither concern
-applies.
+  - quantifier [see below]
 
-Recommendation: leave policy as-is, but add one line to Whitespace rules
-("Whitespace is allowed") saying whitespace inside `<...>` is free. That
-documents current behavior rather than leaving it implied.
+  - Two opt-specs claiming the same Option with different names (eg `-i
+    --ignore-case` and `-i --invert`): opt-spec vs opt-spec, not vs variant.
+    Leaning: error.
 
-14b. Code: `question` is its own token and whitespace is discarded, so
-`<x>... ?` and `{2} ?` are accepted today (spec_parser.py, `quantifier()`).
+Table of relevant attributes:
 
-I agree with disallowing it. The `?` is part of the quantifier, like the
-dots in `...`. The fix is small: fold `\??` into the `triple_dot` and
-`quant_range` regexes and drop the standalone `question` token. Add "Between
-a quantifier and its ?" to the "Whitespace not allowed" list.
+      Attribute  | Positional | Option | Parameter
+      -------------------------------------------------
+      spec       | Y          | Y      | Y
+      name       | Y          | Y      | Y
+      aliases    | .          | Y      | .
+      help       | Y          | Y      | Y
+      choices    | Y          | .      | Y
+      -------------------------------------------------
+      Q.m        | Y          | Y      | Y
+      Q.n        | Y          | Y      | Y
+      Q.required | Y          | Y      | Y
+      Q.greedy   | Y          | Y      | Y
 
-Related, found while looking: the lexer accepts `{m-}` for m-or-more, but
-spec-syntax says `{m+}`. One of them needs to change. Also, `quant_range`
-allows whitespace inside the braces (`{ 2 - 3 }`). The doc says only that
-line breaks are not allowed there, which is consistent but unstated.
+Analysis of those attributes:
 
-15. Partial pushback. The rule is clear in notes.txt (opt-independence:
-"must be additive... cannot replace or contradict"), but spec-syntax only
-says an opt-spec can "add configuration" and points to opt-independence,
-which is still in notes.txt. Two loose ends:
+  - quantifier:
 
-- spec-syntax should state the rule directly: opt-spec configuration must be
-  additive; a contradiction is an error. One or two lines in the opt-spec
-  section.
+    - Q.m and Q.n. A conflict here is possible, at least in a strict sense.
+      For example, `<x>{2-3}` in a variant and `<x>{2-4}` in an opt-spec. One
+      could try to be cute and allow opt-spec configuration that *expands* the
+      allowed universe (vs contracting it). But this business is making me
+      feel queasy.
 
-- What does an unbracketed opt-spec mean? notes.txt treats `-i --ignore-case
-  : ...` as saying nothing about quantity when `[-i]` is in the variant. But
-  for an Opt declared only in an opt-spec, no brackets presumably means
-  required. So brackets in an opt-spec mean "optional," while their absence
-  means "required" for a new Opt but "unspecified" for a matched one. That
-  asymmetry should be written down. If we don't, someone will read `<path> :
-  File path` as a conflict with `[<path>]`.
+    - Q.greedy. Similar logic here. If the config from a variant says nothing
+      about greediness, so the Opt assumes its Quantifer is greedy (the
+      default), and if the opt-spec then adds non-greedy, how does Argle
+      react? In one sense, the latter configuration is "additive" (the
+      question mark was "added"), but in another sense the allowed universe of
+      acceptable end-user inputs got smaller.
 
-Also, the opt-independence example itself seems to break the rule. The variant
-has `[--bar <b1> <b2>]`, while the Blorting opt-spec has `[--bar <b1>
-[<b2>]]`, which makes `<b2>` optional. That's a contradiction, not an
-addition. Either the example is wrong, or "additive" allows refining a
-parameter's grammar. That needs resolving before opt-independence gets
-extracted.
+    - Q.required. Similar concerns here. If we allow variant and opt-spec to
+      differ on this attribute, can the difference go in both directions
+      (required to non-required, and vice verse) or only one way?
 
-14c. Code: `short_option` is `-` followed by `\w`, so the lexer already
-accepts `-1`. It also accepts non-ASCII letters, since Python's `\w` is
-Unicode-aware. Only the doc is out of step.
+----
 
-Suggested doc change for bare-option:
+Choices:
 
-    - first-char
-    -- valid-name
+  - Under current policy (assuming it survives our evaluation of the topic at
+    hand), an Opt with choices is unified by Argle as the variants and
+    opt-specs are processed. So, one might think that everything is smooth
+    sailing here, because it's all inherently "additive". A happy-path example
+    might be a case where the variant simply declares an Opt and the opt-specs
+    flesh it out, including defining the choices.
 
-    - Where first-char here is a letter, digit, or underscore.
-    - An Opt needs a valid name/dest. A digit short option like -1 is
-      fine as long as the Opt also has a long form.
+        # From a variant.
+        <fmt> <x> <y>
 
-Two follow-ons to decide:
+        # Later in an opt-spec
+        <fmt> : Output format
+        <fmt=yaml> : YAML with 2-space indent
+        <fmt=json> : JSON with 4-space indent
 
-- Should `\w` become `[A-Za-z0-9_]`, to match the ASCII-only valid-name?
+  - But a less-happy-path example would be something where the choices in the
+    variant and the opt-specs don't cohere at all. Argle could doggedly unify
+    the Opt, I suppose. And our general approach is to give users powerful
+    mechanisms and concepts that can be used to concoct ridiculous
+    command-line UIs -- but that's on the users to notice and fix. This
+    kind of example might not be fatal, but it is particularly perverse.
 
-- At parse time, `-1` collides with negative-number arguments (argparse's
-  long-standing headache). If digit short options are allowed, we need a
-  policy for how `-1` vs a negative value is read at end-user parse time.
-  That's not a spec-syntax issue, but it should go on the TODO list.
+        # From a variant.
+        <fmt=yaml|json> <x> <y>
+
+        # Later in an opt-spec
+        <fmt> : Output format
+        <fmt=xlsx> : Excel file
+        <fmt=docx> : Word file
+
+Choices usage across the examples and notes.txt:
+
+  1. **Arg-variants: choices in a variant select that variant.**
+     - naval-fate: `<weapon=ship>`, `<action=set|remove>`.
+     - README/wrangle: `<task=grep>`.
+     - repo: `<command=clone>`.
+     - blort: `<task=configure>`.
+     - job-client: `<task=...>`.
+     - neck-diag: `<cmd=snum>` and `<numbering=on|off>`.
+     - nab: `<cmd=chomp>`.
+
+  2. **Per-choice help for arg-variants, in unscoped opt-specs.** The opt-spec
+     restates one choice from a variant exactly:
+     - README/wrangle: `<task=grep> : Emit lines...`.
+     - repo: `<command=clone> : Clones...`.
+     - job-client: `<task=submit> : Submit...`.
+
+  3. **Variant gives a bare positional; opt-specs supply the choices.** In
+     blort (NOTE_805/810), the variant has `<method>`, and three opt-specs
+     each add one choice with its own help (`<method=first> : ...`, and so
+     on).
+
+  4. **Choices on an option's parameter, stated in both places.** `[--color
+     <red|green|blue>]` appears in the wrangle variant and again in the
+     pgrep-3 opt-spec. Here the choices are only for validation.
+
+  5. **Per-choice help for parameters, via sub-specs** (notes.txt, around
+     lines 2058, 2083, and 4485–4513):
+
+         --mode <speed=fast|slow> <vol=loud|quiet> : Blah mode
+         >> <speed=fast> : Blah mode-speed-fast
+
+     notes.txt says sub-specs are the only way to reach a Parameter's choices.
+
+  6. **Merging Opts that share a name** (notes.txt, around lines 1733 and
+     1881). Example: `<action=pitch> <action=balk|stop>` in one variant and
+     `<action=catch>` in another. The merged choices can be too broad for
+     error messages, and notes.txt accepts that cost.
+
+  7. **Same name, different configurations** (notes.txt, around line 1656):
+     `(<x=A|B> | <x>{3})`.
+
+  8. **Combinations of parameter choices as arg-variants** (notes.txt, around
+     line 4605): `--point <x=a> <y=c> [--ac]` and its siblings.
+
+  9. **Choices do two jobs** (opt-choices-vs-choice, around line 1581). They
+     validate input, and they're also a compact way to write alternatives:
+     `<step=start|stop> other!` is the same as two variants.
+
+  - One tension:
+
+    - For positionals, per-choice help uses repeated unscoped opt-specs that get
+      merged (items 2 and 3).
+    - For parameters, it uses `>>` sub-specs (item 5).
+
+    - That's two mechanisms for the same job. The positional form only works
+      because Opts with choices are merged by name.
+

@@ -521,12 +521,7 @@ Each line is classified by the first rule that applies:
 
 - Line breaks not allowed:
 
-  - NOTE: I'm not certain the current SpecParser enforces this. Maybe not
-    worth caring about?
-
   - Within an {m-n} quantifier.
-
-  - Between a name and equal sign.
 
   - Within a var-input.
 
@@ -536,13 +531,19 @@ Each line is classified by the first rule that applies:
 
   - Between partial name and its exclamation mark.
 
-  - Around equal sign for named groups.
-
   - Within a triple-dot quantifier.
 
 - Whitespace is allowed:
 
-  - Between an element and its quantifier (looks odd, but still valid).
+  - Between an element and its quantifier.
+
+  - Between a quantifier and its non-greedy `?` marker.
+
+  - Around the equal sign of a named group or parameter-group, including
+    line breaks.
+
+  - Within a var-input, around its = and | separators (but see the
+    line-break rule above).
 
 ## Spec-syntax hierarchy in compact form
 
