@@ -15,7 +15,7 @@
 
 ## Creating a new virtualenv
 
-    v='3.9.4'
+    v='3.14.8'
     p='argle'
     deactivate
     pyenv shell $v && pyenv versions

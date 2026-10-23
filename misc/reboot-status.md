@@ -4,10 +4,8 @@
 # reboot-status : Status of project reboot
 # Most active files
 # TODOs
-# Temp work area
-# reboot-status : Status of project reboot
-# TODOs
 # spec-syntax-remaining-issues
+# Variant vs opt-spec conflicts: draft policy
 # Temp work area
 
 -->
@@ -31,11 +29,9 @@ documentation and policy documents a lot.
 
 - Deal with spec-syntax-remaining-issues (below).
 
-- Create a `argle-3.14.8` virtualenv (the old `argle-3.9.4` is out of date).
-  Then verify with `pytest tests` and `misc/scripts/spec-check
-  tests/data/specs/blort.txt -t`. Open questions: whether to include
-  `mhutils`; whether to add `pyperclip` (used by `misc/scripts/`) to the `dev`
-  extras in `setup.py`.
+- Add IDs to all headings in the new .md files.
+
+- mhtags: get script working.
 
 - Flesh out the `Opt.spec` attribute. What does it contain?
 
@@ -91,8 +87,18 @@ documentation and policy documents a lot.
       policy for how `-1` vs a negative value is read at end-user parse time.
       That's not a spec-syntax issue, but it should go on the TODO list.
 
-43. Re-assess the whitespace rules in spec-syntax. I think we still have some
-    overly strict rules that lack a strong rationale.
+43. Re-assess the whitespace rules in spec-syntax.
+
+  - Pushing toward further relaxation, I think we still have some overly
+    strict rules that lack a strong rationale.
+
+  - Pushing the other way, one of our whitespace examples (ipconfig or
+    ifconfig?) used a `KEY VALUE` style where the keys functioned basically as
+    options without the `--` prefix. One of Argle's future goals will be to
+    allow users to set the option-prefixes (defaults are `-` and `--`).
+    Conceivably, an ifconfig-style use case would want a prefix of empty
+    string, right? Is supporting that type of use case a situation where we
+    might want to tighten the whitespace rule for named-groups?
 
 # Variant vs opt-spec conflicts: draft policy
 
@@ -113,43 +119,59 @@ Key policy goals/decisons and findings:
     quantity/required correctly in an opt-spec because those attributes can
     derive from parent containers in the command-line grammar.
 
+  - P5. Per-choice help text must be done via sub-specs. Applies to both
+    parameters (the old policy) and now positionals (the new policy to make
+    things consistent and to ensure that this help text has sufficient
+    context for end-users). See the edit-list we assembled below.
+
+  - P6. If a variant declares choices for a VarInput, they are authoritative.
+    Opt-specs (regular or sub-spec) may name only those choices; naming any
+    other is an error. Not every choice needs to be documented. If the variant
+    declares no choices, the opt-specs supply them.
+
 Name and aliases:
 
-- Matching: an opt-spec matches a variant Option if the variant's form (eg
-  `-i`) is any of the opt-spec's option strings.
+  - Options:
 
-- The opt-spec is authoritative for names. The matched Option takes its full
-  set of names from the opt-spec. Indeed, a variant has no way to supply more
-  than one name.
+    - Matching: an opt-spec matches a variant Option if the variant's form (eg
+      `-i`) is any of the opt-spec's option strings.
 
-- The last bare-option is the Opt's name (and supplies its default dest).
-  The others are aliases. Rationale: the form closest to the parameters reads
-  as the most important, and the typical short-then-long ordering makes the
-  long form the name.
+    - The opt-spec is authoritative for names. The matched Option takes its
+      full set of names from the opt-spec. Indeed, a variant has no way to
+      supply more than one name.
 
-      -x --blort --fubb <a> <b> : Fubb help text    # Name: fubb.
+    - The last bare-option is the Opt's name (and supplies its default dest).
+      The others are aliases. Rationale: the form closest to the parameters
+      reads as the most important, and the typical short-then-long ordering
+      makes the long form the name.
 
-- Aliases can be short or long (an alias is any bare-option). Real programs
-  have long aliases too (eg GNU tar: `-x, --extract, --get`).
+          -x --blort --fubb <a> <b> : Fubb help text # Name: fubb.
 
-- No conflict is possible. If the variant's form is not among the opt-spec's
-  option strings, the opt-spec does not match that Option. The variant
-  states only one form, so it has nothing else to contradict.
+    - Aliases can be short or long (an alias is any bare-option). Real
+      programs have long aliases too (eg GNU tar: `-x, --extract, --get`).
 
-- Positionals: the name is the match key and there are no aliases, so an
-  opt-spec cannot rename a positional.
+    - No variant-vs-opt-spec conflict is possible regarding names. If the
+      variant's form is not among the opt-spec's option strings, the opt-spec
+      does not match that Option. The variant states only one form, so it has
+      nothing else to contradict.
 
-- Ordering of aliases and the name in the spec syntax is independent of
-  ordering in generated help text (the latter will be configurable in
-  at least a couple of ways).
+    - Ordering of aliases and the option name in the spec syntax is somewhat
+      independent of ordering/presentation in generated help text (the latter
+      will be configurable in at least a couple of ways).
+
+  - Positionals:
+    
+    - The name is the match key and there are no aliases, so an opt-spec
+      cannot rename a positional, nor can there be variant-vs-opt-spec
+      conflict as it relates to names.
 
 # Temp work area
-
-# Temp work area for issue #15: conflict between variants and opt-descs
 
 Issues to be decided:
 
   - choices [see below]
+
+    - might be done. Check to see if any choice issues lack a resolution.
 
   - quantifier [see below]
 
@@ -172,30 +194,27 @@ Table of relevant attributes:
       Q.required | Y          | Y      | Y
       Q.greedy   | Y          | Y      | Y
 
-Analysis of those attributes:
+Analysis of quantifier:
 
-  - quantifier:
+  - Q.m and Q.n. A conflict here is possible, at least in a strict sense. For
+    example, `<x>{2-3}` in a variant and `<x>{2-4}` in an opt-spec. One could
+    try to be cute and allow opt-spec configuration that *expands* the allowed
+    universe (vs contracting it). But this business is making me feel queasy.
 
-    - Q.m and Q.n. A conflict here is possible, at least in a strict sense.
-      For example, `<x>{2-3}` in a variant and `<x>{2-4}` in an opt-spec. One
-      could try to be cute and allow opt-spec configuration that *expands* the
-      allowed universe (vs contracting it). But this business is making me
-      feel queasy.
+  - Q.greedy. Similar logic here. If the config from a variant says nothing
+    about greediness, so the Opt assumes its Quantifer is greedy (the
+    default), and if the opt-spec then adds non-greedy, how does Argle react?
+    In one sense, the latter configuration is "additive" (the question mark
+    was "added"), but in another sense the allowed universe of acceptable
+    end-user inputs got smaller.
 
-    - Q.greedy. Similar logic here. If the config from a variant says nothing
-      about greediness, so the Opt assumes its Quantifer is greedy (the
-      default), and if the opt-spec then adds non-greedy, how does Argle
-      react? In one sense, the latter configuration is "additive" (the
-      question mark was "added"), but in another sense the allowed universe of
-      acceptable end-user inputs got smaller.
-
-    - Q.required. Similar concerns here. If we allow variant and opt-spec to
-      differ on this attribute, can the difference go in both directions
-      (required to non-required, and vice verse) or only one way?
+  - Q.required. Similar concerns here. If we allow variant and opt-spec to
+    differ on this attribute, can the difference go in both directions
+    (required to non-required, and vice verse) or only one way?
 
 ----
 
-Choices:
+Analysis of choices:
 
   - Under current policy (assuming it survives our evaluation of the topic at
     hand), an Opt with choices is unified by Argle as the variants and
@@ -227,61 +246,87 @@ Choices:
         <fmt=xlsx> : Excel file
         <fmt=docx> : Word file
 
-Choices usage across the examples and notes.txt:
+  - Choices usage across the examples and notes.txt:
 
-  1. **Arg-variants: choices in a variant select that variant.**
-     - naval-fate: `<weapon=ship>`, `<action=set|remove>`.
-     - README/wrangle: `<task=grep>`.
-     - repo: `<command=clone>`.
-     - blort: `<task=configure>`.
-     - job-client: `<task=...>`.
-     - neck-diag: `<cmd=snum>` and `<numbering=on|off>`.
-     - nab: `<cmd=chomp>`.
+    - Arg-variants: choices in a variant select that variant.
+       - naval-fate: `<weapon=ship>`, `<action=set|remove>`.
+       - README/wrangle: `<task=grep>`.
+       - repo: `<command=clone>`.
+       - blort: `<task=configure>`.
+       - job-client: `<task=...>`.
+       - neck-diag: `<cmd=snum>` and `<numbering=on|off>`.
+       - nab: `<cmd=chomp>`.
 
-  2. **Per-choice help for arg-variants, in unscoped opt-specs.** The opt-spec
-     restates one choice from a variant exactly:
-     - README/wrangle: `<task=grep> : Emit lines...`.
-     - repo: `<command=clone> : Clones...`.
-     - job-client: `<task=submit> : Submit...`.
+    - Per-choice help for arg-variants, in unscoped opt-specs. The opt-spec
+      restates one choice from a variant exactly:
+       - README/wrangle: `<task=grep> : Emit lines...`.
+       - repo: `<command=clone> : Clones...`.
+       - job-client: `<task=submit> : Submit...`.
 
-  3. **Variant gives a bare positional; opt-specs supply the choices.** In
-     blort (NOTE_805/810), the variant has `<method>`, and three opt-specs
-     each add one choice with its own help (`<method=first> : ...`, and so
-     on).
+    - Variant gives a bare positional; opt-specs supply the choices. In blort
+      (NOTE_805/810), the variant has `<method>`, and three opt-specs each add
+      one choice with its own help (`<method=first> : ...`, and so on).
 
-  4. **Choices on an option's parameter, stated in both places.** `[--color
-     <red|green|blue>]` appears in the wrangle variant and again in the
-     pgrep-3 opt-spec. Here the choices are only for validation.
+    - Choices on an option's parameter, stated in both places. `[--color
+      <red|green|blue>]` appears in the wrangle variant and again in the
+      pgrep-3 opt-spec. Here the choices are only for validation.
 
-  5. **Per-choice help for parameters, via sub-specs** (notes.txt, around
-     lines 2058, 2083, and 4485–4513):
+    - Per-choice help for parameters, via sub-specs (notes.txt, around lines
+      2058, 2083, and 4485–4513):
 
-         --mode <speed=fast|slow> <vol=loud|quiet> : Blah mode
-         >> <speed=fast> : Blah mode-speed-fast
+           --mode <speed=fast|slow> <vol=loud|quiet> : Blah mode
+           >> <speed=fast> : Blah mode-speed-fast
 
-     notes.txt says sub-specs are the only way to reach a Parameter's choices.
+    - Merging Opts that share a name (notes.txt, around lines 1733 and 1881).
+      Example: `<action=pitch> <action=balk|stop>` in one variant and
+      `<action=catch>` in another. The merged choices can be too broad for
+      error messages, and notes.txt accepts that cost.
 
-  6. **Merging Opts that share a name** (notes.txt, around lines 1733 and
-     1881). Example: `<action=pitch> <action=balk|stop>` in one variant and
-     `<action=catch>` in another. The merged choices can be too broad for
-     error messages, and notes.txt accepts that cost.
+    - Same name, different configurations (notes.txt, around line 1656):
+      `(<x=A|B> | <x>{3})`.
 
-  7. **Same name, different configurations** (notes.txt, around line 1656):
-     `(<x=A|B> | <x>{3})`.
+    - Combinations of parameter choices as arg-variants (notes.txt, around
+      line 4605): `--point <x=a> <y=c> [--ac]` and its siblings.
 
-  8. **Combinations of parameter choices as arg-variants** (notes.txt, around
-     line 4605): `--point <x=a> <y=c> [--ac]` and its siblings.
+    - Choices do two jobs (opt-choices-vs-choice, around line 1581). They
+      validate input, and they're also a compact way to write alternatives:
+      `<step=start|stop> other!` is the same as two variants.
 
-  9. **Choices do two jobs** (opt-choices-vs-choice, around line 1581). They
-     validate input, and they're also a compact way to write alternatives:
-     `<step=start|stop> other!` is the same as two variants.
+  - Some tension across the examples:
 
-  - One tension:
-
-    - For positionals, per-choice help uses repeated unscoped opt-specs that get
-      merged (items 2 and 3).
+    - For positionals, per-choice help uses repeated unscoped opt-specs that
+      get merged (items 2 and 3).
     - For parameters, it uses `>>` sub-specs (item 5).
-
     - That's two mechanisms for the same job. The positional form only works
       because Opts with choices are merged by name.
 
+  - Edit list if we decide to require per-choice help text to be in sub-specs:
+
+    - misc/notes.txt:2013 — sub-specs configure "a choice of a Positional or Parameter"
+      - ok
+
+    - misc/notes.txt:2058 — positional sub-spec example (`<speed=fast|slow>`)
+      - ok
+
+    - misc/notes.txt:4489 — positional sub-spec example (`<action=go|stop>`)
+      - ok
+
+    - misc/spec-syntax.md:418 — the doc's endorsement of unscoped per-choice opt-specs
+      - would need adjustment
+
+    Examples using unscoped per-choice help:
+
+    - misc/examples/argle-mock-ups/argle-repo.py:61 — `Commands :::`, no parent line
+      - help text would be better if we changed policy
+
+    - misc/examples/spec-vs-api/job-client-argle:37 — no parent line
+      - ditto
+
+    - misc/examples/argle-mock-ups/blort.py:201 — NOTE_810, no parent line
+      - ditto
+
+    - misc/examples/argparse-vs-argle/wrangle:85 — parent `<task>` line already present
+      - is consistent with a revised policy
+
+    - README.md:324 — same as wrangle
+      - ditto

@@ -38,6 +38,7 @@ extras = {
         'invoke',
         'ipython',
         'pycodestyle',
+        'pyperclip',
         'twine',
         'virtualenv',
         'virtualenvwrapper',
