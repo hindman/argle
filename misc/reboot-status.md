@@ -15,9 +15,12 @@
   ## Edit list for per-choice help text to be in sub-specs
   ## Mock-up scenarios
     ### Relevant criteria
+    ### Argparse messages: reference for the mockup work
     ### Scenarios
-      #### Argparse messages
-      #### S1
+      #### S-TEMPLATE
+      #### S1: positional with choices; variants-only
+      #### S2a: S1 plus a partial opt-spec and an epilogue; no slot
+      #### S2b: S2a plus an `{opts}` slot
       #### OTHER
 
 -->
@@ -296,6 +299,107 @@ Key policy goals/decisons and findings:
     opt-descs. Instead, it's default will be to append choices to an Opt's
     help text (see mockups for details).
 
+  - P10. Help text defaults:
+
+    - If user supplies only variants (no opt-specs), Argle will generate a
+      typical listing of opt-descs. Why this is a helpful default:
+
+      - Following git, we intend to display VarInput choices in opt-desc
+        help-text, not in the opt-desc CLI-grammar (see P9).
+
+      - If Argle did not generate opt-descs in this scenario, choices would
+        remain undocumented. So the auto-generated opt-descs provide a home
+        for the listing of choices.
+
+    - If the user supplies some opt-descs but not an complete list of them,
+      the generated help text will follow the presentation/ordering of the
+      users opt-specs (and other help-text elements). Then at the end Argle
+      will append an "Arguments:" section listing the opt-descs for which the
+      the user did not supply corresponding opt-specs.
+
+      - Why auto-generate and append by default? Same reason as above: it will
+        be the only means of displaying choices.
+
+      - The API will allow users to request things like:
+        - Do NOT auto-generate the missing opt-descs.
+        - Raise if the user's opt-descs are not exhaustive (meaning: all Opts
+          in the variants were matched by an opt-spec).
+
+  - P11. Help-text slots (tentative):
+
+    - One mechanism for placing generated or custom content in help text:
+      named slots, written `{name}`. Replaces the earlier ideas of `@`
+      directives plus a separate inline-interpolation syntax.
+
+    - Registry: Argle pre-registers built-in slots. Users register their
+      own via the API, each with a hook (see P12). Built-ins are just
+      slots that Argle ships.
+
+    - Placement determines behavior, not syntax:
+      - Slot alone on a line: block insertion.
+      - Slot inside text (opt-help-text, block-quote): inline insertion.
+
+    - Likely built-ins:
+      - Block: `{opts}`, `{options}`, `{positionals}`, `{usage}`.
+      - Inline, Opt-level: `{default}`, `{choices}`, maybe `{name}`.
+      - Inline, parser-level: `{prog}`, `{version}`.
+
+    - Validation and escaping: braces enclosing an unregistered name are an
+      error (catches typos). Escape with a backslash (`\{default}`), per the
+      Quoting rules. No format-spec mini-language.
+
+    - Substitution happens inside Argle's rendering pipeline, before
+      wrapping, so line widths reflect the inserted text.
+
+    - Render-once rule: each Opt, or each data item, renders once, and
+      explicit placement wins. Slots are processed in spec order. An Opts
+      block includes only Opts not yet rendered; the default tail section
+      (P10) is effectively a final `{opts}`. An explicit inline slot
+      suppresses the auto-append of that item (eg choices per P9).
+
+    - Corollary: to move the default tail, place an Opts slot (eg
+      `{opts}` before an epilogue). Render-once leaves nothing for the
+      tail, so no extra rule is needed.
+
+    - No scoping syntax. Scoped content (eg one subcommand's opt-descs)
+      comes from a user slot whose hook supplies the query.
+
+  - P12. Slot hooks (tentative):
+
+    - Registration, roughly: `p.slot('add_opts', func)`.
+
+    - A hook receives context (the parser, plus the current Opt when
+      there is one) and returns a description of what to insert. It does
+      not munge generated help text.
+
+    - Return types:
+      - `str`: text with default handling (wrapped).
+      - Text object: text plus instructions (eg `wrap=False`).
+      - Opts selection: a query result or query-path. Argle renders the
+        opt-descs and applies the render-once rule.
+      - List of the above, for mixed content (eg heading plus Opts block).
+
+    - An Opts selection is valid only for a block slot. Returning one
+      from an inline slot is an error.
+
+    - Render-once is resolved when Argle processes the returned value, not
+      when the hook builds its query. Hooks can select broadly (eg
+      `cmd=add.*`) without tracking what was already rendered.
+
+    - Escape-hatch tiers: (1) built-in slots, no code; (2) user slots
+      and the general API; (3) later: hooks that receive a structured help
+      model before rendering.
+
+    - Open:
+      - Line type for a block slot in the spec (Line types needs a rule
+        so `{opts}` is not read as a variant or opt-spec).
+      - Per-scope generated sections (S4/S5), and whether they are common
+        enough to justify spec-level scoping later.
+      - Default split of positionals and options into separate sections.
+      - Whether `{default}` in a per-choice sub-spec refers to the parent
+        Opt or the choice.
+      - Whether help text set via the API gets slot substitution.
+
 Name and aliases:
 
   - Options:
@@ -420,25 +524,7 @@ Criteria to consider in scenarios:
     - Small: practical for help-text display
     - Large: too many values
 
-### Scenarios
-
-Scenario info to consider adding after we have more scenarios drafted:
-
-  - Criteria exercised.
-
-  - Mockup alternatives that were considered:
-    - I'm not sure about this one -- maybe.
-    - OTOH, the mockup will express our preferred answer.
-    - And we can add notes to the scenario if any alternatives are noteworthy.
-
-  - The argparse equivalent, for comparison.
-    - Maybe, if noteworthy.
-
-  - Rules implied by the mock-up.
-
-  - Open questions.
-
-#### Argparse messages
+### Argparse messages: reference for the mockup work
 
 Error message format:
 
@@ -605,57 +691,158 @@ Argle messages: examples:
         usage: subcmd [-h] [--trace] {add,rm} ...
         subcmd: error: unrecognized arguments: --force
 
-#### S1
+### Scenarios
+
+Scenario info to consider adding after we have more scenarios drafted:
+
+  - Criteria exercised.
+
+  - Mockup alternatives that were considered:
+    - I'm not sure about this one -- maybe.
+    - OTOH, the mockup will express our preferred answer.
+    - And we can add notes to the scenario if any alternatives are noteworthy.
+
+  - The argparse equivalent, for comparison.
+    - Maybe, if noteworthy.
+
+  - Rules implied by the mock-up.
+
+  - Open questions.
+
+  - Error messages.
+
+  - API calls:
+    - Add to "Notes" sub-section only if noteworthy.
+
+  - Result() mockup and matching end-user input:
+    - Add to "Notes" sub-section only if noteworthy.
+
+#### S-TEMPLATE
+
+Raw notes:
+  __
 
 Description:
-  - One variant; no opt-specs.
-  - Positional with choices and a default.
+  - Variants: __.
+  - Opt-specs: __.
+  - __
 
 Spec:
 
-    [<action=run|walk|rest>] [-n]
+    __
 
 Help text:
 
     Usage:
-      PROG [<action>] [-n]
+      PROG __
+
+    Arguments:
+      __
+
+Notes:
+  - __
+
+#### S1: positional with choices; variants-only
+
+Description:
+  - Variants: 1.
+  - Opt-specs: none.
+  - Positional with choices and a default.
+  - Option whose parameter has choices.
+
+Spec:
+
+    [<action=run|walk|rest>] [--pace <p=slow|fast>] [-n]
+
+Help text:
+
+    Usage:
+      PROG [<action>] [--pace <p>] [-n]
 
     Arguments:
       <action>        [run|walk|rest] [default: run]
+      --pace <p>      [slow|fast]
       -n
 
-Result:
+Notes:
+  - Opt choices and default are auto-appended to an opt-desc (P9).
 
-    Result(
-        action = 'run',
-        n = False,
-    )
+#### S2a: S1 plus a partial opt-spec and an epilogue; no slot
 
-API:
-  - Required:
-    - Set <action> default.
-  - Optional:
-    - __
+Description:
+  - Variants: 1.
+  - Opt-specs: some, not all.
+  - Epilogue via block-quote.
+  - No `{opts}` slot, so unmatched Opts listed at end.
 
-Error messages:
+Spec:
 
-    # No <action>
-    __
+    [<action=run|walk|rest>] [--pace <p=slow|fast>] [-n]
 
-    # Invalid <action>
-    __
+    Arguments ::
+    <action> : What to do
+
+    ```Exit status is 0 on success, 1 on failure.```
+
+Help text:
+
+    Usage:
+      PROG [<action>] [--pace <p>] [-n]
+
+    Arguments:
+      <action>        What to do [run|walk|rest] [default: run]
+
+    Exit status is 0 on success, 1 on failure.
+
+    Arguments:
+      --pace <p>      [slow|fast]
+      -n
+
+Notes:
+
+  - Exercises P10: user supplied only some opt-specs, so Argle lists the rest
+    at the end under an "Arguments" heading. API can be used to modify that
+    default heading. Also see S2b, which offers a better alternative via the
+    `{opts}` slot.
+
+#### S2b: S2a plus an `{opts}` slot
+
+Description:
+  - Same as S2a.
+  - Plus `{opts}` slot to control placement of auto-generated opt-descs.
+
+Spec:
+
+    [<action=run|walk|rest>] [--pace <p=slow|fast>] [-n]
+
+    Arguments ::
+    <action> : What to do
+    {opts}
+
+    ```Exit status is 0 on success, 1 on failure.```
+
+Help text:
+
+    Usage:
+      PROG [<action>] [--pace <p>] [-n]
+
+    Arguments:
+      <action>        What to do [run|walk|rest] [default: run]
+      --pace <p>      [slow|fast]
+      -n
+
+    Exit status is 0 on success, 1 on failure.
+
+Notes:
+
+  - Exercises P11: the `{opts}` slot renders the remaining opt-descs in
+    place, so no section is appended at the end.
+
+  - Implied rule: the `{opts}` slot renders opt-descs only, with no heading.
+
+  - Assumes a Line types rule for a block slot on its own line (see P12).
 
 #### OTHER
-
-    S2. S1 plus an opt-spec, no sub-specs
-        [<fmt=json|yaml>] : Output format
-
-        Refs:
-            misc/notes.txt:3723
-            misc/notes.txt:3740
-            README.md:190
-            README.md:233
-            misc/examples/argparse-vs-argle/pgrep-3-enhanced:59
 
     S3. S1 plus an opt-spec and sub-specs
         [<fmt=json|yaml>] : Output format
