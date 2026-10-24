@@ -4601,24 +4601,6 @@ Where to configure aliases in an opt-spec:
     - Then examine expression to extract any aliases and validate that it
       configures only a single Opt.
 
-Can a grammar include arg-variants based on parameter choice combos?
-
-    - Strange use case ... but I think current plan could handle it.
-
-    - Spec:
-
-        --point <x=a> <y=c> [--ac]
-        --point <x=a> <y=d> [--ad]
-        --point <x=b> <y=c> [--bc]
-        --point <x=b> <y=d> [--bc]
-
-    - Usage:
-
-        --point a c [--ac]
-        --point a d [--ad]
-        --point b c [--bc]
-        --point b d [--bc]
-
 --------
 group-level-validation-needed: Why Group-level validation should be retained
 --------
