@@ -16,6 +16,9 @@
   ## Mock-up scenarios
     ### Relevant criteria
     ### Scenarios
+      #### Argparse messages
+      #### S1
+      #### OTHER
 
 -->
 
@@ -287,6 +290,11 @@ Key policy goals/decisons and findings:
     - Names choices, itself or via sub-specs: error; use a scope. Otherwise
       the choiceless Opt would silently gain the choices, a behavior change
       that the help output does not reveal.
+
+  - P9. Documenting choices. Argle is roughly following git, in not listing
+    VarInput choices in usage text or in the grammatical/formal portion of the
+    opt-descs. Instead, it's default will be to append choices to an Opt's
+    help text (see mockups for details).
 
 Name and aliases:
 
@@ -601,19 +609,19 @@ Argle messages: examples:
 
 Description:
   - One variant; no opt-specs.
-  - Positional with choices.
+  - Positional with choices and a default.
 
 Spec:
 
-    <action=run|walk|rest> [-n]
+    [<action=run|walk|rest>] [-n]
 
 Help text:
 
     Usage:
-      PROG <action> [-n]
+      PROG [<action>] [-n]
 
     Arguments:
-      <action>                   # TBD
+      <action>        [run|walk|rest] [default: run]
       -n
 
 Result:
@@ -624,7 +632,8 @@ Result:
     )
 
 API:
-  - Required: none.
+  - Required:
+    - Set <action> default.
   - Optional:
     - __
 
