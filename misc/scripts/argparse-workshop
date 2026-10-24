@@ -1,0 +1,133 @@
+#! /usr/bin/env python
+
+'''
+Workshop for examining argparse behavior: help text and error messages.
+
+Usage:
+    argparse-workshop                     # Run all error cases.
+    argparse-workshop cases               # Same.
+    argparse-workshop help PARSER         # Print help text for PARSER.
+    argparse-workshop run PARSER ARGS...  # Parse ARGS with PARSER [basic, subcmd].
+'''
+
+import argparse
+import contextlib
+import io
+import sys
+
+####
+# Parsers.
+####
+
+def basic_parser():
+    # Positionals, choices, type conversion, and various option styles.
+    ap = argparse.ArgumentParser(prog = 'basic')
+
+    # Positionals: <x> <n> [<z>].
+    ap.add_argument('x', help = 'First positional')
+    ap.add_argument('n', type = int, help = 'Integer positional')
+    ap.add_argument('z', nargs = '?', choices = ['A', 'B', 'C'],
+                    help = 'Optional positional with choices')
+
+    # Option with a fixed number of parameters.
+    ap.add_argument('--point', nargs = 2, type = int, metavar = ('X', 'Y'),
+                    help = 'Two integers')
+
+    # Option with a single parameter and choices.
+    ap.add_argument('--color', choices = ['red', 'green', 'blue'],
+                    help = 'Highlight color')
+
+    # Required option.
+    ap.add_argument('--user', required = True, help = 'User name')
+
+    # Repeatable flag.
+    ap.add_argument('-v', '--verbose', action = 'count', default = 0,
+                    help = 'Increase verbosity (repeatable)')
+
+    # Mutually exclusive flags.
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument('--json', action = 'store_true', help = 'JSON output')
+    g.add_argument('--yaml', action = 'store_true', help = 'YAML output')
+
+    # Two options sharing a prefix (for abbreviation errors).
+    ap.add_argument('--verify', action = 'store_true', help = 'Verify')
+
+    return ap
+
+def subcmd_parser():
+    # Git-style subcommands.
+    ap = argparse.ArgumentParser(prog = 'subcmd')
+    ap.add_argument('--trace', action = 'store_true', help = 'Trace')
+    sps = ap.add_subparsers(dest = 'cmd', required = True)
+
+    sp = sps.add_parser('add', help = 'Add an item')
+    sp.add_argument('x', type = int, help = 'Item id')
+
+    sp = sps.add_parser('rm', help = 'Remove an item')
+    sp.add_argument('x', type = int, help = 'Item id')
+    sp.add_argument('--force', action = 'store_true', help = 'No prompting')
+
+    return ap
+
+PARSERS = dict(
+    basic = basic_parser,
+    subcmd = subcmd_parser,
+)
+
+####
+# Error cases: (description, parser name, args).
+####
+
+OK = '--user bob'.split()
+
+CASES = [
+    ('No args at all',                  'basic', []),
+    ('Missing required positional',     'basic', ['xx'] + OK),
+    ('Invalid int conversion',          'basic', ['xx', 'abc'] + OK),
+    ('Invalid choice: positional',      'basic', ['xx', '1', 'D'] + OK),
+    ('Excess positional',               'basic', ['xx', '1', 'A', 'extra'] + OK),
+    ('Missing required option',         'basic', ['xx', '1']),
+    ('Unknown option',                  'basic', ['xx', '1', '--blort'] + OK),
+    ('Option missing its parameter',    'basic', ['xx', '1', '--color'] + OK),
+    ('Invalid choice: parameter',       'basic', ['xx', '1', '--color', 'pink'] + OK),
+    ('Too few parameters (nargs=2)',    'basic', ['xx', '1', '--point', '3'] + OK),
+    ('Invalid int in parameter',        'basic', ['xx', '1', '--point', '3', 'q'] + OK),
+    ('Mutually exclusive conflict',     'basic', ['xx', '1', '--json', '--yaml'] + OK),
+    ('Ambiguous abbreviation',          'basic', ['xx', '1', '--ver'] + OK),
+    ('Subcommand: none given',          'subcmd', []),
+    ('Subcommand: invalid',             'subcmd', ['fubb']),
+    ('Subcommand: missing positional',  'subcmd', ['rm']),
+    ('Subcommand: option from sibling', 'subcmd', ['add', '1', '--force']),
+]
+
+####
+# Running things.
+####
+
+def run_case(desc, pname, args):
+    # Parse args, capturing the error output and exit status.
+    ap = PARSERS[pname]()
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        try:
+            opts = ap.parse_args(args)
+            out = f'OK: {opts}\n'
+        except SystemExit as e:
+            out = err.getvalue() + f'[exit status: {e.code}]\n'
+    print(f'# {desc}')
+    print(f'$ {pname} {" ".join(args)}')
+    print(out)
+
+def main(argv):
+    if not argv or argv[0] == 'cases':
+        for c in CASES:
+            run_case(*c)
+    elif argv[0] == 'help':
+        PARSERS[argv[1]]().print_help()
+    elif argv[0] == 'run':
+        print(PARSERS[argv[1]]().parse_args(argv[2:]))
+    else:
+        print(__doc__)
+
+if __name__ == '__main__':
+    main(sys.argv[1:])

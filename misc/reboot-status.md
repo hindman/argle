@@ -8,11 +8,14 @@
 # SPEC_ISSUE: first-char spec does not allow short options like `-1`
 # SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
 # SPEC_ISSUE: conflicts among opt-specs
+# SPEC_ISSUE: variant vs opt-spec conflicts: parameters
 # SPEC_ISSUE: variant vs opt-spec conflicts: choices
   ## Motivating problems and context
   ## Draft policy/goals
   ## Edit list for per-choice help text to be in sub-specs
-  ## Choices display: mock-up scenarios
+  ## Mock-up scenarios
+    ### Relevant criteria
+    ### Scenarios
 
 -->
 
@@ -150,6 +153,13 @@ among themselves (eg `-i --ignore-case` and `-i --invert`)? Maybe this problem
 will go away or change if our tentative embrace of full opt-independence is
 realized.
 
+Could we deal with this problem by somehow enforcing a kind of uniqueness
+among the opt-specs? Is there ever a use case for two opt-specs to "match" the
+same Opts? Here match is similar to the matching logic for connecting
+opt-specs to the correct variant Opt(s). But similar criteria could also be
+used to make sure that -- in the case of an opt-specs-only spec file -- two
+separate Opts don't resolve to the "same thing".
+
 # SPEC_ISSUE: variant vs opt-spec conflicts: parameters
 
 What about opt-specs that completely change the parameters of an Option?
@@ -212,6 +222,9 @@ Key policy goals/decisons and findings:
     parameters (the old policy) and now positionals (the new policy to make
     things consistent and to ensure that this help text has sufficient
     context for end-users). See the edit-list we assembled below.
+
+    - NOTE: I suspect some of these policies will also apply to per-parameter
+      help text for options.
 
     - Help text on a regular opt-spec always belongs to the Opt itself,
       never to a choice, regardless of how many choices it names.
@@ -340,7 +353,7 @@ Name and aliases:
   - README.md:324 — same as wrangle
     - ditto
 
-## Choices display: mock-up scenarios
+## Mock-up scenarios
 
 Problem solving strategy:
 
@@ -353,7 +366,9 @@ Problem solving strategy:
 
   - Then derive rules from the mock-ups.
 
-Relevant criteria:
+### Relevant criteria
+
+Criteria to consider in scenarios:
 
   - N choices
     - 0 choice
@@ -397,42 +412,335 @@ Relevant criteria:
     - Small: practical for help-text display
     - Large: too many values
 
-Scenarios:
+### Scenarios
 
-    S1. Validation-only positional, zero effort (the argparse-demo case)
-        prog <x> [<fmt=json|yaml>]
+Scenario info to consider adding after we have more scenarios drafted:
+
+  - Criteria exercised.
+
+  - Mockup alternatives that were considered:
+    - I'm not sure about this one -- maybe.
+    - OTOH, the mockup will express our preferred answer.
+    - And we can add notes to the scenario if any alternatives are noteworthy.
+
+  - The argparse equivalent, for comparison.
+    - Maybe, if noteworthy.
+
+  - Rules implied by the mock-up.
+
+  - Open questions.
+
+#### Argparse messages
+
+Error message format:
+
+    usage: USAGE_TEXT
+    PROG: error: MSG
+
+Common messages:
+
+    Missing required args | the following arguments are required: x, n, --user
+    Invalid conversion    | argument n: invalid int value: 'abc'
+    Invalid choice        | argument z: invalid choice: 'D' (choose from 'A', 'B', 'C')
+    Excess positional     | unrecognized arguments: extra
+    Unknown option        | unrecognized arguments: --blort
+    Missing parameters    | argument --color: expected one argument
+    Mutually exclusive    | argument --yaml: not allowed with argument --json
+    Ambiguous abbrev      | ambiguous option: --ver could match --verbose, --verify
+    Invalid subcommand    | argument cmd: invalid choice: 'fubb' (choose from 'add', 'rm')
+
+Argle improvements:
+  - Capitalize "Usage:".
+  - Better lingo rather than calling everything "arguments."
+  - Errors should use name (not dest) to be consistent with usage/help text.
+
+Argparse problems: don't do these:
+  - Too few parameters is misdiagnosed:
+    - Input: `--point 3 --user bob`.
+    - Argparse mistook `--user` as 2nd param of `--point` (invalid int).
+    - Argle arg-parsing implementation does not have this problem.
+    - This argparse problem is kind of unforgivable.
+
+  - Unhelpful message when subcommand is wrong:
+    - Input: `add 1 --force`.
+    - Output: top-level usage and a plain "unrecognized arguments."
+    - Better would be: suggest the fix: use `rm`.
+    - Asses: how much fix-it advice is practical to implement reliably.
+
+Argle messages: examples:
+
+    # No args at all
+
+        $ basic
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: the following arguments are required: x, n, --user
+
+    # Missing required positional
+
+        $ basic xx --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: the following arguments are required: n
+
+    # Invalid int conversion
+
+        $ basic xx abc --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument n: invalid int value: 'abc'
+
+    # Invalid choice: positional
+
+        $ basic xx 1 D --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument z: invalid choice: 'D' (choose from 'A', 'B', 'C')
+
+    # Excess positional
+
+        $ basic xx 1 A extra --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: unrecognized arguments: extra
+
+    # Missing required option
+
+        $ basic xx 1
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: the following arguments are required: --user
+
+    # Unknown option
+
+        $ basic xx 1 --blort --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: unrecognized arguments: --blort
+
+    # Option missing its parameter
+
+        $ basic xx 1 --color --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument --color: expected one argument
+
+    # Invalid choice: parameter
+
+        $ basic xx 1 --color pink --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument --color: invalid choice: 'pink' (choose from 'red', 'green', 'blue')
+
+    # Too few parameters (nargs=2)
+
+        $ basic xx 1 --point 3 --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument --point: invalid int value: '--user'
+
+    # Invalid int in parameter
+
+        $ basic xx 1 --point 3 q --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument --point: invalid int value: 'q'
+
+    # Mutually exclusive conflict
+
+        $ basic xx 1 --json --yaml --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: argument --yaml: not allowed with argument --json
+
+    # Ambiguous abbreviation
+
+        $ basic xx 1 --ver --user bob
+        usage: basic [-h] [--point X Y] [--color {red,green,blue}] --user USER [-v]
+                     [--json | --yaml] [--verify]
+                     x n [{A,B,C}]
+        basic: error: ambiguous option: --ver could match --verbose, --verify
+
+    # Subcommand: none given
+
+        $ subcmd
+        usage: subcmd [-h] [--trace] {add,rm} ...
+        subcmd: error: the following arguments are required: cmd
+
+    # Subcommand: invalid
+
+        $ subcmd fubb
+        usage: subcmd [-h] [--trace] {add,rm} ...
+        subcmd: error: argument cmd: invalid choice: 'fubb' (choose from 'add', 'rm')
+
+    # Subcommand: missing positional
+
+        $ subcmd rm
+        usage: subcmd rm [-h] [--force] x
+        subcmd rm: error: the following arguments are required: x
+
+    # Subcommand: option from sibling
+
+        $ subcmd add 1 --force
+        usage: subcmd [-h] [--trace] {add,rm} ...
+        subcmd: error: unrecognized arguments: --force
+
+#### S1
+
+Description:
+  - One variant; no opt-specs.
+  - Positional with choices.
+
+Spec:
+
+    <action=run|walk|rest> [-n]
+
+Help text:
+
+    Usage:
+      PROG <action> [-n]
+
+    Arguments:
+      <action>                   # TBD
+      -n
+
+Result:
+
+    Result(
+        action = 'run',
+        n = False,
+    )
+
+API:
+  - Required: none.
+  - Optional:
+    - __
+
+Error messages:
+
+    # No <action>
+    __
+
+    # Invalid <action>
+    __
+
+#### OTHER
 
     S2. S1 plus an opt-spec, no sub-specs
         [<fmt=json|yaml>] : Output format
+
+        Refs:
+            misc/notes.txt:3723
+            misc/notes.txt:3740
+            README.md:190
+            README.md:233
+            misc/examples/argparse-vs-argle/pgrep-3-enhanced:59
 
     S3. S1 plus an opt-spec and sub-specs
         [<fmt=json|yaml>] : Output format
         >> <fmt=json> : JSON with 4-space indent
         >> <fmt=yaml> : YAML
 
+        Refs:
+            misc/notes.txt:2013
+            misc/notes.txt:2058
+            misc/notes.txt:2081
+            misc/notes.txt:4451
+            misc/notes.txt:4493
+            misc/notes.txt:4515
+            misc/notes.txt:4573
+            misc/examples/argle-mock-ups/blort.py:201
+            misc/examples/argle-mock-ups/blort.py:326
+
     S4. Subcommand program (arg-variants), zero effort
         <cmd=add> <x>
         <cmd=rm> <x> [--force]
 
+        Refs:
+            misc/notes.txt:1598
+            misc/notes.txt:2921
+            misc/notes.txt:2979
+            misc/examples/argle-mock-ups/argle-repo.py:47
+            misc/examples/spec-vs-api/job-client-argle:23
+            misc/spec-examples.md:55
+
     S5. S4 plus an opt-spec and sub-specs (README/repo style; the
         known-good baseline)
+
+        Refs:
+            README.md:316
+            README.md:324
+            README.md:425
+            misc/examples/argparse-vs-argle/wrangle:77
+            misc/examples/argparse-vs-argle/wrangle:85
+            misc/examples/argparse-vs-argle/wrangle:186
+            misc/examples/argle-mock-ups/argle-repo.py:61
+            misc/examples/argle-mock-ups/argle-repo.py:200
+            misc/examples/spec-vs-api/job-client-argle:37
+            misc/examples/argle-mock-ups/blort.py:127
+            misc/examples/argle-mock-ups/blort.py:19
+            misc/examples/click/click-repo.py:182
 
     S6. Unnamed choices-only parameter, opt-spec only (README pgrep-3)
         [--color <red|green|blue>] : Highlight matching text
 
+        Refs:
+            misc/spec-syntax.md:399
+            misc/spec-syntax.md:422
+            README.md:190
+            README.md:243
+            README.md:335
+            README.md:447
+            misc/examples/argparse-vs-argle/pgrep-3-enhanced:47
+            misc/examples/argparse-vs-argle/pgrep-3-enhanced:69
+            misc/examples/argparse-vs-argle/pgrep-3-enhanced:93
+            misc/examples/argparse-vs-argle/wrangle:96
+            misc/examples/argparse-vs-argle/wrangle:208
+            misc/examples/help-text-styles.txt:234
+
     S7. Large choice set
         [--tz <tz=UTC|EST|PST|...30 more>] : Time zone
+
+        Refs: none found
 
     S8. Same-named arg-variant positional, multiple choices at one position
         (naval-fate)
         <weapon=ship> <action=new> <name>...
         <weapon=mine> <action=set|remove> <x> <y>
 
+        Refs:
+            misc/examples/argle-mock-ups/argle-naval-fate.py:74
+            misc/examples/argle-mock-ups/argle-naval-fate.py:98
+            misc/examples/docopt-naval-fate:10
+            misc/examples/click/click-naval-fate.py:108
+            misc/spec-syntax.md:415
+            misc/notes.txt:1733
+            misc/notes.txt:4808
+
     S9. Same name, different validation-only choices per variant
         <cmd=a> <fmt=json|yaml>
         <cmd=b> <fmt=csv>
+
+        Refs:
+            misc/notes.txt:1656
+            misc/notes.txt:1881
 
     S10. Same name, choices in one variant, bare in another (the P8 case)
         <cmd=a> <x=A|B>
         <cmd=b> <x>
 
+        Refs:
+            misc/notes.txt:1656
+            misc/notes.txt:1774
