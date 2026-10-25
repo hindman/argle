@@ -209,6 +209,23 @@ Some things that motivated unification of Opts with choices in the first place:
 
 Key policy goals/decisons and findings:
 
+  - P0. Strict Opt independence in the grammar (tentative). Each Opt
+    occurrence implied by the spec is a distinct Opt. No unification by
+    Opt.name, including for Opts with choices.
+
+    - Arg-parsing: no known examples where this leads to incorrect parsing
+      or unsupported use cases. Several require it (naval-fate, EX_NAB,
+      `--bar` with differing parameters). First-success backtracking
+      handles same-named Opts within one context.
+
+    - What unification was meant to provide (unified help entries, full
+      choice listings in errors, merged values) is handled at the output
+      surfaces (help, errors, Result) by grouping same-named Opts, not by
+      merging them in the grammar.
+
+    - TBD: API calls to unify Opts in the grammar after the fact. Leaning
+      no, since it could cause trouble for arg-parsing.
+
   - P1. We do want an opt-spec to be able to add aliases or a long-name for an
     Option. That's handy, it allows the user to have super readable variants,
     and even the README does it.
@@ -251,6 +268,9 @@ Key policy goals/decisons and findings:
 
     - NOTE: this is currently under review and might change.
 
+    - NOTE: P0 (strict Opt independence) would eliminate the merging by
+      name assumed here.
+
     - When a VarInput with choices appears in several places in the
       variants, those occurrences are merged by name, and the
       authoritative set is the union of their choices.
@@ -276,6 +296,9 @@ Key policy goals/decisons and findings:
     stay independent (each receiving the same choices).
 
     - NOTE: this is currently under review and might change.
+
+    - NOTE: P0 (strict Opt independence) would eliminate the merging by
+      name assumed here.
 
     - Parameters: the same rules apply within the parameters of a single
       Option. Options themselves are never merged, so same-named parameters
