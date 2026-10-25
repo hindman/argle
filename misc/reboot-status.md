@@ -322,6 +322,10 @@ Key policy goals/decisons and findings:
     opt-descs. Instead, it's default will be to append choices to an Opt's
     help text (see mockups for details).
 
+    - NOTE: this applies to plural choices. A single-choice Opt (eg an
+      arg-variant like `<cmd=merge>`) displays its choice as a literal in
+      usage text, as git does (`git merge [<options>]`).
+
   - P10. Help text defaults:
 
     - If user supplies only variants (no opt-specs), Argle will generate a
@@ -422,6 +426,99 @@ Key policy goals/decisons and findings:
       - Whether `{default}` in a per-choice sub-spec refers to the parent
         Opt or the choice.
       - Whether help text set via the API gets slot substitution.
+
+  - P13. Grammar vs surfaces. The grammar (or model) is the tree of Opts and
+    Groups built from the spec, which arg-parsing runs against. Surfaces (or
+    outputs, views) are what Argle produces from, or uses to address, the
+    grammar. Questions of "are these the same thing?" can be answered
+    differently at each: the grammar keeps Opts independent (P0), while a
+    surface may group same-named Opts.
+
+    - Surfaces relevant to Opt independence:
+
+      - Opt-specs (an input surface).
+        - ASSESS/RESOLVE
+
+      - Usage text.
+        - Mostly not impacted by independence/unification.
+        - For single-choice VarInput, we display the `choice`, not the
+          `<name>`.
+
+      - Help text (opt-descs).
+        - ASSESS/RESOLVE
+
+      - Error messages (parse-time and spec-time).
+        - ASSESS/RESOLVE
+
+      - Result.
+        - No big problems.
+        - The purpose of a Result is to unify by Opt.dest.
+
+      - API: Opt configuration: query(), get(), config().
+        - Config write: OK, due to our broadcast model (with scopes).
+        - Config read: maybe resolvable via P14.
+
+      - Opt repr().
+        - ASSESS/RESOLVE
+
+      - Dispatch.
+        - ASSESS/RESOLVE
+
+      - Tab-completion.
+        - ASSESS/RESOLVE
+
+    - Other surfaces:
+      - Version output.
+      - Runtime messages (warn, exit).
+
+  - P14. API reads (tentative). Reading an attribute from a query result
+    unifies across its OptNodes: the distinct union of values, in spec order.
+
+    - NOTE: An OptNode is (for now) just a term being used in our current
+      planning work; it is not a formal object in the Argle system. It
+      represents an Opt within the grammar/variants under our tentatively
+      adopted policy of strict Opt independence at the grammar level. In this
+      discussion, OptNode is the truly independent Opt-thing, as distinguished
+      from the unified Opt-thing that a user wants/perceives across various
+      Argle outputs/surfaces.
+
+    - List-valued attributes (eg choices, aliases): flattened, de-duped,
+      always a list.
+
+    - Scalar attributes (eg help, dest): the scalar if one distinct value,
+      otherwise a list of the distinct values. Known ambiguity: a scalar
+      whose value can itself be a list (eg default).
+
+    - Structural attributes (eg parameters, position, quantifier): not
+      unified; read per OptNode.
+
+    - Raw access: iterate the query result to get its OptNodes, eg
+      `list(p.query('x'))`.
+
+    - Opt attributes (purely for reference here; DELETE EVENTUALLY):
+      - kind (positional, option, parameter, literal)
+      - name
+      - dest
+      - aliases
+      - help_text
+      - choices (each with per-choice help text)
+      - parameters
+      - nargs
+      - ntimes
+      - quantifier: m, n, required, greedy
+      - default
+      - factory
+      - convert
+      - validate
+      - dispatch
+      - priority
+      - negaters
+      - hide
+      - anchor
+      - text (literals)
+      - usage_text (misc/notes.txt:3743)
+      - spec (the Opt.spec TODO)
+      - position and parent (implicit in the tree)
 
 Name and aliases:
 
