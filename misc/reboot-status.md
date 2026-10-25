@@ -434,42 +434,42 @@ Key policy goals/decisons and findings:
     differently at each: the grammar keeps Opts independent (P0), while a
     surface may group same-named Opts.
 
-    - Surfaces relevant to Opt independence:
+    - Opt-specs (an input surface).
+      - ASSESS/RESOLVE
 
-      - Opt-specs (an input surface).
-        - ASSESS/RESOLVE
+    - Usage text.
+      - Mostly not impacted by independence/unification.
+      - For single-choice VarInput, we display the `choice`, not the
+        `<name>`.
 
-      - Usage text.
-        - Mostly not impacted by independence/unification.
-        - For single-choice VarInput, we display the `choice`, not the
-          `<name>`.
+    - Help text (opt-descs).
+      - ASSESS/RESOLVE
 
-      - Help text (opt-descs).
-        - ASSESS/RESOLVE
+    - Error messages (parse-time and spec-time).
+      - ASSESS/RESOLVE
 
-      - Error messages (parse-time and spec-time).
-        - ASSESS/RESOLVE
+    - Result.
+      - No big problems.
+      - The purpose of a Result is to unify by Opt.dest.
 
-      - Result.
-        - No big problems.
-        - The purpose of a Result is to unify by Opt.dest.
+    - API: Opt configuration: query(), get(), config().
+      - Config write: OK, due to our broadcast model (with scopes).
+      - Config read: maybe resolvable via P14.
 
-      - API: Opt configuration: query(), get(), config().
-        - Config write: OK, due to our broadcast model (with scopes).
-        - Config read: maybe resolvable via P14.
+    - Opt repr().
+      - ASSESS/RESOLVE
 
-      - Opt repr().
-        - ASSESS/RESOLVE
+    - Dispatch.
+      - ASSESS/RESOLVE
 
-      - Dispatch.
-        - ASSESS/RESOLVE
+    - Tab-completion.
+      - ASSESS/RESOLVE
 
-      - Tab-completion.
-        - ASSESS/RESOLVE
+    - Version output.
+      - No relevance to opt independence/unification.
 
-    - Other surfaces:
-      - Version output.
-      - Runtime messages (warn, exit).
+    - Runtime messages (warn, exit).
+      - No known relevance to opt independence/unification.
 
   - P14. API reads (tentative). Reading an attribute from a query result
     unifies across its OptNodes: the distinct union of values, in spec order.
