@@ -4,8 +4,9 @@
 # Policies
   ## Grammar and identity
     ### P0: Strict Opt independence in the grammar
-    ### P13: Grammar vs surfaces
-    ### P17: Opt.path (tentative)
+    ### P13: Terminology: grammar vs surfaces
+    ### P101: Opts are generally unified at surfaces
+    ### P17: Add a path @property to Opt
   ## Opt-specs and matching
     ### P16: Opt-spec broadcast (tentative)
     ### Names and aliases
@@ -29,8 +30,6 @@
     ### P15: Dispatch and Opt independence (tentative)
   ## Retired
     ### P7: Merging of choice-bearing VarInputs
-  ## Policy details
-    ### P0: Strict Opt independence in the grammar
 # ORIGINAL: KEEP FOR NOW: Draft policy/goals
   ## Edit list P5: per-choice help must be in sub-specs
 # notes on audit
@@ -43,6 +42,12 @@ These emerged while working on issue related to Opt independence vs
 consolidation based on Opt.name. But they evolved to include some other topics
 as well.
 
+# TODOs
+
+Edit the policies: initial pass.
+
+Table in P101: add policy number references.
+
 # Policies
 
 ## Grammar and identity
@@ -53,83 +58,92 @@ Each Opt occurrence in spec/grammar is a distinct Opt:
   - No unifying by name/dest.
   - Includes Opts with choices, reversing prior policy.
 
-Unify Opts by name (or dest), when needed, at surfaces (P13).
+Details:
 
-### P13: Grammar vs surfaces
+  - Argument parsing:
+    - Strict independence probably simplifies parsing: no need to reason about
+      Opt(foo) at position 3 vs Opt(foo) at position 7.
+    - Challenging examples under opt-unification: naval-fate, EX_NAB.
+    - No known examples where independence leads to incorrect parsing.
+    - Same-named Opts competing for the same input (eg two `--bar` in one
+      variant with differing N of parameters) need no special rule: first
+      success wins.
 
-__HERE__
+  - Rejected alternative:
+    - Opt unification by name, plus position metadata.
+    - Probably feasible, but it adds bookkeeping.
 
-The grammar (or model) is the tree of Opts and Groups built from the spec,
-which arg-parsing runs against. Surfaces (or outputs, views) are what Argle
-produces from, or uses to address, the grammar. Questions of "are these the
-same thing?" can be answered differently at each: the grammar keeps Opts
-independent (P0), while a surface may group same-named Opts.
+  - Multiple Opts with same name are rare:
+    - Rarer still: multiple same-name Opts requiring differing configurations.
+    - Advanced use cases can be expected to use the API.
 
-- Opt-specs (an input surface).
-  - Opt-specs are similar to API configuration: mostly works via broacast,
-    with scopes for narrowing.
-  - See P0, P6, P8, and P16.
+### P13: Terminology: grammar vs surfaces
 
-- Usage text.
-  - Mostly not impacted by independence/unification.
-  - For single-choice VarInput, we display the `choice`, not the
-    `<name>`.
+Grammar:
+  - The list-tree of Opts, Groups, Variants, etc.
+  - Analogous to the "model" layer in other domains.
 
-- Help text (opt-descs).
-  - ASSESS/RESOLVE
+Surfaces:
+  - The areas where users and end-users encounter Opts.
+  - Analogous to the "views" layer in other domains.
+  - But the concept is a bit more broad in Argle:
+    - Mostly outputs (eg help text, parsed-args Result).
+    - But also inputs (eg spec or API for configuration).
+    - And sometimes behaviors (eg dispatch).
 
-- Error messages (parse-time and spec-time).
-  - ASSESS/RESOLVE
+### P101: Opts are generally unified at surfaces
 
-- Result.
-  - No big problems.
-  - The purpose of a Result is to unify by Opt.dest.
+Most CLI use cases want Opt unification by name at the surfaces:
 
-- API: Opt configuration: query(), get(), config().
-  - Config write: OK, due to our broadcast model (with scopes).
-  - Config read: maybe resolvable via P14.
+  - The degnerate case:
+    - The issue never arises.
+    - Because the Opt names are unique.
+    - Represents the vast majority of CLI programs.
 
-- Opt repr().
-  - Diagnostic, so show the raw Opts, each with its path.
-  - See P17 and P18.
+  - Typical subcommand program:
+    - Usage variants are selected via a primary command/action Positional.
+    - Example: git.
 
-- Dispatch.
-  - Unify by (Opt name, dispatch function, dispatch Result).
-  - See P15.
+  - Same-name Opts in multiple variants:
+    - The user wants the same-name Opts configured identically.
+    - Example: --verbose flag.
 
-- Tab-completion.
-  - Completion operates at the grammar level.
-  - It supplies legal continutation, given context.
-  - Opt independence causes no trouble here.
+Policy summary of Opt independence/unification, by surface:
 
-- Version output.
-  - No relevance to opt independence/unification.
+    Surface        | Policy summary
+    ------------------------------------------------------------
+    Opt-specs      | Unified via broadcast
+    Help text      | Unified by default; lots of user control
+    Error msgs     | TBD
+    Result         | Purpose is to unify by Opt.dest
+    API Opt writes | Unified via broadcast
+    API Opt reads  | Unified by default, with API workarounds
+    Dispatch       | Unified by (OPT-NAME, FUNC, RESULT)
+    ------------------------------------------------------------
+    Usage text     | Not unified: independence helps
+    Opt repr()     | Purpose is technical; unification unhelpful
+    Tab-completion | Not unified: independence helps
+    ------------------------------------------------------------
+    Version output | No relevance
+    Warn/exit msg  | No known relevance
 
-- Runtime messages (warn, exit).
-  - No known relevance to opt independence/unification.
+### P17: Add a path @property to Opt
 
-### P17: Opt.path (tentative)
-
-A property returning the query-path that selects exactly this Opt, eg
-`search.cmd.x`.
-
-- Round-trips: `p.query(opt.path)` returns this Opt.
-
-- Computed on demand, never stored: API changes elsewhere (eg adding
-  another `<x>` to the same variant) can make a prior path imprecise.
-
-- Uses: repr, spec-time error messages (eg P16 can print the scope to
-  use), debugging scoped configuration.
-
-- Not the same as a scope, which selects a context (eg a whole
-  variant), not a single Opt. A derived `Opt.scope` (the path minus its
-  last element) is possible.
-
-- To verify: query-path syntax can always yield a unique path,
-  including through unnamed groups and alternatives (indices are the
-  fallback).
+Add Opt.path as @property:
+  - Returns query path to exactly select the Opt.
+  - Example use cases:
+    - Opt repr().
+    - Spec parsing error messages.
+    - Debugging by users or Argle devs.
+  - Must be an on-demand property:
+    - Subsequent API changes, even to other Opts, can affect what an Opt.path
+      requires for uniqueness.
+  - Not the same as a scope:
+    - A scope can select a context/universe -- more than one Opt.
 
 ## Opt-specs and matching
+
+__HERE__
 
 ### P16: Opt-spec broadcast (tentative)
 
@@ -483,27 +497,6 @@ independent (each receiving the same choices).
   Option. Options themselves are never merged, so same-named parameters
   in different Option instances stay independent.
 
-## Policy details
-
-### P0: Strict Opt independence in the grammar
-
-Argument parsing:
-  - Strict independence probably simplifies parsing: no need to reason about
-    Opt(foo) at position 3 vs Opt(foo) at position 7.
-  - Challenging examples under opt-unification: naval-fate, EX_NAB.
-  - No known examples where independence leads to incorrect parsing.
-  - Same-named Opts competing for the same input (eg two `--bar` in one
-    variant with differing N of parameters) need no special rule: first
-    success wins.
-
-Rejected alternative:
-  - Opt unification by name, plus position metadata.
-  - Probably feasible, but it adds bookkeeping.
-
-Multiple Opts with same name are rare:
-  - Rarer still: multiple same-name Opts requiring differing configurations.
-  - Advanced use cases can be expected to use the API.
-
 # ORIGINAL: KEEP FOR NOW: Draft policy/goals
 
 Key policy goals/decisons and findings:
@@ -709,56 +702,6 @@ Key policy goals/decisons and findings:
         Opt or the choice.
       - Whether help text set via the API gets slot substitution.
 
-  - P13. Grammar vs surfaces. The grammar (or model) is the tree of Opts and
-    Groups built from the spec, which arg-parsing runs against. Surfaces (or
-    outputs, views) are what Argle produces from, or uses to address, the
-    grammar. Questions of "are these the same thing?" can be answered
-    differently at each: the grammar keeps Opts independent (P0), while a
-    surface may group same-named Opts.
-
-    - Opt-specs (an input surface).
-      - Opt-specs are similar to API configuration: mostly works via broacast,
-        with scopes for narrowing.
-      - See P0, P6, P8, and P16.
-
-    - Usage text.
-      - Mostly not impacted by independence/unification.
-      - For single-choice VarInput, we display the `choice`, not the
-        `<name>`.
-
-    - Help text (opt-descs).
-      - ASSESS/RESOLVE
-
-    - Error messages (parse-time and spec-time).
-      - ASSESS/RESOLVE
-
-    - Result.
-      - No big problems.
-      - The purpose of a Result is to unify by Opt.dest.
-
-    - API: Opt configuration: query(), get(), config().
-      - Config write: OK, due to our broadcast model (with scopes).
-      - Config read: maybe resolvable via P14.
-
-    - Opt repr().
-      - Diagnostic, so show the raw Opts, each with its path.
-      - See P17 and P18.
-
-    - Dispatch.
-      - Unify by (Opt name, dispatch function, dispatch Result).
-      - See P15.
-
-    - Tab-completion.
-      - Completion operates at the grammar level.
-      - It supplies legal continutation, given context.
-      - Opt independence causes no trouble here.
-
-    - Version output.
-      - No relevance to opt independence/unification.
-
-    - Runtime messages (warn, exit).
-      - No known relevance to opt independence/unification.
-
   - P14. API reads (tentative). Reading an attribute from a query result
     unifies across its OptNodes: the distinct union of values, in spec order.
 
@@ -832,25 +775,6 @@ Key policy goals/decisons and findings:
     match; otherwise it is an error, and the user should add a scope. Eg
     adding parameters (P3) to same-named Options whose grammar differs.
     P8 is a specific case of this rule.
-
-  - P17. Opt.path (tentative). A property returning the query-path that
-    selects exactly this Opt, eg `search.cmd.x`.
-
-    - Round-trips: `p.query(opt.path)` returns this Opt.
-
-    - Computed on demand, never stored: API changes elsewhere (eg adding
-      another `<x>` to the same variant) can make a prior path imprecise.
-
-    - Uses: repr, spec-time error messages (eg P16 can print the scope to
-      use), debugging scoped configuration.
-
-    - Not the same as a scope, which selects a context (eg a whole
-      variant), not a single Opt. A derived `Opt.scope` (the path minus its
-      last element) is possible.
-
-    - To verify: query-path syntax can always yield a unique path,
-      including through unnamed groups and alternatives (indices are the
-      fallback).
 
   - P18. Query-result repr (tentative). A repr is a diagnostic, so it shows
     the raw Opts, each with its path (P17), not the unified view. Eg:

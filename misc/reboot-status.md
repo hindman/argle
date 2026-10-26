@@ -32,7 +32,8 @@ documentation and policy documents a lot.
 
 # TODOs
 
-- Edit policy-clarifications.md: see __HERE__
+- Edit policy-clarifications.md:
+  - See __HERE__ and the file's TODOs.
 
 - Create scenario-mockups.md
 
