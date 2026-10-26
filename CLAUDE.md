@@ -47,7 +47,7 @@ Archival, ignore unless asked: `misc/archive/`.
 
 ## Current status
 
-See `misc/status.md` for what has been done, decisions made, and next
+See `misc/reboot-status.md` for what has been done, decisions made, and next
 candidates. Read it at the start of a session; update it as work lands.
 
 ## Tooling
