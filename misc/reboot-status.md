@@ -268,12 +268,11 @@ Key policy goals/decisons and findings:
 
     - NOTE: this is currently under review and might change.
 
-    - NOTE: P0 (strict Opt independence) would eliminate the merging by
-      name assumed here.
-
-    - When a VarInput with choices appears in several places in the
-      variants, those occurrences are merged by name, and the
-      authoritative set is the union of their choices.
+    - When an opt-spec matches several Opts (see P16), the authoritative
+      set is the union of their choices (cf P14). Restating choices only
+      validates and documents: it never changes any Opt's own choices. If
+      the variants declare no choices, the opt-spec does supply them, by
+      broadcast, subject to P8.
 
     - A parent (regular) opt-spec must either restate the full
       authoritative set or say nothing about choices. A subset or superset
@@ -284,7 +283,8 @@ Key policy goals/decisons and findings:
           --color <c=red|green> : Error (subset)
 
     - Sub-specs name choices one at a time (see P5) and need not cover all
-      of them.
+      of them. A sub-spec attaches to the matched Opt(s) whose choices
+      include the named choice, not to every match.
 
     - Tentative: help-text display order of choices comes from the
       sub-specs if any, otherwise from the variants.
@@ -297,8 +297,7 @@ Key policy goals/decisons and findings:
 
     - NOTE: this is currently under review and might change.
 
-    - NOTE: P0 (strict Opt independence) would eliminate the merging by
-      name assumed here.
+    - SUPERSEDED by P0 (strict Opt independence). Kept for reference.
 
     - Parameters: the same rules apply within the parameters of a single
       Option. Options themselves are never merged, so same-named parameters
@@ -435,7 +434,9 @@ Key policy goals/decisons and findings:
     surface may group same-named Opts.
 
     - Opt-specs (an input surface).
-      - ASSESS/RESOLVE
+      - Opt-specs are similar to API configuration: mostly works via broacast,
+        with scopes for narrowing.
+      - See P0, P6, P8, and P16.
 
     - Usage text.
       - Mostly not impacted by independence/unification.
@@ -457,13 +458,17 @@ Key policy goals/decisons and findings:
       - Config read: maybe resolvable via P14.
 
     - Opt repr().
-      - ASSESS/RESOLVE
+      - Diagnostic, so show the raw Opts, each with its path.
+      - See P17 and P18.
 
     - Dispatch.
-      - ASSESS/RESOLVE
+      - Unify by (Opt name, dispatch function, dispatch Result).
+      - See P15.
 
     - Tab-completion.
-      - ASSESS/RESOLVE
+      - Completion operates at the grammar level.
+      - It supplies legal continutation, given context.
+      - Opt independence causes no trouble here.
 
     - Version output.
       - No relevance to opt independence/unification.
@@ -519,6 +524,60 @@ Key policy goals/decisons and findings:
       - usage_text (misc/notes.txt:3743)
       - spec (the Opt.spec TODO)
       - position and parent (implicit in the tree)
+
+  - P15. Dispatch and Opt independence (tentative):
+
+    - Default: dispatch unifies Opts by name. Argle calls a dispatch
+      function at most once per (NAME, FUNC, RESULT): the matched Opt's
+      name, its dispatch function, and the Result holding the Opt's value
+      (the innermost Result, when groups have dests).
+
+    - Example: `<x> <x>` yields two Opts in the grammar. With dispatch
+      configured on `<x>`, both matches share NAME, FUNC, and RESULT, so
+      the function is called once.
+
+    - Example: in EX_NAB, each repetition of the `commands` group has its
+      own inner Result. Matches of `<cmd>` differ in RESULT, so dispatch
+      occurs once per repetition.
+
+    - NAME is in the key so that different Opts sharing a function (eg
+      `--foo` and `--bar` both using `blort()`) are still called
+      separately.
+
+  - P16. Opt-spec broadcast (tentative). An opt-spec applies to every Opt
+    it matches (name, kind, scope). Whatever it adds must be valid for each
+    match; otherwise it is an error, and the user should add a scope. Eg
+    adding parameters (P3) to same-named Options whose grammar differs.
+    P8 is a specific case of this rule.
+
+  - P17. Opt.path (tentative). A property returning the query-path that
+    selects exactly this Opt, eg `search.cmd.x`.
+
+    - Round-trips: `p.query(opt.path)` returns this Opt.
+
+    - Computed on demand, never stored: API changes elsewhere (eg adding
+      another `<x>` to the same variant) can make a prior path imprecise.
+
+    - Uses: repr, spec-time error messages (eg P16 can print the scope to
+      use), debugging scoped configuration.
+
+    - Not the same as a scope, which selects a context (eg a whole
+      variant), not a single Opt. A derived `Opt.scope` (the path minus its
+      last element) is possible.
+
+    - To verify: query-path syntax can always yield a unique path,
+      including through unnamed groups and alternatives (indices are the
+      fallback).
+
+  - P18. Query-result repr (tentative). A repr is a diagnostic, so it shows
+    the raw Opts, each with its path (P17), not the unified view. Eg:
+
+        Opts([
+            Positional(cmd, choices=[search], path=search.cmd),
+            Positional(cmd, choices=[list], path=list.cmd),
+        ])
+
+    - The unified view remains available via attribute reads (P14).
 
 Name and aliases:
 
@@ -597,6 +656,11 @@ Problem solving strategy:
     - error reporting for arg parsing
 
   - Then derive rules from the mock-ups.
+
+  - Error messages: a dedicated later pass, after usage and help text are
+    mocked up across the scenarios. For each scenario, consider common and
+    weird error cases. Most will be obvious once a general approach exists;
+    add error examples only where they are interesting.
 
 ### Relevant criteria
 
