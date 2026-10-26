@@ -32,7 +32,11 @@ documentation and policy documents a lot.
 
 # TODOs
 
-- Deal with spec-syntax issues (see SPEC_ISSUE below).
+- Edit policy-clarifications.md: see __HERE__
+
+- Create scenario-mockups.md
+
+- Address other spec-syntax issues (see SPEC_ISSUE).
 
 - Add IDs to all headings in the new .md files.
 

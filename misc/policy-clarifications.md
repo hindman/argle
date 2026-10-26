@@ -3,7 +3,7 @@
 # policy-clarifications: Policy clarifications, additions, and changes
 # Policies
   ## Grammar and identity
-    ### P0: Strict Opt independence in the grammar (tentative)
+    ### P0: Strict Opt independence in the grammar
     ### P13: Grammar vs surfaces
     ### P17: Opt.path (tentative)
   ## Opt-specs and matching
@@ -29,6 +29,8 @@
     ### P15: Dispatch and Opt independence (tentative)
   ## Retired
     ### P7: Merging of choice-bearing VarInputs
+  ## Policy details
+    ### P0: Strict Opt independence in the grammar
 # ORIGINAL: KEEP FOR NOW: Draft policy/goals
   ## Edit list P5: per-choice help must be in sub-specs
 # notes on audit
@@ -45,25 +47,17 @@ as well.
 
 ## Grammar and identity
 
-### P0: Strict Opt independence in the grammar (tentative)
+### P0: Strict Opt independence in the grammar
 
-Each Opt occurrence implied by the spec is a distinct Opt. No unification by
-Opt.name, including for Opts with choices.
+Each Opt occurrence in spec/grammar is a distinct Opt:
+  - No unifying by name/dest.
+  - Includes Opts with choices, reversing prior policy.
 
-- Arg-parsing: no known examples where this leads to incorrect parsing
-  or unsupported use cases. Several require it (naval-fate, EX_NAB,
-  `--bar` with differing parameters). First-success backtracking
-  handles same-named Opts within one context.
-
-- What unification was meant to provide (unified help entries, full
-  choice listings in errors, merged values) is handled at the output
-  surfaces (help, errors, Result) by grouping same-named Opts, not by
-  merging them in the grammar.
-
-- TBD: API calls to unify Opts in the grammar after the fact. Leaning
-  no, since it could cause trouble for arg-parsing.
+Unify Opts by name (or dest), when needed, at surfaces (P13).
 
 ### P13: Grammar vs surfaces
+
+__HERE__
 
 The grammar (or model) is the tree of Opts and Groups built from the spec,
 which arg-parsing runs against. Surfaces (or outputs, views) are what Argle
@@ -489,26 +483,30 @@ independent (each receiving the same choices).
   Option. Options themselves are never merged, so same-named parameters
   in different Option instances stay independent.
 
+## Policy details
+
+### P0: Strict Opt independence in the grammar
+
+Argument parsing:
+  - Strict independence probably simplifies parsing: no need to reason about
+    Opt(foo) at position 3 vs Opt(foo) at position 7.
+  - Challenging examples under opt-unification: naval-fate, EX_NAB.
+  - No known examples where independence leads to incorrect parsing.
+  - Same-named Opts competing for the same input (eg two `--bar` in one
+    variant with differing N of parameters) need no special rule: first
+    success wins.
+
+Rejected alternative:
+  - Opt unification by name, plus position metadata.
+  - Probably feasible, but it adds bookkeeping.
+
+Multiple Opts with same name are rare:
+  - Rarer still: multiple same-name Opts requiring differing configurations.
+  - Advanced use cases can be expected to use the API.
+
 # ORIGINAL: KEEP FOR NOW: Draft policy/goals
 
 Key policy goals/decisons and findings:
-
-  - P0. Strict Opt independence in the grammar (tentative). Each Opt
-    occurrence implied by the spec is a distinct Opt. No unification by
-    Opt.name, including for Opts with choices.
-
-    - Arg-parsing: no known examples where this leads to incorrect parsing
-      or unsupported use cases. Several require it (naval-fate, EX_NAB,
-      `--bar` with differing parameters). First-success backtracking
-      handles same-named Opts within one context.
-
-    - What unification was meant to provide (unified help entries, full
-      choice listings in errors, merged values) is handled at the output
-      surfaces (help, errors, Result) by grouping same-named Opts, not by
-      merging them in the grammar.
-
-    - TBD: API calls to unify Opts in the grammar after the fact. Leaning
-      no, since it could cause trouble for arg-parsing.
 
   - P1. We do want an opt-spec to be able to add aliases or a long-name for an
     Option. That's handy, it allows the user to have super readable variants,
