@@ -1,12 +1,12 @@
 
 <!-- 
 
-  # rm-road-map: Road map
-  # rm-temp: Temp work area
+  # road-map: Road map
+  # temp: Temp work area
 
 -->
 
-# rm-road-map: Road map
+# road-map: Road map
 
 Spec-parsing [see grammar.py for todo list].
 
@@ -172,7 +172,7 @@ Other possibilities:
 
   - Enhanced quantifiers: range-step and disjoint values.
 
-# rm-temp: Temp work area
+# temp: Temp work area
 
 ...
 

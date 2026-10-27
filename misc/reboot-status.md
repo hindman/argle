@@ -1,19 +1,19 @@
 
 <!--
 
-  # rb-reboot-status: Status of project reboot
-  # rb-active-files: Most active files
-  # rb-todos: TODOs
-  # rb-whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
-  # rb-digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
-  # rb-conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
-  # rb-opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
-  # rb-conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
-  # rb-conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
+  # reboot-status: Status of project reboot
+  # active-files: Most active files
+  # todos: TODOs
+  # whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
+  # digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
+  # conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
+  # opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
+  # conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
+  # conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
 
 -->
 
-# rb-reboot-status: Status of project reboot
+# reboot-status: Status of project reboot
 
 The road-map.md file is the project's main status and TODO file.
 
@@ -22,7 +22,7 @@ delay. We are using it to get Monty's brain back up to speed and Claude Code's
 understanding up to snuff. In the process, we are also reorganizing the
 documentation and policy documents a lot.
 
-# rb-active-files: Most active files
+# active-files: Most active files
 
     reboot-status.md
     policies.md
@@ -30,7 +30,7 @@ documentation and policy documents a lot.
     spec-syntax.md
     notes.txt
 
-# rb-todos: TODOs
+# todos: TODOs
 
 - Edit policy-clarifications.md:
   - See __HERE__ and the file's TODOs.
@@ -65,7 +65,7 @@ documentation and policy documents a lot.
 - Assess the code base. Figure out which behaviors are implemented or not.
   Decide whether to continue from the existing code or restart fresh.
 
-# rb-whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
+# whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
 
 Pushing toward further relaxation, I think we still have some overly strict
 rules that lack a strong rationale.
@@ -78,7 +78,7 @@ ifconfig-style use case would want a prefix of empty string, right? Is
 supporting that type of use case a situation where we might want to tighten
 the whitespace rule for named-groups?
 
-# rb-digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
+# digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
 
 Current code: `short_option` is `-` followed by `\w`, so the lexer already
 accepts `-1`. It also accepts non-ASCII letters, since Python's `\w` is
@@ -102,7 +102,7 @@ Two follow-ons to decide:
     policy for how `-1` vs a negative value is read at end-user parse time.
     That's not a spec-syntax issue, but it should go on the TODO list.
 
-# rb-conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
+# conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
 
 Table of relevant attributes:
 
@@ -143,7 +143,7 @@ Preliminary analysis:
     quantification generally as most authoritative in the variants (if any)
     and somewhat optional in opt-specs.
 
-# rb-opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
+# opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
 
 This arose out of the variant-vs-opt-spec work. What if opt-specs conflict
 among themselves (eg `-i --ignore-case` and `-i --invert`)? Maybe this problem
@@ -157,7 +157,7 @@ opt-specs to the correct variant Opt(s). But similar criteria could also be
 used to make sure that -- in the case of an opt-specs-only spec file -- two
 separate Opts don't resolve to the "same thing".
 
-# rb-conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
+# conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
 
 What about opt-specs that completely change the parameters of an Option?
 
@@ -165,7 +165,7 @@ What about opt-specs that completely change the parameters of an Option?
     --bar <b1> [<b2>]      # In an opt-spec
     --bar <x> <y> <z>      # Ditto -- but more divergent
 
-# rb-conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
+# conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
 
 A merged Opt can have separate positions in the grammar:
 

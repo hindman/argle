@@ -1,24 +1,24 @@
 
 <!--
 
-  # sc-scenario-mockups: Scenario mockups
-    ## sc-background: Background and problem-solving strategy
-    ## sc-criteria: Relevant criteria
-    ## sc-scenarios: Scenarios
+  # scenario-mockups: Scenario mockups
+    ## background: Background and problem-solving strategy
+    ## criteria: Relevant criteria
+    ## scenarios: Scenarios
       ### scenarios-template: Scenarios template
-      ### sc-positional-choices: S1: positional with choices; variants-only
-      ### sc-partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
-      ### sc-other: OTHER
+      ### positional-choices: S1: positional with choices; variants-only
+      ### partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
+      ### other: OTHER
   # argparse-messages: Reference: argparse messages
-    ## sc-argparse-msg-format: Message format
-    ## sc-argparse-common-msgs: Common messages
-    ## sc-argparse-msg-examples: Message examples
+    ## argparse-msg-format: Message format
+    ## argparse-common-msgs: Common messages
+    ## argparse-msg-examples: Message examples
 
 -->
 
-# sc-scenario-mockups: Scenario mockups
+# scenario-mockups: Scenario mockups
 
-## sc-background: Background and problem-solving strategy
+## background: Background and problem-solving strategy
 
 These scenarios started as a way to address some policy gaps/problems related
 to Opt independence-vs-unification, based on Opt.name. The idea was to focus
@@ -33,7 +33,7 @@ Each mockup would document inputs and outputs:
   - error reporting for arg parsing
   - maybe other output surfaces: API querying, etc.
 
-## sc-criteria: Relevant criteria
+## criteria: Relevant criteria
 
 Criteria to consider in scenarios:
 
@@ -79,7 +79,7 @@ Criteria to consider in scenarios:
     - Small: practical for help-text display
     - Large: too many values
 
-## sc-scenarios: Scenarios
+## scenarios: Scenarios
 
 Scenario info to consider adding after we have more scenarios drafted:
 
@@ -135,7 +135,7 @@ Help text:
 Notes:
   - __
 
-### sc-positional-choices: S1: positional with choices; variants-only
+### positional-choices: S1: positional with choices; variants-only
 
 Description:
   - Variants: 1.
@@ -160,7 +160,7 @@ Help text:
 Notes:
   - Opt choices and default are auto-appended to an opt-desc (P9).
 
-### sc-partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
+### partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
 
 Description:
   - Variants: 1.
@@ -198,7 +198,7 @@ Notes:
     default heading. Also see S2b, which offers a better alternative via the
     `{opts}` slot.
 
-### sc-opts-slot: S2b: S2a plus an `{opts}` slot
+### opts-slot: S2b: S2a plus an `{opts}` slot
 
 Description:
   - Same as S2a.
@@ -235,7 +235,7 @@ Notes:
 
   - Assumes a Line types rule for a block slot on its own line (see P12).
 
-### sc-other: OTHER
+### other: OTHER
 
     S3. S1 plus an opt-spec and sub-specs
         [<fmt=json|yaml>] : Output format
@@ -337,12 +337,12 @@ Notes:
 
 # argparse-messages: Reference: argparse messages
 
-## sc-argparse-msg-format: Message format
+## argparse-msg-format: Message format
 
     usage: USAGE_TEXT
     PROG: error: MSG
 
-## sc-argparse-common-msgs: Common messages
+## argparse-common-msgs: Common messages
 
     Missing required args | the following arguments are required: x, n, --user
     Invalid conversion    | argument n: invalid int value: 'abc'
@@ -354,7 +354,7 @@ Notes:
     Ambiguous abbrev      | ambiguous option: --ver could match --verbose, --verify
     Invalid subcommand    | argument cmd: invalid choice: 'fubb' (choose from 'add', 'rm')
 
-## sc-argparse-msg-examples: Message examples
+## argparse-msg-examples: Message examples
 
 Source:
 

@@ -1,38 +1,38 @@
 
 <!--
 
-  # cl-classes: Classes and attributes
-    ## cl-overview: Overview
-    ## cl-parser: Parser
-    ## cl-section: Section
-    ## cl-grammar: Grammar
-    ## cl-query: Query
-    ## cl-quantifier: Quantifier
-    ## cl-variant: Variant
-    ## cl-group: Group
-    ## cl-opt-family: Opt and children: overview
-    ## cl-opt: Opt
-    ## cl-positional: Positional
-    ## cl-option: Option
-    ## cl-literal: Literal
-    ## cl-var-input: VarInput
-    ## cl-parameter: Parameter
-    ## cl-choice: Choice
-    ## cl-result: Result
-    ## cl-spec-parser: SpecParser
-    ## cl-regex-lexer: RegexLexer
-    ## cl-tok-type: TokType
-    ## cl-token: Token
-    ## cl-parse-elem: ParseElem
-    ## cl-state: State
-    ## cl-arg-result: ArgResult
-    ## cl-target: Target
+  # classes: Classes and attributes
+    ## overview: Overview
+    ## parser: Parser
+    ## section: Section
+    ## grammar: Grammar
+    ## query: Query
+    ## quantifier: Quantifier
+    ## variant: Variant
+    ## group: Group
+    ## opt-family: Opt and children: overview
+    ## opt: Opt
+    ## positional: Positional
+    ## option: Option
+    ## literal: Literal
+    ## var-input: VarInput
+    ## parameter: Parameter
+    ## choice: Choice
+    ## result: Result
+    ## spec-parser: SpecParser
+    ## regex-lexer: RegexLexer
+    ## tok-type: TokType
+    ## token: Token
+    ## parse-elem: ParseElem
+    ## state: State
+    ## arg-result: ArgResult
+    ## target: Target
 
 -->
 
-# cl-classes: Classes and attributes
+# classes: Classes and attributes
 
-## cl-overview: Overview
+## overview: Overview
 
   - User-facing entities:
 
@@ -93,7 +93,7 @@
         PositionalVariant | Opt
         ParameterVariant  | Opt
 
-## cl-parser: Parser
+## parser: Parser
 
   - Class will likely have various getters or query functionality to make it
     easy to configure specific grammar elements. Users should not have to
@@ -158,7 +158,7 @@
           p.error(msg = None, code = 1)
           p.exit(msg = None, code = 0)
 
-## cl-section: Section
+## section: Section
 
   - Used to create labeled groups of Opt for help text purposes.
 
@@ -176,7 +176,7 @@
         opts: list[Opt]
         text: str
 
-## cl-grammar: Grammar
+## grammar: Grammar
 
   - Attributes:
 
@@ -185,7 +185,7 @@
   - API:
     - See grammar-querying-api
 
-## cl-query: Query
+## query: Query
 
   - Sequence object returned by Grammar.query().
   - Holds the Grammar elements satisfying the search parameters.
@@ -210,7 +210,7 @@
 
           q.query(...) => Query
 
-## cl-quantifier: Quantifier
+## quantifier: Quantifier
 
   - Represents any valid input value for nargs or ntimes.
 
@@ -221,7 +221,7 @@
         required: bool
         greedy: bool
 
-## cl-variant: Variant
+## variant: Variant
 
   - Attributes:
 
@@ -229,7 +229,7 @@
         elems: list[Group or Opt]
         ntimes: Quantifier
 
-## cl-group: Group
+## group: Group
 
   - Represents spec-syntax enclosed by brackets.
   - Primary purposes:
@@ -260,7 +260,7 @@
         # Child elements.
         elems: list[Group or Opt]
 
-## cl-opt-family: Opt and children: overview
+## opt-family: Opt and children: overview
 
   - Opts and their children:
 
@@ -268,13 +268,13 @@
         Option > Parameter > Choice
         Literal > None
 
-## cl-opt: Opt
+## opt: Opt
   - Base class for Positional, Option, or Literal.
   - Some of the common attributes listed for each subclass (below) might be
     implemented at the Opt level (TBD).
   - Also see: opt-and-varinput-configuration
 
-## cl-positional: Positional
+## positional: Positional
   - Subclass of Opt.
 
   - Attributes:
@@ -295,7 +295,7 @@
         convert: callable
         validate: callable
 
-## cl-option: Option
+## option: Option
 
   - Subclass of Opt.
 
@@ -317,7 +317,7 @@
         priority: bool                   # Flags only.
         negaters: list[Option]
 
-## cl-literal: Literal
+## literal: Literal
 
   - Subclass of Opt.
 
@@ -326,13 +326,13 @@
         spec: str         # The literal value (no backquotes).
         anchor: bool      # Always True.
 
-## cl-var-input: VarInput
+## var-input: VarInput
 
   - Base class for a variable-input as a configurable unit.
   - Sub-classes: Positional or Parameter.
   - Also see: opt-and-varinput-configuration
 
-## cl-parameter: Parameter
+## parameter: Parameter
 
   - Attributes:
 
@@ -347,14 +347,14 @@
         convert: callable
         validate: callable
 
-## cl-choice: Choice
+## choice: Choice
 
   - Attributes:
 
         spec: str      # The literal value.
         help: str
 
-## cl-result: Result
+## result: Result
 
   - Data object returned to end-user by Parser.parse().
 
@@ -363,7 +363,7 @@
   - In more complex grammers the top-level Result returned by parse() might
     contain nested Result instances (eg, a Group with a quantifier of 2+).
 
-## cl-spec-parser: SpecParser
+## spec-parser: SpecParser
 
   - Attributes:
 
@@ -378,7 +378,7 @@
         eat()
         error()
 
-## cl-regex-lexer: RegexLexer
+## regex-lexer: RegexLexer
 
   - General-purpose regex-based lexer.
 
@@ -394,7 +394,7 @@
 
         See old.py implementation and modifications in draft.py.
 
-## cl-tok-type: TokType
+## tok-type: TokType
 
   - Internal data object given to a lexer.
 
@@ -404,7 +404,7 @@
         regex | Regex to match the token.
         emit  | Whether to emit back to parser [default: True].
 
-## cl-token: Token
+## token: Token
 
   - Simple internal data object emitted by a lexer.
 
@@ -420,7 +420,7 @@
 
         Same as TokType.
 
-## cl-parse-elem: ParseElem
+## parse-elem: ParseElem
 
   - Simple internal data object emitted by the parsing phase of
     SpecParser.parse(). Subsequent work in that method will convert the
@@ -438,17 +438,17 @@
         parameter
         literal
 
-## cl-state: State
+## state: State
 
   - An internal data object used during argument parsing. See
     arg-parsing-algo notes.
 
-## cl-arg-result: ArgResult
+## arg-result: ArgResult
 
   - An internal data object used during argument parsing. See
     arg-parsing-algo notes.
 
-## cl-target: Target
+## target: Target
 
   - A data object used during argument parsing to store the information
     ultimately returned as a Result to end user.
