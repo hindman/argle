@@ -50,7 +50,7 @@ or glossed over) than to get bogged down in lengthy discussion. The file's
 ultimate purpose is to be a place where one can read and jog memory, with slug
 links to longer discussion.
 
-# TODOs
+# po-todos: TODOs
 
 Edit the policies: initial pass.
 
@@ -58,9 +58,9 @@ Table in P101: add policy number references.
 
 # argle-policies: Policies
 
-## Grammar and identity
+## po-grammar: Grammar and identity
 
-### P0: Strict Opt independence in the grammar
+### po-grammar-opt-independence: P0: Strict Opt independence in the grammar
 
 Each Opt occurrence in spec/grammar is a distinct Opt:
   - No unifying by name/dest.
@@ -85,7 +85,7 @@ Details:
     - Rarer still: multiple same-name Opts requiring differing configurations.
     - Advanced use cases can be expected to use the API.
 
-### P13: Terminology: grammar vs surfaces
+### po-grammar-vs-surfaces: P13: Terminology: grammar vs surfaces
 
 Grammar:
   - The list-tree of Opts, Groups, Variants, etc.
@@ -99,7 +99,7 @@ Surfaces:
     - But also inputs (eg spec or API for configuration).
     - And sometimes behaviors (eg dispatch).
 
-### P101: Opts are generally unified at surfaces
+### po-surface-unification: P101: Opts are generally unified at surfaces
 
 Most CLI use cases want Opt unification by name at the surfaces:
 
@@ -135,7 +135,7 @@ Policy summary of Opt independence/unification, by surface:
     Version output | No relevance
     Warn/exit msg  | No known relevance
 
-### P17: Add a path @property to Opt
+### po-opt-path-property: P17: Add a path @property to Opt
 
 Add Opt.path as @property:
   - Returns query path to exactly select the Opt.
@@ -149,11 +149,11 @@ Add Opt.path as @property:
   - Not the same as a scope:
     - A scope can select a context/universe -- more than one Opt.
 
-## Opt-specs and matching
+## po-opt-specs: Opt-specs and matching
 
 __HERE__
 
-### P16: Opt-spec matching
+### po-opt-spec-matching: P16: Opt-spec matching
 
 An opt-spec is a broadcast configuration mechanism:
   - It is applied to every Opt (from variants) that it matches.
@@ -206,7 +206,7 @@ adds must be valid for each match; otherwise it is an error, and the user
 should add a scope. Eg adding parameters (P3) to same-named Options whose
 grammar differs. P8 is a specific case of this rule.
 
-### Names and aliases
+### po-opt-spec-names-aliases: Names and aliases
 
 - Options:
 
@@ -242,25 +242,25 @@ grammar differs. P8 is a specific case of this rule.
     cannot rename a positional, nor can there be variant-vs-opt-spec
     conflict as it relates to names.
 
-### P1: Opt-specs can add aliases
+### po-opt-spec-adds-aliases: P1: Opt-specs can add aliases
 
 We do want an opt-spec to be able to add aliases or a long-name for an Option.
 That's handy, it allows the user to have super readable variants, and even the
 README does it.
 
-### P3: Opt-specs can add parameters
+### po-opt-spec-adds-parameters: P3: Opt-specs can add parameters
 
 We do want opt-specs to be able to add parameters to an Option. This is
 similar to P1 because it allows for a compact/readable command-line grammar,
 leaving the fleshing out to opts-specs.
 
-### P4: Quantity can't be fully specified in an opt-spec
+### po-opt-spec-quantity-limits: P4: Quantity can't be fully specified in an opt-spec
 
 At the level of an individual Opt, it's impossible to fully specify
 quantity/required correctly in an opt-spec because those attributes can derive
 from parent containers in the command-line grammar.
 
-### P8: Same-named choice-bearing and choiceless Opts
+### po-same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
 
 Matching stays based on name, kind, and scope (adding choices to the matching
 criteria would turn conflicts into silent non-matches). If an unscoped
@@ -275,14 +275,14 @@ variants):
   the choiceless Opt would silently gain the choices, a behavior change
   that the help output does not reveal.
 
-## Choices
+## po-choices: Choices
 
-### P2: Per-choice help text
+### po-per-choice-help: P2: Per-choice help text
 
 We do want to support per-choice help text. That's a feature I have wanted
 many times as a long-suffering argparse user.
 
-### P5: Per-choice help text via sub-specs
+### po-per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
 
 Per-choice help text must be done via sub-specs. Applies to both parameters
 (the old policy) and now positionals (the new policy to make things consistent
@@ -304,7 +304,7 @@ the edit-list we assembled in a separate section below.
   `<c=red|green>`). A choices-only parameter (`<red|green>`) cannot be
   reached by a sub-spec, because `<red>` reads as a parameter name.
 
-### P6: Variant-declared choices are authoritative
+### po-variant-choices-authoritative: P6: Variant-declared choices are authoritative
 
 If a variant declares choices for a VarInput, they are authoritative.
 Opt-specs (regular or sub-spec) may name only those choices; naming any other
@@ -334,7 +334,7 @@ no choices, the opt-specs supply them.
 - Tentative: help-text display order of choices comes from the
   sub-specs if any, otherwise from the variants.
 
-### P9: Documenting choices
+### po-documenting-choices: P9: Documenting choices
 
 Argle is roughly following git, in not listing VarInput choices in usage text
 or in the grammatical/formal portion of the opt-descs. Instead, it's default
@@ -345,9 +345,9 @@ details).
   arg-variant like `<cmd=merge>`) displays its choice as a literal in
   usage text, as git does (`git merge [<options>]`).
 
-## Help text
+## po-help-text: Help text
 
-### P10: Help text defaults
+### po-help-text-defaults: P10: Help text defaults
 
 - If user supplies only variants (no opt-specs), Argle will generate a
   typical listing of opt-descs. Why this is a helpful default:
@@ -373,7 +373,7 @@ details).
     - Raise if the user's opt-descs are not exhaustive (meaning: all Opts
       in the variants were matched by an opt-spec).
 
-### P11: Help-text slots (tentative)
+### po-help-text-slots: P11: Help-text slots (tentative)
 
 - One mechanism for placing generated or custom content in help text:
   named slots, written `{name}`. Replaces the earlier ideas of `@`
@@ -412,7 +412,7 @@ details).
 - No scoping syntax. Scoped content (eg one subcommand's opt-descs)
   comes from a user slot whose hook supplies the query.
 
-### P12: Slot hooks (tentative)
+### po-slot-hooks: P12: Slot hooks (tentative)
 
 - Registration, roughly: `p.slot('add_opts', func)`.
 
@@ -448,9 +448,9 @@ details).
     Opt or the choice.
   - Whether help text set via the API gets slot substitution.
 
-## API
+## po-api: API
 
-### P14: API reads (tentative)
+### po-api-reads: P14: API reads (tentative)
 
 Reading an attribute from a query result unifies across its OptNodes: the
 distinct union of values, in spec order.
@@ -501,7 +501,7 @@ distinct union of values, in spec order.
   - spec (the Opt.spec TODO)
   - position and parent (implicit in the tree)
 
-### P18: Query-result repr (tentative)
+### po-query-result-repr: P18: Query-result repr (tentative)
 
 A repr is a diagnostic, so it shows the raw Opts, each with its path (P17),
 not the unified view. Eg:
@@ -513,9 +513,9 @@ not the unified view. Eg:
 
 - The unified view remains available via attribute reads (P14).
 
-## Dispatch
+## po-dispatch: Dispatch
 
-### P15: Dispatch and Opt independence (tentative)
+### po-dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
 
 - Default: dispatch unifies Opts by name. Argle calls a dispatch
   function at most once per (NAME, FUNC, RESULT): the matched Opt's
@@ -534,9 +534,9 @@ not the unified view. Eg:
   `--foo` and `--bar` both using `blort()`) are still called
   separately.
 
-## Retired
+## po-retired: Retired
 
-### P7: Merging of choice-bearing VarInputs
+### po-merging-choice-var-inputs: P7: Merging of choice-bearing VarInputs
 
 In the variants, Opts with choices that share a name are merged; Opts without
 choices are independent. Merging is a spec-parse step over the variants only:
@@ -551,7 +551,7 @@ independent (each receiving the same choices).
   Option. Options themselves are never merged, so same-named parameters
   in different Option instances stay independent.
 
-# ORIGINAL: KEEP FOR NOW: Draft policy/goals
+# po-original-draft: ORIGINAL: KEEP FOR NOW: Draft policy/goals
 
 Key policy goals/decisons and findings:
 
@@ -876,7 +876,7 @@ Name and aliases:
       cannot rename a positional, nor can there be variant-vs-opt-spec
       conflict as it relates to names.
 
-## Edit list P5: per-choice help must be in sub-specs
+## po-per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
 
 misc/notes.txt:2013 — sub-specs configure "a choice of a Positional or Parameter"
 - ok
@@ -905,7 +905,7 @@ misc/examples/argparse-vs-argle/wrangle:85 — parent `<task>` line already pres
 README.md:324 — same as wrangle
 - ditto
 
-# notes on audit
+# po-audit-notes: notes on audit
 
 Themes of the policies (so far):
 

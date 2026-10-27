@@ -1,4 +1,4 @@
-# Spec examples
+# spec-examples: Spec examples
 
 <!--
 
@@ -16,27 +16,27 @@
 
 -->
 
-## pgrep: README example-1: EX_README_1
+## ex-readme-1: pgrep: README example-1: EX_README_1
 
 See argparse-vs-argle/pgrep-1-bare-bones
 
-## pgrep: README example-2: EX_README_2
+## ex-readme-2: pgrep: README example-2: EX_README_2
 
 See argparse-vs-argle/pgrep-2-basic
 
-## pgrep: README example-3: EX_README_3
+## ex-readme-3: pgrep: README example-3: EX_README_3
 
 See argparse-vs-argle/pgrep-3-enhanced
 
-## pgrep: README example-4: EX_README_4
+## ex-readme-4: pgrep: README example-4: EX_README_4
 
 See argparse-vs-argle/wrangle
 
-## Parser configuration: spec-vs-API: EX_JOB_CLIENT
+## ex-job-client: Parser configuration: spec-vs-API: EX_JOB_CLIENT
 
 See misc/examples/spec-vs-api/job-client-*
 
-## blort: EX_BLORT
+## ex-blort: blort: EX_BLORT
 
 See misc/examples/argle-mock-ups/blort.py
 
@@ -46,7 +46,7 @@ See misc/examples/argle-mock-ups/blort.py
 - Includes Opts with same-name and different-config.
 - Several notes to document the spec syntax and behaviors.
 
-## neck-diagram: EX_NECK_DIAG
+## ex-neck-diag: neck-diagram: EX_NECK_DIAG
 
 This is a non-standard command line program: its grammar consists of one or
 more subcommands with a literal separator between them.
@@ -62,7 +62,7 @@ more subcommands with a literal separator between them.
 
     main : cmd! [ `/` cmd! ]...
 
-## nab: EX_NAB
+## ex-nab: nab: EX_NAB
 
 Another separator-based grammar.
 
@@ -91,7 +91,7 @@ A comparison of Docopt, Click and Argle.
 - argle-naval-fate.py
 - docopt-naval-fate
 
-## API-driven configuration vs text-driven configuration
+## ex-api-vs-text: API-driven configuration vs text-driven configuration
 
 See misc/examples/spec-vs-api/
 

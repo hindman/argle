@@ -1,19 +1,19 @@
 
 <!-- 
 
-# Dev notes
-  ## Creating a new virtualenv
-  ## Activate and run tests
-  ## Version bump
-  ## Publish
-  ## Installing from test pypi
-  ## Tag file creation
+# dn-dev-notes: Dev notes
+  ## dn-new-venv: Creating a new virtualenv
+  ## dn-run-tests: Activate and run tests
+  ## dn-version-bump: Version bump
+  ## dn-publish: Publish
+  ## dn-test-pypi-install: Installing from test pypi
+  ## dn-tags-file: Tag file creation
 
 -->
 
-# Dev notes
+# dn-dev-notes: Dev notes
 
-## Creating a new virtualenv
+## dn-new-venv: Creating a new virtualenv
 
     v='3.14.8'
     p='argle'
@@ -23,7 +23,7 @@
     pip install -U pip
     pip install -e .[dev,test] && pip list
 
-## Activate and run tests
+## dn-run-tests: Activate and run tests
 
 Basic:
 
@@ -40,23 +40,23 @@ With tox directly:
     pyenv shell 3.9.4  3.8.9  ...
     tox
 
-## Version bump
+## dn-version-bump: Version bump
 
 Edit/commit all changes, including CHANGES and README.
 
     inv bump --kind major|minor|patch
 
-## Publish
+## dn-publish: Publish
 
     inv dist [--publish] [--test] [--verbose]
 
-## Installing from test pypi
+## dn-test-pypi-install: Installing from test pypi
 
     pip install --index-url https://test.pypi.org/simple/ argle
     pip uninstall short-con
     pip install short-con
 
-## Tag file creation
+## dn-tags-file: Tag file creation
 
     inv tags
 

@@ -1,5 +1,5 @@
 
-# Terminology
+# terminology: Terminology
 
 Library:
   - The argle code base.

@@ -1,4 +1,4 @@
-# Spec syntax
+# spec-syntax: Spec syntax
 
 <!--
 
@@ -145,7 +145,7 @@
 
 - A literal does not support: name, dest, or quantifier.
 
-## quoted-text3 and quoted-text1
+## quoted-text: quoted-text3 and quoted-text1
 
     quoted-text3:  (escape | quoted-char3)...
     quoted-text1:  (escape | quoted-char1)...
@@ -456,7 +456,7 @@
 - Primarily an internal term, not user-facing.
 - Forms: positional and parameter.
 
-## Quoting rules
+## quoting-rules: Quoting rules
 
 Most text needs no escaping. Backslashes are ordinary text, and so are
 one or two backquotes in a block-quote.
@@ -491,7 +491,7 @@ Examples:
     ```\\!foo```      | \!foo       | .
     `\\\`foo\\\``     | \`foo\`     | .
 
-## Line types
+## line-types: Line types
 
 Each line is classified by the first rule that applies:
 
@@ -505,7 +505,7 @@ Each line is classified by the first rule that applies:
 
 - Otherwise: variant or opt-spec.
 
-## Whitespace rules
+## whitespace-rules: Whitespace rules
 
 - Line and indentation requirements:
 
@@ -545,7 +545,7 @@ Each line is classified by the first rule that applies:
   - Within a var-input, around its = and | separators (but see the
     line-break rule above).
 
-## Spec-syntax hierarchy in compact form
+## spec-syntax-hierarchy: Spec-syntax hierarchy in compact form
 
 This material condenses the material in spec-syntax into a hierarchy
 displaying the relationships among the elements.
