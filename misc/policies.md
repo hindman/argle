@@ -1,38 +1,38 @@
 <!--
 
-# TODOs
-# argle-policies: Policies
-  ## Grammar and identity
-    ### P0: Strict Opt independence in the grammar
-    ### P13: Terminology: grammar vs surfaces
-    ### P101: Opts are generally unified at surfaces
-    ### P17: Add a path @property to Opt
-  ## Opt-specs and matching
-    ### P16: Opt-spec matching
-    ### Names and aliases
-    ### P1: Opt-specs can add aliases
-    ### P3: Opt-specs can add parameters
-    ### P4: Quantity can't be fully specified in an opt-spec
-    ### P8: Same-named choice-bearing and choiceless Opts
-  ## Choices
-    ### P2: Per-choice help text
-    ### P5: Per-choice help text via sub-specs
-    ### P6: Variant-declared choices are authoritative
-    ### P9: Documenting choices
-  ## Help text
-    ### P10: Help text defaults
-    ### P11: Help-text slots (tentative)
-    ### P12: Slot hooks (tentative)
-  ## API
-    ### P14: API reads (tentative)
-    ### P18: Query-result repr (tentative)
-  ## Dispatch
-    ### P15: Dispatch and Opt independence (tentative)
-  ## Retired
-    ### P7: Merging of choice-bearing VarInputs
-# ORIGINAL: KEEP FOR NOW: Draft policy/goals
-  ## Edit list P5: per-choice help must be in sub-specs
-# notes on audit
+  # TODOs
+  # argle-policies: Policies
+    ## Grammar and identity
+      ### P0: Strict Opt independence in the grammar
+      ### P13: Terminology: grammar vs surfaces
+      ### P101: Opts are generally unified at surfaces
+      ### P17: Add a path @property to Opt
+    ## Opt-specs and matching
+      ### P16: Opt-spec matching
+      ### Names and aliases
+      ### P1: Opt-specs can add aliases
+      ### P3: Opt-specs can add parameters
+      ### P4: Quantity can't be fully specified in an opt-spec
+      ### P8: Same-named choice-bearing and choiceless Opts
+    ## Choices
+      ### P2: Per-choice help text
+      ### P5: Per-choice help text via sub-specs
+      ### P6: Variant-declared choices are authoritative
+      ### P9: Documenting choices
+    ## Help text
+      ### P10: Help text defaults
+      ### P11: Help-text slots (tentative)
+      ### P12: Slot hooks (tentative)
+    ## API
+      ### P14: API reads (tentative)
+      ### P18: Query-result repr (tentative)
+    ## Dispatch
+      ### P15: Dispatch and Opt independence (tentative)
+    ## Retired
+      ### P7: Merging of choice-bearing VarInputs
+  # ORIGINAL: KEEP FOR NOW: Draft policy/goals
+    ## Edit list P5: per-choice help must be in sub-specs
+  # notes on audit
 
 -->
 

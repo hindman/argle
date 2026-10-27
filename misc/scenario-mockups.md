@@ -1,18 +1,18 @@
 
 <!--
 
-# sc-scenario-mockups: Scenario mockups
-  ## sc-background: Background and problem-solving strategy
-  ## sc-criteria: Relevant criteria
-  ## sc-scenarios: Scenarios
-    ### scenarios-template: Scenarios template
-    ### sc-positional-choices: S1: positional with choices; variants-only
-    ### sc-partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
-    ### sc-other: OTHER
-# argparse-messages: Reference: argparse messages
-  ## sc-argparse-msg-format: Message format
-  ## sc-argparse-common-msgs: Common messages
-  ## sc-argparse-msg-examples: Message examples
+  # sc-scenario-mockups: Scenario mockups
+    ## sc-background: Background and problem-solving strategy
+    ## sc-criteria: Relevant criteria
+    ## sc-scenarios: Scenarios
+      ### scenarios-template: Scenarios template
+      ### sc-positional-choices: S1: positional with choices; variants-only
+      ### sc-partial-opt-spec: S2a: S1 plus a partial opt-spec and an epilogue; no slot
+      ### sc-other: OTHER
+  # argparse-messages: Reference: argparse messages
+    ## sc-argparse-msg-format: Message format
+    ## sc-argparse-common-msgs: Common messages
+    ## sc-argparse-msg-examples: Message examples
 
 -->
 

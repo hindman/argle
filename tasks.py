@@ -8,7 +8,7 @@
 #   inv --help TASK
 #
 # Tasks:
-#   inv tags
+#   inv tags [--check]
 #   inv test [--cov]
 #   inv dist [--publish] [--test]
 #   inv tox
@@ -26,12 +26,18 @@ from pathlib import Path
 LIB = 'argle'
 
 @task
-def tags(c):
+def tags(c, check = False):
     '''
-    Run mtags for the project
+    Write tags files: tags (code, via ctags) and mtags (docs, via mhtags)
     '''
-    c.run('mtags --recipe .argpy --write w')
-    c.run('mtags --recipe .argtxt --write u --toc order')
+    docs = 'misc misc/notes.txt'
+    if check:
+        # Problems make mhtags exit 1; warn keeps invoke from erroring on that.
+        c.run(f'mhtags --check {docs}', warn = True)
+    else:
+        # ctags reads its options (recursion, excludes) from .ctags.d/.
+        c.run('ctags src')
+        c.run(f'mhtags {docs}')
 
 @task
 def test(c, func = None, cov = False):

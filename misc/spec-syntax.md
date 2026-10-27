@@ -2,54 +2,54 @@
 
 <!--
 
-# Spec syntax
-  ## spec
-  ## usage-section
-  ## section
-  ## any-section-title
-  ## section-title
-  ## scoped-section-title
-  ## section-scope
-  ## query-path
-  ## query-elem
-  ## section-content-elem
-  ## heading
-  ## block-quote
-  ## literal
-  ## quoted-text3 and quoted-text1
-  ## variant
-  ## opt-spec
-  ## opt-spec-def
-  ## opt-spec-elem
-  ## opt-spec-group
-  ## python-name
-  ## valid-name
-  ## opt-help-text
-  ## variant-def
-  ## alternative
-  ## variant-elem
-  ## quantifier
-  ## partial-usage
-  ## choice-sep
-  ## any-group
-  ## named-group
-  ## group
-  ## aliases-and-option
-  ## bare-option
-  ## option
-  ## any-parameter
-  ## parameter
-  ## choices
-  ## choice
-  ## parameter-group
-  ## parameter-group-def
-  ## positional
-  ## opt-mention
-  ## var-input
-  ## Quoting rules
-  ## Line types
-  ## Whitespace rules
-  ## Spec-syntax hierarchy in compact form
+  # Spec syntax
+    ## spec
+    ## usage-section
+    ## section
+    ## any-section-title
+    ## section-title
+    ## scoped-section-title
+    ## section-scope
+    ## query-path
+    ## query-elem
+    ## section-content-elem
+    ## heading
+    ## block-quote
+    ## literal
+    ## quoted-text3 and quoted-text1
+    ## variant
+    ## opt-spec
+    ## opt-spec-def
+    ## opt-spec-elem
+    ## opt-spec-group
+    ## python-name
+    ## valid-name
+    ## opt-help-text
+    ## variant-def
+    ## alternative
+    ## variant-elem
+    ## quantifier
+    ## partial-usage
+    ## choice-sep
+    ## any-group
+    ## named-group
+    ## group
+    ## aliases-and-option
+    ## bare-option
+    ## option
+    ## any-parameter
+    ## parameter
+    ## choices
+    ## choice
+    ## parameter-group
+    ## parameter-group-def
+    ## positional
+    ## opt-mention
+    ## var-input
+    ## Quoting rules
+    ## Line types
+    ## Whitespace rules
+    ## Spec-syntax hierarchy in compact form
 
 -->
 

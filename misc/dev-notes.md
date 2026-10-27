@@ -1,13 +1,13 @@
 
 <!-- 
 
-# dn-dev-notes: Dev notes
-  ## dn-new-venv: Creating a new virtualenv
-  ## dn-run-tests: Activate and run tests
-  ## dn-version-bump: Version bump
-  ## dn-publish: Publish
-  ## dn-test-pypi-install: Installing from test pypi
-  ## dn-tags-file: Tag file creation
+  # dn-dev-notes: Dev notes
+    ## dn-new-venv: Creating a new virtualenv
+    ## dn-run-tests: Activate and run tests
+    ## dn-version-bump: Version bump
+    ## dn-publish: Publish
+    ## dn-test-pypi-install: Installing from test pypi
+    ## dn-tags-file: Tag file creation
 
 -->
 

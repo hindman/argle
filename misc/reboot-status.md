@@ -1,15 +1,15 @@
 
 <!--
 
-# rb-reboot-status: Status of project reboot
-# rb-active-files: Most active files
-# rb-todos: TODOs
-# rb-whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
-# rb-digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
-# rb-conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
-# rb-opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
-# rb-conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
-# rb-conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
+  # rb-reboot-status: Status of project reboot
+  # rb-active-files: Most active files
+  # rb-todos: TODOs
+  # rb-whitespace-rules: SPEC_ISSUE: re-assess the whitespace rules in spec-syntax
+  # rb-digit-short-opts: SPEC_ISSUE: first-char spec does not allow short options like `-1`
+  # rb-conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
+  # rb-opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
+  # rb-conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
+  # rb-conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
 
 -->
 
@@ -40,8 +40,6 @@ documentation and policy documents a lot.
 - Address other spec-syntax issues (see SPEC_ISSUE).
 
 - Add IDs to all headings in the new .md files.
-
-- mhtags: get script working.
 
 - Flesh out the `Opt.spec` attribute. What does it contain?
 
