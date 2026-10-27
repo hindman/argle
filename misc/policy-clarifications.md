@@ -166,8 +166,19 @@ An opt-spec is a broadcast configuration mechanism:
 With several matched Opts, V is the union of their choices, and the second row requires
 every match to be choiceless (P8).
 
-** So an opt-spec with choice(s) must match either (a) choiceless Opts, or (b)
-choice-bearing Opts, but (c) never a mixed bag.
+  - An opt-spec with choices must match either (a) choiceless Opts, or (b)
+    choice-bearing Opts, but (c) never a mixed bag.
+  - Admitting that such uses cases are super rare, when we concoct mixed-bag
+    scenarios, we have a hard time discerning a clear user intent, so the
+    error forces the user to be specific.
+  - The user can use scopes in the opt-specs (if they want their mixed bag to
+    remain separated on choice-vs-choiceless) or add choice(s) to the
+    choiceless Opts in the variants (making the bad no long mixed)
+  - The no-mixed-bag policy is not just sticklerism. If same-name Opts in
+    variants all have choices, that's a signal the user intends them to be
+    unified for configuration purposes. Ditto if same-name Opts in variants
+    are choiceless. But the mixed-bag situation conveys mixed signals -- hence
+    the error to force some clarity from the user.
 
 Sub-specs add one more row: >> <x=c> is OK if c is in V (or in S, when the opt-spec
 supplied it), and an error otherwise.
@@ -181,9 +192,6 @@ otherwise S):
     E               | OK if c1/c2/et in E; else error
 
   With several matched Opts, the sub-spec attaches to the Opts whose choices include c (P6).
-
-
-An opt-spec applies to
 
 An opt-spec applies to every Opt it matches (name, kind, scope). Whatever it
 adds must be valid for each match; otherwise it is an error, and the user
