@@ -1,14 +1,14 @@
 <!--
 
-# policy-clarifications: Policy clarifications, additions, and changes
-# Policies
+# TODOs
+# argle-policies: Policies
   ## Grammar and identity
     ### P0: Strict Opt independence in the grammar
     ### P13: Terminology: grammar vs surfaces
     ### P101: Opts are generally unified at surfaces
     ### P17: Add a path @property to Opt
   ## Opt-specs and matching
-    ### P16: Opt-spec broadcast (tentative)
+    ### P16: Opt-spec matching
     ### Names and aliases
     ### P1: Opt-specs can add aliases
     ### P3: Opt-specs can add parameters
@@ -36,11 +36,19 @@
 
 -->
 
-# policy-clarifications: Policy clarifications, additions, and changes
+This file of policies began while working on issue related to Opt independence
+vs consolidation based on Opt.name. But the material evolved to include some
+other topics as well. This file is now envisioned as a home for all Argle
+policies. As we edit notes.txt and other files, we will populate this file
+with material.
 
-These emerged while working on issue related to Opt independence vs
-consolidation based on Opt.name. But they evolved to include some other topics
-as well.
+The policies here will be framed in ultra-compact form. The primary goal is to
+convey the essence of the policy, plus provide slug-style cross references to
+examples, longer discussion, and policy rationale and background. It's better
+for a policy in this file to convey the gist (even is some details are skipped
+or glossed over) than to get bogged down in lengthy discussion. The file's
+ultimate purpose is to be a place where one can read and jog memory, with slug
+links to longer discussion.
 
 # TODOs
 
@@ -48,7 +56,7 @@ Edit the policies: initial pass.
 
 Table in P101: add policy number references.
 
-# Policies
+# argle-policies: Policies
 
 ## Grammar and identity
 
