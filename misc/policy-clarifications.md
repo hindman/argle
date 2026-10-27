@@ -145,7 +145,45 @@ Add Opt.path as @property:
 
 __HERE__
 
-### P16: Opt-spec broadcast (tentative)
+### P16: Opt-spec matching
+
+An opt-spec is a broadcast configuration mechanism:
+  - It is applied to every Opt (from variants) that it matches.
+  - Match basis:
+    - Opt.name
+    - Opt type: Positional, Option, or Parameter.
+    - The opt-spec's scope, if any.
+  - The opt-spec configuration must be compatible with the matches.
+    - Example: choices:
+
+          Variant choices | Opt-spec choices | Result
+          ---------------------------------------------------------------
+          none            | none             | OK: no choices involved
+          none            | S                | OK: opt-spec supplies S
+          V               | none             | OK: opt-spec silent, so V stands
+          V               | S                | OK only if S == V
+
+With several matched Opts, V is the union of their choices, and the second row requires
+every match to be choiceless (P8).
+
+** So an opt-spec with choice(s) must match either (a) choiceless Opts, or (b)
+choice-bearing Opts, but (c) never a mixed bag.
+
+Sub-specs add one more row: >> <x=c> is OK if c is in V (or in S, when the opt-spec
+supplied it), and an error otherwise.
+
+The sub-spec rule is one dimension, checked against the effective set E (V if present,
+otherwise S):
+
+    Effective set E | Sub-spec `>> <x=c1|c2>`
+    ------------------------------------------
+    none            | Error: no choices to document
+    E               | OK if c1/c2/et in E; else error
+
+  With several matched Opts, the sub-spec attaches to the Opts whose choices include c (P6).
+
+
+An opt-spec applies to
 
 An opt-spec applies to every Opt it matches (name, kind, scope). Whatever it
 adds must be valid for each match; otherwise it is an error, and the user
