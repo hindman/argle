@@ -6,6 +6,10 @@ argle-notes: Content, tasks, and development notes
 toc: Table of contents
 --------
 
+    argle-notes | Content, tasks, and development notes
+
+        toc | Table of contents
+
     discussion | Discussion
 
         api-vs-text                    | API-driven vs text-driven

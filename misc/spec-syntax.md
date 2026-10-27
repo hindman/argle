@@ -2,7 +2,7 @@
 
 <!--
 
-  # Spec syntax
+  # spec-syntax: Spec syntax
     ## spec
     ## usage-section
     ## section
@@ -16,7 +16,7 @@
     ## heading
     ## block-quote
     ## literal
-    ## quoted-text3 and quoted-text1
+    ## quoted-text: quoted-text3 and quoted-text1
     ## variant
     ## opt-spec
     ## opt-spec-def
@@ -46,10 +46,10 @@
     ## positional
     ## opt-mention
     ## var-input
-    ## Quoting rules
-    ## Line types
-    ## Whitespace rules
-    ## Spec-syntax hierarchy in compact form
+    ## quoting-rules: Quoting rules
+    ## line-types: Line types
+    ## whitespace-rules: Whitespace rules
+    ## spec-syntax-hierarchy: Spec-syntax hierarchy in compact form
 
 -->
 

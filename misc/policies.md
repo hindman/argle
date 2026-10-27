@@ -66,7 +66,7 @@ Each Opt occurrence in spec/grammar is a distinct Opt:
   - No unifying by name/dest.
   - Includes Opts with choices, reversing prior policy.
 
-Details:
+Details to be moved elsewhere:
 
   - Argument parsing:
     - Strict independence probably simplifies parsing: no need to reason about
@@ -88,7 +88,7 @@ Details:
 ### po-grammar-vs-surfaces: P13: Terminology: grammar vs surfaces
 
 Grammar:
-  - The list-tree of Opts, Groups, Variants, etc.
+  - The list-tree of Variants, Opts, Groups, etc.
   - Analogous to the "model" layer in other domains.
 
 Surfaces:
@@ -121,10 +121,10 @@ Policy summary of Opt independence/unification, by surface:
     Surface        | Policy summary
     ------------------------------------------------------------
     Opt-specs      | Unified via broadcast
-    Help text      | Unified by default; lots of user control
+    Help text      | Unified by default; independence via scopes
     Error msgs     | TBD
     Result         | Purpose is to unify by Opt.dest
-    API Opt writes | Unified via broadcast
+    API Opt writes | Unified via broadcast; independence via query-path
     API Opt reads  | Unified by default, with API workarounds
     Dispatch       | Unified by (OPT-NAME, FUNC, RESULT)
     ------------------------------------------------------------
