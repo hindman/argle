@@ -1,54 +1,30 @@
 <!--
 
-  # todos: TODOs
-  # argle-policies: Policies
-    ## grammar: Grammar and identity
-      ### grammar-opt-independence: P0: Strict Opt independence in the grammar
-      ### grammar-vs-surfaces: P13: Terminology: grammar vs surfaces
-      ### surface-unification: P101: Opts are generally unified at surfaces
-      ### opt-path-property: P17: Add a path @property to Opt
-    ## opt-specs: Opt-specs and matching
-      ### opt-spec-matching: P16: Opt-spec matching
-      ### opt-spec-names-aliases: Names and aliases
-      ### opt-spec-adds-aliases: P1: Opt-specs can add aliases
-      ### opt-spec-adds-parameters: P3: Opt-specs can add parameters
-      ### opt-spec-quantity-limits: P4: Quantity can't be fully specified in an opt-spec
-      ### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
-    ## choices: Choices
-      ### per-choice-help: P2: Per-choice help text
-      ### per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
-      ### variant-choices-authoritative: P6: Variant-declared choices are authoritative
-      ### documenting-choices: P9: Documenting choices
-    ## help-text: Help text
-      ### help-text-defaults: P10: Help text defaults
-      ### help-text-slots: P11: Help-text slots (tentative)
-      ### slot-hooks: P12: Slot hooks (tentative)
-    ## api: API
-      ### api-reads: P14: API reads (tentative)
-      ### query-result-repr: P18: Query-result repr (tentative)
-    ## dispatch: Dispatch
-      ### dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
-    ## retired: Retired
-      ### merging-choice-var-inputs: P7: Merging of choice-bearing VarInputs
-  # original-draft: ORIGINAL: KEEP FOR NOW: Draft policy/goals
-    ## per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
-  # audit-notes: notes on audit
 
 -->
 
-This file of policies began while working on issue related to Opt independence
-vs consolidation based on Opt.name. But the material evolved to include some
-other topics as well. This file is now envisioned as a home for all Argle
-policies. As we edit notes.txt and other files, we will populate this file
-with material.
+This document is the home for Argle's policy decisions: how Argle interprets,
+resolves, or reacts when a situation admits more than one plausible behavior.
 
-The policies here will be framed in ultra-compact form. The primary goal is to
-convey the essence of the policy, plus provide slug-style cross references to
-examples, longer discussion, and policy rationale and background. It's better
-for a policy in this file to convey the gist (even is some details are skipped
-or glossed over) than to get bogged down in lengthy discussion. The file's
-ultimate purpose is to be a place where one can read and jog memory, with slug
-links to longer discussion.
+How the document relates to other key documents:
+
+  - `terminology.md`: basic definitions.
+
+  - `spec-syntax.md`: defines the form of a spec.
+
+  - `classes.md`: lists classes and their attributes, methods. Will eventually
+    be obsolted by the Python code.
+
+  - `policies.md`: a place to state Argle policies that do not otherwise
+    belong in the more focused documents noted above.
+
+  - Other documents. These can cover more discursive topics: rationale,
+    discussion, examples, rejected alternatives, etc.
+
+We will use slug-style references to avoid repetition and to keep the
+most-focused documents as tight and readable as possible. For example,
+spec-syntax.md can delegate details to policies.md, which can delegate to the
+more discursive documents.
 
 # todos: TODOs
 
@@ -62,7 +38,7 @@ Table in P101: add policy number references.
 
 ### grammar-opt-independence: P0: Strict Opt independence in the grammar
 
-Each Opt occurrence in spec/grammar is a distinct Opt:
+Each Opt occurrence in the spec/grammar is a distinct Opt:
   - No unifying by name/dest.
   - Includes Opts with choices, reversing prior policy.
 
@@ -70,7 +46,7 @@ Details to be moved elsewhere:
 
   - Argument parsing:
     - Strict independence probably simplifies parsing: no need to reason about
-      Opt(foo) at position 3 vs Opt(foo) at position 7.
+      Opt(foo) at position 3 vs the one at position 7.
     - Challenging examples under opt-unification: naval-fate, EX_NAB.
     - No known examples where independence leads to incorrect parsing.
     - Same-named Opts competing for the same input (eg two `--bar` in one
@@ -94,27 +70,12 @@ Grammar:
 Surfaces:
   - The areas where users and end-users encounter Opts.
   - Analogous to the "views" layer in other domains.
-  - But the concept is a bit more broad in Argle:
+  - But the concept in Argle is broader:
     - Mostly outputs (eg help text, parsed-args Result).
     - But also inputs (eg spec or API for configuration).
     - And sometimes behaviors (eg dispatch).
 
 ### surface-unification: P101: Opts are generally unified at surfaces
-
-Most CLI use cases want Opt unification by name at the surfaces:
-
-  - The degnerate case:
-    - The issue never arises.
-    - Because the Opt names are unique.
-    - Represents the vast majority of CLI programs.
-
-  - Typical subcommand program:
-    - Usage variants are selected via a primary command/action Positional.
-    - Example: git.
-
-  - Same-name Opts in multiple variants:
-    - The user wants the same-name Opts configured identically.
-    - Example: --verbose flag.
 
 Policy summary of Opt independence/unification, by surface:
 
@@ -135,7 +96,24 @@ Policy summary of Opt independence/unification, by surface:
     Version output | No relevance
     Warn/exit msg  | No known relevance
 
-### opt-path-property: P17: Add a path @property to Opt
+Details to be moved elsewhere:
+
+  - Most CLI use cases want Opt unification at surfaces:
+
+    - The degnerate case:
+      - The issue never arises, because Opt names are unique.
+      - Represents the vast majority of CLI programs.
+
+    - Typical subcommand program:
+      - Usage variants are selected via a command/action Positional.
+      - Unification is the user's intent.
+      - Example: git.
+
+    - Same-name Opts across multiple variants:
+      - The user wants the same-name Opts configured identically.
+      - Example: --verbose flag.
+
+### opt-path-property: P17: Add an Opt.path property
 
 Add Opt.path as @property:
   - Returns query path to exactly select the Opt.
@@ -156,55 +134,21 @@ __HERE__
 ### opt-spec-matching: P16: Opt-spec matching
 
 An opt-spec is a broadcast configuration mechanism:
-  - It is applied to every Opt (from variants) that it matches.
-  - Match basis:
+
+  - It is applied to every matching Opt from variants.
+
+  - Matching criteria:
     - Opt.name
-    - Opt type: Positional, Option, or Parameter.
+    - Opt type: Positional or Option.
     - The opt-spec's scope, if any.
-  - The opt-spec configuration must be compatible with the matches.
-    - Example: choices:
 
-          Variant choices | Opt-spec choices | Result
-          ---------------------------------------------------------------
-          none            | none             | OK: no choices involved
-          none            | S                | OK: opt-spec supplies S
-          V               | none             | OK: opt-spec silent, so V stands
-          V               | S                | OK only if S == V
+  - Matches must be compatibility along these dimensions:
+    - Aliases (see __).
+    - Quantifier (see __).
+    - Parameters (see __).
+    - Choices (see __).
 
-With several matched Opts, V is the union of their choices, and the second row requires
-every match to be choiceless (P8).
-
-  - An opt-spec with choices must match either (a) choiceless Opts, or (b)
-    choice-bearing Opts, but (c) never a mixed bag.
-  - Admitting that such uses cases are super rare, when we concoct mixed-bag
-    scenarios, we have a hard time discerning a clear user intent, so the
-    error forces the user to be specific.
-  - The user can use scopes in the opt-specs (if they want their mixed bag to
-    remain separated on choice-vs-choiceless) or add choice(s) to the
-    choiceless Opts in the variants (making the bad no long mixed)
-  - The no-mixed-bag policy is not just sticklerism. If same-name Opts in
-    variants all have choices, that's a signal the user intends them to be
-    unified for configuration purposes. Ditto if same-name Opts in variants
-    are choiceless. But the mixed-bag situation conveys mixed signals -- hence
-    the error to force some clarity from the user.
-
-Sub-specs add one more row: >> <x=c> is OK if c is in V (or in S, when the opt-spec
-supplied it), and an error otherwise.
-
-The sub-spec rule is one dimension, checked against the effective set E (V if present,
-otherwise S):
-
-    Effective set E | Sub-spec `>> <x=c1|c2>`
-    ------------------------------------------
-    none            | Error: no choices to document
-    E               | OK if c1/c2/et in E; else error
-
-  With several matched Opts, the sub-spec attaches to the Opts whose choices include c (P6).
-
-An opt-spec applies to every Opt it matches (name, kind, scope). Whatever it
-adds must be valid for each match; otherwise it is an error, and the user
-should add a scope. Eg adding parameters (P3) to same-named Options whose
-grammar differs. P8 is a specific case of this rule.
+  - Argle will raise if there are incompatible matches.
 
 ### opt-spec-names-aliases: Names and aliases
 
@@ -275,7 +219,273 @@ variants):
   the choiceless Opt would silently gain the choices, a behavior change
   that the help output does not reveal.
 
+### opt-spec-uniqueness: P19: An Opt is configured by at most one opt-spec
+
+Each Opt can be matched by at most one regular opt-spec. A second regular
+opt-spec matching the same Opt is an error. Sub-specs are exempt: they attach
+to Opts already matched by their parent opt-spec.
+
+- Applies with or without variants:
+
+  - With variants: two opt-specs matching the same variant Opt.
+
+  - Without variants: two opt-specs with the same name and kind. The first
+    declares the Opt and the second would match it. For options, sharing any
+    alias counts (eg `-i --ignore-case` and `-i --invert`). For positionals,
+    two `<path>` opt-specs are an error, not two same-named positionals; use
+    distinct names or a quantifier.
+
+- Rationale:
+
+  - Allowing repeats would require merge rules between opt-specs (help text,
+    added aliases, and the other compatibility dimensions from P16), all for
+    a rare need.
+
+  - Starting strict preserves options. Relaxing an error later is
+    backward-compatible; tightening a permissive rule is not.
+
+- Showing an opt-desc in more than one help-text location is a display
+  concern, not a configuration one. Tentative mechanism: a built-in slot (see
+  P11). Configuration stays single-source; only the display is duplicated.
+
+- Alternative considered: a bare opt-spec in a later section acting as a
+  mention (eg `[--print]` meaning "list it here too"). Not adopted for now: it
+  is ambiguous whether a repeat is a mention or a second configuration.
+
+### opt-spec-unmatched: P20: Opt-specs that match nothing
+
+An opt-spec that matches no Opt declares a new Opt, appended to the end of a
+target, but only if the target is clear. Otherwise it is an error.
+
+- Determining the target:
+
+  - Zero variants: the single variant that Argle builds from the opt-specs.
+    Opts are appended in spec order, which also gives positionals their
+    order.
+
+  - One variant, unscoped opt-spec: that variant.
+
+  - Scoped opt-spec (including via a section scope): the scope must resolve
+    to exactly one grammar element, and that element must be a variant or a
+    partial.
+
+  - Anything else is an error. Examples: an unscoped opt-spec in a spec with
+    2+ variants; a scope resolving to zero elements, to several elements, or
+    to something other than a variant or partial.
+
+- Append only at the top level of the target. Argle never appends inside a
+  group, nor to a positional or option.
+
+- Globs get no special treatment. `*` resolves to every named element in the
+  grammar and is therefore an error under the exactly-one rule. A glob that
+  happens to resolve to a single variant is fine.
+
+- Partials: appending to a partial means every insertion of it receives the
+  new Opt. Under P0, that yields one Opt per insertion, which is the same
+  outcome as broadcast matching. Partials are also the intended way to share
+  a long list of Opts across several variants.
+
+- Positionals may be appended too. The result is exactly the grammar the user
+  could have written by hand, so the same legality rules apply either way. In
+  complex grammars, the user is responsible for picturing the variant after
+  the append.
+
+- Typos: a misspelled opt-spec name will silently declare a new Opt rather
+  than raise. Accepted: the generated help output makes this obvious, and
+  users should check it.
+
+- Implementation note: partial names must be resolvable as scope targets
+  while opt-specs are matched, eg by matching and appending before partials
+  are expanded, or by retaining partial provenance.
+
+- Alternatives considered:
+
+  - Strict for one variant (every opt-spec must match). Rejected: a grammar
+    with one variant and one written as several equivalent variants would
+    behave differently, which is fragile.
+
+  - A spec-level placeholder (eg `[<options>]`, or `__FOO_OPTS__`) that marks
+    where unmatched opt-specs go. Not needed: partials plus variant scopes
+    cover the use case.
+
+  - Declaring into a named group via scope. Rejected: group names exist for
+    Result data and usage-text readability, not attachment.
+
+#### opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
+
+- `misc/spec-syntax.md:173` and `misc/spec-syntax.md:176` need rewording to
+  match. Line 176 currently reads as permitting the repeats that P19 forbids.
+
+- P20 assumes variants and partials can be scope targets by name. The
+  variant-naming form (`clone : ...`, from
+  `misc/examples/argle-mock-ups/argle-repo.py:47`) is not yet in
+  `misc/spec-syntax.md`.
+
+- The raw note `opt-spec-conflicts` (below) is resolved by P19 and can be
+  marked as such or removed.
+
+### raw notes that need a home (were in reboot-status.md)
+
+#### conflict-quantifiers: SPEC_ISSUE: variant vs opt-spec conflicts: quantifiers
+
+Table of relevant attributes:
+
+      Attribute  | Positional | Option | Parameter
+      -------------------------------------------------
+      spec       | Y          | Y      | Y
+      name       | Y          | Y      | Y
+      aliases    | .          | Y      | .
+      help       | Y          | Y      | Y
+      choices    | Y          | .      | Y
+      -------------------------------------------------
+      Q.m        | Y          | Y      | Y
+      Q.n        | Y          | Y      | Y
+      Q.required | Y          | Y      | Y
+      Q.greedy   | Y          | Y      | Y
+
+Preliminary analysis:
+
+  - Q.m and Q.n. A conflict here is possible, at least in a strict sense. For
+    example, `<x>{2-3}` in a variant and `<x>{2-4}` in an opt-spec. One could
+    try to be cute and allow opt-spec configuration that *expands* the allowed
+    universe (vs contracting it). But this business is making me feel queasy.
+
+  - Q.greedy. Similar logic here. If the config from a variant says nothing
+    about greediness, so the Opt assumes its Quantifer is greedy (the
+    default), and if the opt-spec then adds non-greedy, how does Argle react?
+    In one sense, the latter configuration is "additive" (the question mark
+    was "added"), but in another sense the allowed universe of acceptable
+    end-user inputs got smaller.
+
+  - Q.required. Similar concerns here. If we allow variant and opt-spec to
+    differ on this attribute, can the difference go in both directions
+    (required to non-required, and vice verse) or only one way?
+
+  - An opt-spec, by itself, cannot fully convey the quantifier-related
+    attributes of an Opt because some of those characteristics come from
+    parent containers (eg, `[-a -b]`). This seems to push towards treating
+    quantification generally as most authoritative in the variants (if any)
+    and somewhat optional in opt-specs.
+
+#### opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
+
+This arose out of the variant-vs-opt-spec work. What if opt-specs conflict
+among themselves (eg `-i --ignore-case` and `-i --invert`)? Maybe this problem
+will go away or change if our tentative embrace of full opt-independence is
+realized.
+
+Could we deal with this problem by somehow enforcing a kind of uniqueness
+among the opt-specs? Is there ever a use case for two opt-specs to "match" the
+same Opts? Here match is similar to the matching logic for connecting
+opt-specs to the correct variant Opt(s). But similar criteria could also be
+used to make sure that -- in the case of an opt-specs-only spec file -- two
+separate Opts don't resolve to the "same thing".
+
+Tentative decision:
+  - An Opt in a variant can be matched by only one opt-spec.
+  - Sub-specs are a separate topic in this regard.
+  - If a user wants to have an opt-desc appear in multiple spots in help text,
+    Argle will supply a builtin slot for that purpose.
+  - Alternative to buitlin slot: Argle could allow an opt-spec mention. But
+    that does raise some conflict issues, so we are leaning toward the slot.
+
+#### conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
+
+What about opt-specs that completely change the parameters of an Option?
+
+    --bar <b1> <b2>        # In a variant
+    --bar <b1> [<b2>]      # In an opt-spec
+    --bar <x> <y> <z>      # Ditto -- but more divergent
+
+#### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
+
+A merged Opt can have separate positions in the grammar:
+
+  - `<action=pitch> <action=balk|stop>` is one merged Opt occupying two
+    positions. The Opt data model lacks the positional attributes to keep
+    track of this under the prior policy of unifying Positionals having
+    choices.
+
+  - That concern is now pushing us toward a fuller embrace of opt-independence
+    and instead trying to support the things drove us toward unification via
+    other strategies (eg in usage/help text, arg-parsing error reporting,
+    etc).
+
+Some things that motivated unification of Opts with choices in the first place:
+
+  - Unified help entry for a subcommand positional.
+
+  - Behaviroal consistency among different ways of writing the same grammar.
+     - In separate variants: `<step=start>` and `<step=stop>`.
+     - In one variant: `<step=start|stop>`
+
+  - Error messages that list valid choices.
+
+  - Even if Argle perceives Opts as fully independent, users might not. For
+    example, they might call get(), thinking that they will be configuring a
+    single unified Opt (due to its choices), but internally Argle will think
+    that the arg-variant choices (as one kind of example) are all independent.
+
+Current work on this issue:
+
+  - Policies: misc/policy-clarifications.md
+  - Scenario mockups: misc/scenario-mockups.md
+
 ## choices: Choices
+
+### rough notes that need a home
+
+Rough text and notes:
+
+  - Choices:
+
+        Variant choices | Opt-spec choices | Result
+        ---------------------------------------------------------------
+        none            | none             | OK: no choices involved
+        none            | S                | OK: opt-spec supplies S
+        V               | none             | OK: opt-spec silent, so V stands
+        V               | S                | OK only if S == V
+
+        Where:
+          - S is the set of choices supplied by the opt-spec.
+          - V is the union of choices from matched Opts.
+          - S and V are tested for set equality.
+
+  - No mixed-bag scenarios:
+
+    - An opt-spec with choices must match either (a) choiceless Opts, or (b)
+      choice-bearing Opts, but (c) never a mixed bag.
+
+    - Admitting that such uses cases are super rare, when we concoct mixed-bag
+      scenarios, we have a hard time discerning a clear user intent, so the
+      error forces the user to be specific.
+      - The user can use scopes in the opt-specs (to avoid a mixed-bag match)
+        or add choice(s) to the choiceless Opts in the variants (making the
+        bag no long mixed)
+
+    - The no-mixed-bag policy is not just sticklerism.
+      - If same-name Opts in variants all have choices, that's a signal the
+        user intends them to be unified for configuration purposes.
+      - Ditto if same-name Opts in variants are choiceless.
+      - But the mixed-bag situation conveys mixed signals -- hence the error
+        to force some clarity from the user.
+
+Rough notes on sub-specs:
+
+  - NOTE: Perhaps sub-specs should be addressed in a separate policy.
+
+  - A sub-spec attaches to the immediately preceding parent opt-spec.
+
+  - A sub-spec must be compatible with the parent opt-spec and, indirectly,
+    with the variant Opts matched by the parent.
+
+  - Choices compatibility:
+
+    - Call C the set of choice(s) documented in the sub-spec.
+    - C must be a subset of E, the set of choices from the parent opt-spec and
+      the Opts matched by it.
+    - With several matched Opts, the sub-spec attaches to the Opts whose
+      choices include those in C.
 
 ### per-choice-help: P2: Per-choice help text
 
