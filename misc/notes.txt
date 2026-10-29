@@ -3912,6 +3912,36 @@ Verdict: angle style:
 quantifiers-revisited: Quantifiers: conceptual clarification, policy simplification
 --------
 
+AMENDMENT (2026-10-29): degenerate groups, refined:
+
+    - Adjust the degenerate-group bullets below (and the degenerate-groups
+      section) accordingly.
+
+    - Definition: a Group is degenerate if:
+
+        - The Group has a single child.
+        - Dropping the Group and folding its arg-parsing requirements into an
+          own-quantifier of the child would produce the same behavior.
+        - The group is anonymous. A named-group conveys Result structure, so
+          dropping the group would go against user intent.
+
+    - Examples:
+
+        - Degenerate:
+
+            (--foo)
+            [--foo]
+            [--foo]...
+
+            (<bar>)
+            [<bar>]
+            [<bar>]{2-3}    # Own-quantifier becomes: nargs=(2,3), required=False.
+                            # This relaxes "only 1 Option or Group" restriction below.
+
+        - Not degenerate:
+
+            [--foo{2}]...
+
 Summary of new policy:
 
     - Process:

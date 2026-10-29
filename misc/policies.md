@@ -10,14 +10,12 @@
     ## opt-specs: Opt-specs and matching
       ### opt-spec-matching: P16: Opt-spec matching
       ### opt-spec-matching-names: Opt-spec matching: names and aliases
-      ### opt-spec-matching-quantifier: Opt-spec matching: quantifier
+      ### opt-spec-matching-uniqueness: P19: An Opt cannot be matched more than once
+      ### opt-spec-matching-no-match: P20: Opt-specs that match nothing
+      ### opt-spec-matching-quantifier: Opt-spec matching: quantifier compatibility
       ### opt-spec-adds-parameters: P3: Opt-specs can add parameters
       ### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
-      ### opt-spec-uniqueness: P19: An Opt is configured by at most one opt-spec
-      ### opt-spec-unmatched: P20: Opt-specs that match nothing
-        #### opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
       ### raw notes that need a home (were in reboot-status.md)
-        #### opt-spec-conflicts: SPEC_ISSUE: conflicts among opt-specs
         #### conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
         #### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
     ## choices: Choices
@@ -35,11 +33,10 @@
       ### query-result-repr: P18: Query-result repr (tentative)
     ## dispatch: Dispatch
       ### dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
-    ## retired: Retired
-      ### merging-choice-var-inputs: P7: Merging of choice-bearing VarInputs
-  # original-draft: ORIGINAL: KEEP FOR NOW: Draft policy/goals
+  # other-material: Other material to edit, move, delete
+    ## opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
     ## per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
-  # audit-notes: notes on audit
+    ## audit-notes: notes on audit
 
 -->
 
@@ -70,7 +67,11 @@ more discursive documents.
 
 Edit the policies: initial pass.
 
-Table in P101: add policy number references.
+Fill in gaps marked with `__` (eg, with policy cross-references).
+
+Move details out: __DETAILS_TO_MOVE__
+
+Deal with these: __ASSESS__
 
 # argle-policies: Policies
 
@@ -82,7 +83,7 @@ Each Opt occurrence in the spec/grammar is a distinct Opt:
   - No unifying by name/dest.
   - Includes Opts with choices, reversing prior policy.
 
-Details to be moved elsewhere:
+__DETAILS_TO_MOVE__:
 
   - Argument parsing:
     - Strict independence probably simplifies parsing: no need to reason about
@@ -136,7 +137,7 @@ Policy summary of Opt independence/unification, by surface:
     Version output | No relevance
     Warn/exit msg  | No known relevance
 
-Details to be moved elsewhere:
+__DETAILS_TO_MOVE__:
 
   - Most CLI use cases want Opt unification at surfaces:
 
@@ -154,6 +155,9 @@ Details to be moved elsewhere:
       - Example: --verbose flag.
 
 ### opt-path-property: P17: Add an Opt.path property
+
+__ASSESS__:
+  - This probably belongs in classes.md, not here.
 
 Add Opt.path as @property:
   - Returns query path to exactly select the Opt.
@@ -187,8 +191,6 @@ An opt-spec is a broadcast configuration mechanism:
 
   - Argle will raise if there are incompatible matches.
 
-NOTE: maybe move P19 & P20 here.
-
 ### opt-spec-matching-names: Opt-spec matching: names and aliases
 
 Positionals:
@@ -198,7 +200,7 @@ Options:
   - The name-match can be based on the Option name or any alias.
   - Aliases can be short or long.
 
-Details to be moved elsewhere:
+__DETAILS_TO_MOVE__:
 
   - An opt-spec should be able to add aliases and/or a long name to a variant
     Option. This gives the user flexibility in expressing the variant grammar
@@ -216,83 +218,12 @@ Details to be moved elsewhere:
     dictate ordering/presentation in generated help text (the latter can be
     configured).
 
-### opt-spec-matching-quantifier: Opt-spec matching: quantifier
-
-Details to be moved elsewhere:
-
-  - At the level of an individual Opt, it's impossible to fully specify
-    quantity/required correctly in an opt-spec because those attributes can
-    derive from parent containers in the command-line grammar.
-
-  - variant vs opt-spec conflicts: quantifiers
-
-    - Table of relevant attributes:
-
-          Attribute  | Positional | Option | Parameter
-          -------------------------------------------------
-          spec       | Y          | Y      | Y
-          name       | Y          | Y      | Y
-          aliases    | .          | Y      | .
-          help       | Y          | Y      | Y
-          choices    | Y          | .      | Y
-          -------------------------------------------------
-          Q.m        | Y          | Y      | Y
-          Q.n        | Y          | Y      | Y
-          Q.required | Y          | Y      | Y
-          Q.greedy   | Y          | Y      | Y
-
-    - Preliminary analysis:
-
-      - Q.m and Q.n. A conflict here is possible, at least in a strict sense.
-        For example, `<x>{2-3}` in a variant and `<x>{2-4}` in an opt-spec. One
-        could try to be cute and allow opt-spec configuration that *expands* the
-        allowed universe (vs contracting it). But this business is making me
-        feel queasy.
-
-      - Q.greedy. Similar logic here. If the config from a variant says nothing
-        about greediness, so the Opt assumes its Quantifer is greedy (the
-        default), and if the opt-spec then adds non-greedy, how does Argle
-        react? In one sense, the latter configuration is "additive" (the
-        question mark was "added"), but in another sense the allowed universe of
-        acceptable end-user inputs got smaller.
-
-      - Q.required. Similar concerns here. If we allow variant and opt-spec to
-        differ on this attribute, can the difference go in both directions
-        (required to non-required, and vice verse) or only one way?
-
-      - An opt-spec, by itself, cannot fully convey the quantifier-related
-        attributes of an Opt because some of those characteristics come from
-        parent containers (eg, `[-a -b]`). This seems to push towards treating
-        quantification generally as most authoritative in the variants (if any)
-        and somewhat optional in opt-specs.
-
-### opt-spec-adds-parameters: P3: Opt-specs can add parameters
-
-We do want opt-specs to be able to add parameters to an Option. This is
-similar to P1 because it allows for a compact/readable command-line grammar,
-leaving the fleshing out to opts-specs.
-
-### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
-
-Matching stays based on name, kind, and scope (adding choices to the matching
-criteria would turn conflicts into silent non-matches). If an unscoped
-opt-spec matches both kinds of Opt (eg `<x=A|B>` and a bare `<x>` in the
-variants):
-
-- Help only (eg `<x> : help`): allowed. Both Opts get the help text. The
-  duplication is visible in the help output, and the user can fix it
-  with a scope.
-
-- Names choices, itself or via sub-specs: error; use a scope. Otherwise
-  the choiceless Opt would silently gain the choices, a behavior change
-  that the help output does not reveal.
-
-### opt-spec-matching-uniqueness: P19: An Opt cannot be matched by multiple opt-specs
+### opt-spec-matching-uniqueness: P19: An Opt cannot be matched more than once
 
 An Opt cannot be matched by multiple opt-specs.
   - Sub-specs exempt: the parent opt-spec does the matching.
 
-Details to be moved elsewhere:
+__DETAILS_TO_MOVE__:
 
   - Why an Opt cannot be matched by multiple opt-specs:
 
@@ -326,79 +257,130 @@ Details to be moved elsewhere:
         - The same problem can be solved with slots, a more powerful
           mechanism.
 
-### opt-spec-unmatched: P20: Opt-specs that match nothing
+### opt-spec-matching-no-match: P20: Opt-specs that match nothing
+
+An opt-spec that matches no Opt declares a new Opt:
+
+  - The new Opt is appended to a target.
+  - The target must be a single partial or variant.
+  - The target much be unambiguous.
+  - If not, Argle raises.
+
+  - The append is simple:
+    - The new Opt is added to the end of the target.
+    - It is not added inside of group (even if group is last element).
+
+  - Target situations:
+    - Zero user-defined variants: appended to Argle-generated variant.
+    - One variant: appended to it.
+    - Multiple: opt-spec scope must point to one partial or variant.
+
+__DETAILS_TO_MOVE__:
+
+  - Alternatives considered for opt-spec-matching-no-match:
+
+    - Forbid no-match opt-specs in the single-variant case:
+      - Why? To help user in typo-detection.
+      - But we found contrary use case example;
+        - A CLI grammar with some grammatical complexity, plus a routine and
+          long list of other Opts.
+        - The complex part:
+
+              ( (<x> <y> --style <json|yaml>) | (<a> <b> <c> [--fast]) )
+
+        - And the user would rely on opt-specs to document all of the Opts,
+          both those in the compex part and the long list of other Opts.
+        - Argle generally favors flexibility and power over rigorous policy to
+          guard against every conceivable mistake.
+
+    - A spec-level placeholder:
+      - Examples: `[<other-opts>]`,or `__OTHER_OPTS__`.
+      - It would mark where unmatched opt-specs go.
+      - Not helpful or needed: partials plus scopes cover the use case.
+
+    - Use named groups (plus scopes) to specify where unmatched Opts go.
+      - Named groups serve other purposes (Result data structure and
+        usage-text readability).
+      - Overloading the mechanism with another purpose seemed unwise.
+
+### opt-spec-matching-quantifier: Opt-spec matching: quantifier compatibility
+
+How to determine quantifier compatibility:
+
+  - Opt-spec silence is allowed:
+    - The variant can supply the quantifier.
+    - The opt-spec can present the Opt without explicit quantification.
+
+  - Otherwise, equality is required:
+    - Comparison made after dropping any degenerate group.
+    - Comparison is done with own-quantifier (not quantification coming from
+      enclosing groups/variant).
+
+__DETAILS_TO_MOVE__:
+
+  - Why allow opt-specs to be silent regarding their own-quantifier? Why not
+    be strict and say that the opt-spec and variant must fully agree?
+
+    - If a user needs variant(s) in their spec, they must be the authoritative
+      place for quantification. A single opt-spec cannot express all of the
+      quantification implications that can come from an enclosing
+      group/variant.
+
+    - But in a spec with variants, it is a user convenience to be able to list
+      their opt-specs simply without the noise of quantifiers already
+      expressed in variants.
+
+    - In addition, Argle's default help text will likely follow the precedent
+      of other libraries in presenting opt-descs as unquantified.
+
+  - Why not allow a looser policy regarding quantifier compatibility --
+    something less than own-quantifier equality? Some rejected alternatives:
+
+    - Allow only widening or narrowing:
+      - There's no principled direction.
+      - Adding `?` (non-greedy) adds syntax but narrows what is accepted.
+      - And it does not address blatant conflicts: `{2-4}` vs `{7-8}`?
+
+    - Last config wins:
+      - Here the opt-spec would override the variant.
+      - Adds spec ambiguity (for the user) and gains them nothing.
+
+    - Variant is authoritative:
+      - This rule has some logic: the variants can express the full
+        quantification picture, while opt-specs cannot.
+      - But allowing outright conflicts between variant and opt-spec is a real
+        cost for the user -- one the comes with no obvious convenience (unlike
+        the real convenience provided by the silence-allowed policy noted
+        above).
+
+  - Why not require opt-specs to be silent on quantification?
+
+    - Because the most common usage pattern will be a spec with only
+      opt-specs, where users will necessarily need to supply explicit
+      quantifiers.
+
+### opt-spec-adds-parameters: P3: Opt-specs can add parameters
 
 __HERE__
 
-An opt-spec that matches no Opt declares a new Opt, appended to the end of a
-target, but only if the target is clear. Otherwise it is an error.
+We do want opt-specs to be able to add parameters to an Option. This is
+similar to P1 because it allows for a compact/readable command-line grammar,
+leaving the fleshing out to opts-specs.
 
-- Determining the target:
+### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
 
-  - Zero variants: the single variant that Argle builds from the opt-specs.
-    Opts are appended in spec order, which also gives positionals their
-    order.
+Matching stays based on name, kind, and scope (adding choices to the matching
+criteria would turn conflicts into silent non-matches). If an unscoped
+opt-spec matches both kinds of Opt (eg `<x=A|B>` and a bare `<x>` in the
+variants):
 
-  - One variant, unscoped opt-spec: that variant.
+- Help only (eg `<x> : help`): allowed. Both Opts get the help text. The
+  duplication is visible in the help output, and the user can fix it
+  with a scope.
 
-  - Scoped opt-spec (including via a section scope): the scope must resolve
-    to exactly one grammar element, and that element must be a variant or a
-    partial.
-
-  - Anything else is an error. Examples: an unscoped opt-spec in a spec with
-    2+ variants; a scope resolving to zero elements, to several elements, or
-    to something other than a variant or partial.
-
-- Append only at the top level of the target. Argle never appends inside a
-  group, nor to a positional or option.
-
-- Globs get no special treatment. `*` resolves to every named element in the
-  grammar and is therefore an error under the exactly-one rule. A glob that
-  happens to resolve to a single variant is fine.
-
-- Partials: appending to a partial means every insertion of it receives the
-  new Opt. Under P0, that yields one Opt per insertion, which is the same
-  outcome as broadcast matching. Partials are also the intended way to share
-  a long list of Opts across several variants.
-
-- Positionals may be appended too. The result is exactly the grammar the user
-  could have written by hand, so the same legality rules apply either way. In
-  complex grammars, the user is responsible for picturing the variant after
-  the append.
-
-- Typos: a misspelled opt-spec name will silently declare a new Opt rather
-  than raise. Accepted: the generated help output makes this obvious, and
-  users should check it.
-
-- Implementation note: partial names must be resolvable as scope targets
-  while opt-specs are matched, eg by matching and appending before partials
-  are expanded, or by retaining partial provenance.
-
-- Alternatives considered:
-
-  - Strict for one variant (every opt-spec must match). Rejected: a grammar
-    with one variant and one written as several equivalent variants would
-    behave differently, which is fragile.
-
-  - A spec-level placeholder (eg `[<options>]`, or `__FOO_OPTS__`) that marks
-    where unmatched opt-specs go. Not needed: partials plus variant scopes
-    cover the use case.
-
-  - Declaring into a named group via scope. Rejected: group names exist for
-    Result data and usage-text readability, not attachment.
-
-#### opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
-
-- `misc/spec-syntax.md:173` and `misc/spec-syntax.md:176` need rewording to
-  match. Line 176 currently reads as permitting the repeats that P19 forbids.
-
-- P20 assumes variants and partials can be scope targets by name. The
-  variant-naming form (`clone : ...`, from
-  `misc/examples/argle-mock-ups/argle-repo.py:47`) is not yet in
-  `misc/spec-syntax.md`.
-
-- The raw note `opt-spec-conflicts` (below) is resolved by P19 and can be
-  marked as such or removed.
+- Names choices, itself or via sub-specs: error; use a scope. Otherwise
+  the choiceless Opt would silently gain the choices, a behavior change
+  that the help output does not reveal.
 
 ### raw notes that need a home (were in reboot-status.md)
 
@@ -761,339 +743,20 @@ not the unified view. Eg:
   `--foo` and `--bar` both using `blort()`) are still called
   separately.
 
-## retired: Retired
+# other-material: Other material to edit, move, delete
 
-### merging-choice-var-inputs: P7: Merging of choice-bearing VarInputs
+## opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
 
-In the variants, Opts with choices that share a name are merged; Opts without
-choices are independent. Merging is a spec-parse step over the variants only:
-choices supplied later by opt-specs do not cause merging, so such Opts stay
-independent (each receiving the same choices).
+- `misc/spec-syntax.md:173` and `misc/spec-syntax.md:176` need rewording to
+  match. Line 176 currently reads as permitting the repeats that P19 forbids.
 
-- NOTE: this is currently under review and might change.
+- P20 assumes variants and partials can be scope targets by name. The
+  variant-naming form (`clone : ...`, from
+  `misc/examples/argle-mock-ups/argle-repo.py:47`) is not yet in
+  `misc/spec-syntax.md`.
 
-- SUPERSEDED by P0 (strict Opt independence). Kept for reference.
-
-- Parameters: the same rules apply within the parameters of a single
-  Option. Options themselves are never merged, so same-named parameters
-  in different Option instances stay independent.
-
-# original-draft: ORIGINAL: KEEP FOR NOW: Draft policy/goals
-
-Key policy goals/decisons and findings:
-
-  - P2. We do want to support per-choice help text. That's a feature I have
-    wanted many times as a long-suffering argparse user.
-
-  - P3. We do want opt-specs to be able to add parameters to an Option. This
-    is similar to P1 because it allows for a compact/readable command-line
-    grammar, leaving the fleshing out to opts-specs.
-
-  - P5. Per-choice help text must be done via sub-specs. Applies to both
-    parameters (the old policy) and now positionals (the new policy to make
-    things consistent and to ensure that this help text has sufficient
-    context for end-users). See the edit-list we assembled in a separate
-    section below.
-
-    - NOTE: I suspect some of these policies will also apply to per-parameter
-      help text for options.
-
-    - Help text on a regular opt-spec always belongs to the Opt itself,
-      never to a choice, regardless of how many choices it names.
-
-    - A per-choice sub-spec must name exactly one choice. Synonymous
-      choices (eg `ls --color` accepting always|yes|force) are handled by
-      documenting one and mentioning the others in its help text.
-      First-class choice aliases would be a separate future feature.
-
-    - Per-choice help for a parameter requires a named parameter (eg
-      `<c=red|green>`). A choices-only parameter (`<red|green>`) cannot be
-      reached by a sub-spec, because `<red>` reads as a parameter name.
-
-  - P6. If a variant declares choices for a VarInput, they are authoritative.
-    Opt-specs (regular or sub-spec) may name only those choices; naming any
-    other is an error. Not every choice needs to be documented. If the variant
-    declares no choices, the opt-specs supply them.
-
-    - NOTE: this is currently under review and might change.
-
-    - When an opt-spec matches several Opts (see P16), the authoritative
-      set is the union of their choices (cf P14). Restating choices only
-      validates and documents: it never changes any Opt's own choices. If
-      the variants declare no choices, the opt-spec does supply them, by
-      broadcast, subject to P8.
-
-    - A parent (regular) opt-spec must either restate the full
-      authoritative set or say nothing about choices. A subset or superset
-      is an error. Agreement means set equality, so order does not matter.
-
-          --color <c=red|green|blue> : OK (full agreement)
-          --color <c> : OK (silent about choices)
-          --color <c=red|green> : Error (subset)
-
-    - Sub-specs name choices one at a time (see P5) and need not cover all
-      of them. A sub-spec attaches to the matched Opt(s) whose choices
-      include the named choice, not to every match.
-
-    - Tentative: help-text display order of choices comes from the
-      sub-specs if any, otherwise from the variants.
-
-  - P7. Merging of choice-bearing VarInputs. In the variants, Opts with
-    choices that share a name are merged; Opts without choices are
-    independent. Merging is a spec-parse step over the variants only:
-    choices supplied later by opt-specs do not cause merging, so such Opts
-    stay independent (each receiving the same choices).
-
-    - NOTE: this is currently under review and might change.
-
-    - SUPERSEDED by P0 (strict Opt independence). Kept for reference.
-
-    - Parameters: the same rules apply within the parameters of a single
-      Option. Options themselves are never merged, so same-named parameters
-      in different Option instances stay independent.
-
-  - P8. Same-named choice-bearing and choiceless Opts. Matching stays based
-    on name, kind, and scope (adding choices to the matching criteria would
-    turn conflicts into silent non-matches). If an unscoped opt-spec matches
-    both kinds of Opt (eg `<x=A|B>` and a bare `<x>` in the variants):
-
-    - Help only (eg `<x> : help`): allowed. Both Opts get the help text. The
-      duplication is visible in the help output, and the user can fix it
-      with a scope.
-
-    - Names choices, itself or via sub-specs: error; use a scope. Otherwise
-      the choiceless Opt would silently gain the choices, a behavior change
-      that the help output does not reveal.
-
-  - P9. Documenting choices. Argle is roughly following git, in not listing
-    VarInput choices in usage text or in the grammatical/formal portion of the
-    opt-descs. Instead, it's default will be to append choices to an Opt's
-    help text (see scenario-mockups.md for details).
-
-    - NOTE: this applies to plural choices. A single-choice Opt (eg an
-      arg-variant like `<cmd=merge>`) displays its choice as a literal in
-      usage text, as git does (`git merge [<options>]`).
-
-  - P10. Help text defaults:
-
-    - If user supplies only variants (no opt-specs), Argle will generate a
-      typical listing of opt-descs. Why this is a helpful default:
-
-      - Following git, we intend to display VarInput choices in opt-desc
-        help-text, not in the opt-desc CLI-grammar (see P9).
-
-      - If Argle did not generate opt-descs in this scenario, choices would
-        remain undocumented. So the auto-generated opt-descs provide a home
-        for the listing of choices.
-
-    - If the user supplies some opt-specs but not a complete list of them, the
-      generated help text will follow the presentation/ordering of the
-      opt-specs (and other help-text elements). Then at the end Argle will
-      append an "Arguments:" section listing the opt-descs for which the user
-      did not supply corresponding opt-specs.
-
-      - Why auto-generate and append by default? Same reason as above: it will
-        be the only means of displaying choices.
-
-      - The API will allow users to request things like:
-        - Do NOT auto-generate the missing opt-descs.
-        - Raise if the user's opt-descs are not exhaustive (meaning: all Opts
-          in the variants were matched by an opt-spec).
-
-  - P11. Help-text slots (tentative):
-
-    - One mechanism for placing generated or custom content in help text:
-      named slots, written `{name}`. Replaces the earlier ideas of `@`
-      directives plus a separate inline-interpolation syntax.
-
-    - Registry: Argle pre-registers built-in slots. Users register their
-      own via the API, each with a hook (see P12). Built-ins are just
-      slots that Argle ships.
-
-    - Placement determines behavior, not syntax:
-      - Slot alone on a line: block insertion.
-      - Slot inside text (opt-help-text, block-quote): inline insertion.
-
-    - Likely built-ins:
-      - Block: `{opts}`, `{options}`, `{positionals}`, `{usage}`.
-      - Inline, Opt-level: `{default}`, `{choices}`, maybe `{name}`.
-      - Inline, parser-level: `{prog}`, `{version}`.
-
-    - Validation and escaping: braces enclosing an unregistered name are an
-      error (catches typos). Escape with a backslash (`\{default}`), per the
-      Quoting rules. No format-spec mini-language.
-
-    - Substitution happens inside Argle's rendering pipeline, before
-      wrapping, so line widths reflect the inserted text.
-
-    - Render-once rule: each Opt, or each data item, renders once, and
-      explicit placement wins. Slots are processed in spec order. An Opts
-      block includes only Opts not yet rendered; the default tail section
-      (P10) is effectively a final `{opts}`. An explicit inline slot
-      suppresses the auto-append of that item (eg choices per P9).
-
-    - Corollary: to move the default tail, place an Opts slot (eg
-      `{opts}` before an epilogue). Render-once leaves nothing for the
-      tail, so no extra rule is needed.
-
-    - No scoping syntax. Scoped content (eg one subcommand's opt-descs)
-      comes from a user slot whose hook supplies the query.
-
-  - P12. Slot hooks (tentative):
-
-    - Registration, roughly: `p.slot('add_opts', func)`.
-
-    - A hook receives context (the parser, plus the current Opt when
-      there is one) and returns a description of what to insert. It does
-      not munge generated help text.
-
-    - Return types:
-      - `str`: text with default handling (wrapped).
-      - Text object: text plus instructions (eg `wrap=False`).
-      - Opts selection: a query result or query-path. Argle renders the
-        opt-descs and applies the render-once rule.
-      - List of the above, for mixed content (eg heading plus Opts block).
-
-    - An Opts selection is valid only for a block slot. Returning one
-      from an inline slot is an error.
-
-    - Render-once is resolved when Argle processes the returned value, not
-      when the hook builds its query. Hooks can select broadly (eg
-      `cmd=add.*`) without tracking what was already rendered.
-
-    - Escape-hatch tiers: (1) built-in slots, no code; (2) user slots
-      and the general API; (3) later: hooks that receive a structured help
-      model before rendering.
-
-    - Open:
-      - Line type for a block slot in the spec (Line types needs a rule
-        so `{opts}` is not read as a variant or opt-spec).
-      - Per-scope generated sections (S4/S5), and whether they are common
-        enough to justify spec-level scoping later.
-      - Default split of positionals and options into separate sections.
-      - Whether `{default}` in a per-choice sub-spec refers to the parent
-        Opt or the choice.
-      - Whether help text set via the API gets slot substitution.
-
-  - P14. API reads (tentative). Reading an attribute from a query result
-    unifies across its OptNodes: the distinct union of values, in spec order.
-
-    - NOTE: An OptNode is (for now) just a term being used in our current
-      planning work; it is not a formal object in the Argle system. It
-      represents an Opt within the grammar/variants under our tentatively
-      adopted policy of strict Opt independence at the grammar level. In this
-      discussion, OptNode is the truly independent Opt-thing, as distinguished
-      from the unified Opt-thing that a user wants/perceives across various
-      Argle outputs/surfaces.
-
-    - List-valued attributes (eg choices, aliases): flattened, de-duped,
-      always a list.
-
-    - Scalar attributes (eg help, dest): the scalar if one distinct value,
-      otherwise a list of the distinct values. Known ambiguity: a scalar
-      whose value can itself be a list (eg default).
-
-    - Structural attributes (eg parameters, position, quantifier): not
-      unified; read per OptNode.
-
-    - Raw access: iterate the query result to get its OptNodes, eg
-      `list(p.query('x'))`.
-
-    - Opt attributes (purely for reference here; DELETE EVENTUALLY):
-      - kind (positional, option, parameter, literal)
-      - name
-      - dest
-      - aliases
-      - help_text
-      - choices (each with per-choice help text)
-      - parameters
-      - nargs
-      - ntimes
-      - quantifier: m, n, required, greedy
-      - default
-      - factory
-      - convert
-      - validate
-      - dispatch
-      - priority
-      - negaters
-      - hide
-      - anchor
-      - text (literals)
-      - usage_text (misc/notes.txt:3743)
-      - spec (the Opt.spec TODO)
-      - position and parent (implicit in the tree)
-
-  - P15. Dispatch and Opt independence (tentative):
-
-    - Default: dispatch unifies Opts by name. Argle calls a dispatch
-      function at most once per (NAME, FUNC, RESULT): the matched Opt's
-      name, its dispatch function, and the Result holding the Opt's value
-      (the innermost Result, when groups have dests).
-
-    - Example: `<x> <x>` yields two Opts in the grammar. With dispatch
-      configured on `<x>`, both matches share NAME, FUNC, and RESULT, so
-      the function is called once.
-
-    - Example: in EX_NAB, each repetition of the `commands` group has its
-      own inner Result. Matches of `<cmd>` differ in RESULT, so dispatch
-      occurs once per repetition.
-
-    - NAME is in the key so that different Opts sharing a function (eg
-      `--foo` and `--bar` both using `blort()`) are still called
-      separately.
-
-  - P16. Opt-spec broadcast (tentative). An opt-spec applies to every Opt
-    it matches (name, kind, scope). Whatever it adds must be valid for each
-    match; otherwise it is an error, and the user should add a scope. Eg
-    adding parameters (P3) to same-named Options whose grammar differs.
-    P8 is a specific case of this rule.
-
-  - P18. Query-result repr (tentative). A repr is a diagnostic, so it shows
-    the raw Opts, each with its path (P17), not the unified view. Eg:
-
-        Opts([
-            Positional(cmd, choices=[search], path=search.cmd),
-            Positional(cmd, choices=[list], path=list.cmd),
-        ])
-
-    - The unified view remains available via attribute reads (P14).
-
-Name and aliases:
-
-  - Options:
-
-    - Matching: an opt-spec matches a variant Option if the variant's form (eg
-      `-i`) is any of the opt-spec's option strings.
-
-    - The opt-spec is authoritative for names. The matched Option takes its
-      full set of names from the opt-spec. Indeed, a variant has no way to
-      supply more than one name.
-
-    - The last bare-option is the Opt's name (and supplies its default dest).
-      The others are aliases. Rationale: the form closest to the parameters
-      reads as the most important, and the typical short-then-long ordering
-      makes the long form the name.
-
-          -x --blort --fubb <a> <b> : Fubb help text # Name: fubb.
-
-    - Aliases can be short or long (an alias is any bare-option). Real
-      programs have long aliases too (eg GNU tar: `-x, --extract, --get`).
-
-    - No variant-vs-opt-spec conflict is possible regarding names. If the
-      variant's form is not among the opt-spec's option strings, the opt-spec
-      does not match that Option. The variant states only one form, so it has
-      nothing else to contradict.
-
-    - Ordering of aliases and the option name in the spec syntax is somewhat
-      independent of ordering/presentation in generated help text (the latter
-      will be configurable in at least a couple of ways).
-
-  - Positionals:
-
-    - The name is the match key and there are no aliases, so an opt-spec
-      cannot rename a positional, nor can there be variant-vs-opt-spec
-      conflict as it relates to names.
+- The raw note `opt-spec-conflicts` (below) is resolved by P19 and can be
+  marked as such or removed.
 
 ## per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
 
@@ -1124,7 +787,7 @@ misc/examples/argparse-vs-argle/wrangle:85 — parent `<task>` line already pres
 README.md:324 — same as wrangle
 - ditto
 
-# audit-notes: notes on audit
+## audit-notes: notes on audit
 
 Contradictions:
 
