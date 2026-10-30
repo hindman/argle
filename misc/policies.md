@@ -191,6 +191,50 @@ An opt-spec is a broadcast configuration mechanism:
 
   - Argle will raise if there are incompatible matches.
 
+### opt-spec-matching-compatibility: P21: Opt-spec matching and compatibility generally
+
+When analyzing compatibility Argle will usually allow:
+  - Silence: saying nothing specific about a dimension.
+  - Equality: between the opt-spec and each matched Opt from variants.
+
+Either side can carry the details about quantifiers, parameters, or choices:
+  - Compact variants and fleshed out opt-specs.
+  - Or the reverse.
+  - But explicit inequality is not allowed.
+
+The test for silence is syntactic:
+  - Does the user supply explicit spec syntax related to the dimension.
+  - Example: `--foo` and `(--foo)` define a required Option, but only the
+    first is silent on quantification.
+
+Compatability is analyzed for the whole dimension, not its sub-components:
+  - For example: `--foo{2-3}` and `--foo{2-3}?` are incompatible (there is no
+    separate "greediness dimension").
+
+No mixed bags:
+  - An opt-spec can match multiple Opts from variants.
+  - The silent-or-equality test requires the latter to be consistent:
+    - If an opt-spec matches 3 Opts, all of them can be silent on a dimension
+      or their configuration can equal that in the opt-spec.
+
+__DETAILS_TO_MOVE__:
+
+  - For opt-spec matching compatibility, why allow silence?
+    - It does mean that one part of the spec (either variants or opt-specs)
+      can mislead in isolation (ie the silent part).
+    - But that bit of tension -- at least for some users -- is a worthwhile
+      tradeoff because it buys them the convenience of configuring details
+      only once, in the place of their choosing.
+    - But taking the next step toward flexibility -- allowing explicitly
+      incompatible/different configurations in variants vs opt-specs -- leads
+      to ambiguity about user intent, both for Argle and the users themselves.
+
+  - For opt-spec matching compatibility, why disallow mixed bags?
+    - Uniform variants signal clear intent (all compact, or all fully
+      specified).
+    - A mixed bag sends mixed signals: the silent Opt may be deliberate (a
+      flag) or an omission, and Argle cannot tell which.
+
 ### opt-spec-matching-names: Opt-spec matching: names and aliases
 
 Positionals:
@@ -310,11 +354,14 @@ How to determine quantifier compatibility:
   - Opt-spec silence is allowed:
     - The variant can supply the quantifier.
     - The opt-spec can present the Opt without explicit quantification.
+    - Silence means the absence of explicit syntax: `()`, `[]`, `{}`, `?`.
 
   - Otherwise, equality is required:
     - Comparison made after dropping any degenerate group.
     - Comparison is done with own-quantifier (not quantification coming from
       enclosing groups/variant).
+
+  - This analysis applies to the Opt, not quantifiers on its parameters.
 
 __DETAILS_TO_MOVE__:
 
@@ -349,7 +396,7 @@ __DETAILS_TO_MOVE__:
       - This rule has some logic: the variants can express the full
         quantification picture, while opt-specs cannot.
       - But allowing outright conflicts between variant and opt-spec is a real
-        cost for the user -- one the comes with no obvious convenience (unlike
+        cost for the user -- one that comes with no obvious convenience (unlike
         the real convenience provided by the silence-allowed policy noted
         above).
 
@@ -359,9 +406,11 @@ __DETAILS_TO_MOVE__:
       opt-specs, where users will necessarily need to supply explicit
       quantifiers.
 
-### opt-spec-adds-parameters: P3: Opt-specs can add parameters
+### opt-spec-matching-parameters: Opt-spec matching: parameter compatibility
 
 __HERE__
+
+### opt-spec-adds-parameters: P3: Opt-specs can add parameters
 
 We do want opt-specs to be able to add parameters to an Option. This is
 similar to P1 because it allows for a compact/readable command-line grammar,
