@@ -588,16 +588,65 @@ no choices, the opt-specs supply them.
 - Tentative: help-text display order of choices comes from the
   sub-specs if any, otherwise from the variants.
 
-### documenting-choices: P9: Documenting choices
+### documenting-choices: P9: Documenting choices and anonymous parameters
 
-Argle is roughly following git, in not listing VarInput choices in usage text
-or in the grammatical/formal portion of the opt-descs. Instead, it's default
-will be to append choices to an Opt's help text (see scenario-mockups.md for
-details).
+By default, Argle does not list plural choices in usage text or in the formal
+portion of opt-descs. Instead, it appends them to the Opt's help text (see
+scenario-mockups.md).
 
-- NOTE: this applies to plural choices. A single-choice Opt (eg an
-  arg-variant like `<cmd=merge>`) displays its choice as a literal in
-  usage text, as git does (`git merge [<options>]`).
+  - A single choice displays as a literal in usage text (eg an arg-variant
+    like `<cmd=merge>`, as in `git merge [<options>]`).
+
+Anonymous parameters are supported:
+
+  - They follow from supporting the choices-only form (`<red|green>`), which
+    is anonymous by nature. The bare form (`<>`) is not forbidden.
+
+  - Display default: the first letter of Option.name (the derived name, eg
+    `-x --extract <>` displays as `--extract <e>`). Applies to anonymous
+    parameters that are choiceless or have plural choices.
+
+  - Usage text and opt-descs show the same placeholder.
+
+  - The letter is a display element only, not a Parameter.name or dest. No
+    uniqueness or fallback rules: a user who dislikes the display names the
+    parameter.
+
+  - Configurable alternatives: the full Option.name (`--point <point>`) or a
+    literal anonymous placeholder (`--point <>`).
+
+Example (defaults):
+
+    # opt-spec
+    --color <red|green|blue> : Highlight matching text
+
+    # usage text
+    [--color <c>]
+
+    # opt-desc
+    --color <c>     Highlight matching text [red|green|blue]
+
+__DETAILS_TO_MOVE__:
+
+  - Why not display `<>` by default? No prior art: no usage or help text in
+    git, common man pages, or documented conventions uses empty placeholders.
+    The choices-only form, by contrast, has precedent (argparse displays
+    choices in place of a metavar).
+
+  - Why first letter rather than the full Option.name (the argparse default)?
+    `--width <width>` is redundant and verbose. The letter keeps opt-descs
+    compact, and the escape hatch is ordinary.
+
+  - Why allow `<>` at all? Supporting choices-only already requires the
+    machinery for nameless parameters (Result shape, display). Forbidding the
+    bare form would be a best-practice rule with no other rationale.
+
+Follow-up notes:
+
+  - README.md:427 and README.md:447 show `<red|green|blue>` in usage and `<>`
+    in the opt-desc, with choices as `red, green, blue`; align later.
+
+  - scenario-mockups.md S6 can reference P9 as its resolution.
 
 ## help-text: Help text
 
