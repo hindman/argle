@@ -15,8 +15,8 @@
       ### opt-spec-matching-no-match      | P20: Opt-specs that match nothing
       ### opt-spec-matching-quantifier    | Opt-spec matching: quantifier compatibility
       ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
-    ## choices-misc                       | misc choices notes
-      ### per-choice-help-sub-specs       | P5: Per-choice help text via sub-specs
+      ### opt-spec-matching-choices       | Opt-spec matching: choice compatibility
+    ## sub-spec-validity                  | Sub-spec validity
     ## help-text                          | Help text
       ### help-text-defaults              | P10: Help text defaults
       ### help-text-slots                 | P11: Help-text slots (tentative)
@@ -26,8 +26,7 @@
       ### api-reads                       | P14: API reads (tentative)
       ### query-result-repr               | P18: Query-result repr (tentative)
     ## anonymous-parameters               | Anonymous parameters are supported
-    ## dispatch                           | Dispatch
-      ### dispatch-opt-independence       | P15: Dispatch and Opt independence (tentative)
+    ## dispatch-opt-independence          | P15: Dispatch and Opt independence (tentative)
   # other-material                        | Other material to edit, move, delete
     ## opt-spec-unmatched-follow-up       | Follow-up notes (P19 and P20)
     ## per-choice-help-edit-list          | Edit list P5: per-choice help must be in sub-specs
@@ -432,7 +431,7 @@ __DETAILS_TO_MOVE__:
     - The three cases in `conflict-parameters` (`misc/policies.md:454`) are
       all errors under this draft, so that raw note could be marked resolved.
 
-## choices-misc: misc choices notes
+### opt-spec-matching-choices: Opt-spec matching: choice compatibility
 
 Why did prior policy unify Opts with choices?
 
@@ -484,7 +483,7 @@ Opt-spec matching and choices compatibility:
       - But the mixed-bag situation conveys mixed signals -- hence the error
         to force some clarity from the user.
 
-### per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
+## sub-spec-validity: misc choices notes
 
 We do want to support per-choice help text. That's a feature I have wanted
 many times as a long-suffering argparse user.
@@ -508,6 +507,20 @@ the edit-list we assembled in a separate section below.
 - Per-choice help for a parameter requires a named parameter (eg
   `<c=red|green>`). A choices-only parameter (`<red|green>`) cannot be
   reached by a sub-spec, because `<red>` reads as a parameter name.
+
+Sub-specs and opt-spec matching compatibility:
+
+  - The parent opt-spec is analyzed for matching compatibility.
+
+  - Sub-specs do not affect that analysis. Rather, if an opt-spec is valid and
+    matches some Opts, and if it also has sub-specs, then each sub-spec is
+    checked for validity -- not for matching compatibililty. The check
+    involves choices and other matters, but it is not a matching analysis.
+
+  - A sub-spec does select within the matches. For example, in a typical
+    subcommand program where the parent opt-spec matched various `<cmd=foo>`
+    Opts from the variants, each sub-spec selects the Opts the relevant Opts,
+    based on the choices it documents.
 
 Rough notes on sub-specs:
 
@@ -787,9 +800,7 @@ __DETAILS_TO_MOVE__:
     - Because a top-level Opt requires a name: Positional is an Opt; Parameter
       is a child of one.
 
-## dispatch: Dispatch
-
-### dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
+## dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
 
 - Default: dispatch unifies Opts by name. Argle calls a dispatch
   function at most once per (NAME, FUNC, RESULT): the matched Opt's
