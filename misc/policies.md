@@ -15,18 +15,13 @@
       ### opt-spec-matching-no-match      | P20: Opt-specs that match nothing
       ### opt-spec-matching-quantifier    | Opt-spec matching: quantifier compatibility
       ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
-    ## choices                            | Choices
-      ### same-name-choice-choiceless     | P8: Same-named choice-bearing and choiceless Opts
-      ### conflict-choices                | SPEC_ISSUE: variant vs opt-spec conflicts: choices
-      ### choices-misc                    | misc choices notes
-      ### per-choice-help                 | P2: Per-choice help text
+    ## choices-misc                       | misc choices notes
       ### per-choice-help-sub-specs       | P5: Per-choice help text via sub-specs
-      ### variant-choices-authoritative   | P6: Variant-declared choices are authoritative
-      ### documenting-choices             | P9: Documenting choices
     ## help-text                          | Help text
       ### help-text-defaults              | P10: Help text defaults
       ### help-text-slots                 | P11: Help-text slots (tentative)
       ### slot-hooks                      | P12: Slot hooks (tentative)
+      ### documenting-choices             | P9: Documenting choices
     ## api                                | API
       ### api-reads                       | P14: API reads (tentative)
       ### query-result-repr               | P18: Query-result repr (tentative)
@@ -437,40 +432,11 @@ __DETAILS_TO_MOVE__:
     - The three cases in `conflict-parameters` (`misc/policies.md:454`) are
       all errors under this draft, so that raw note could be marked resolved.
 
-## choices: Choices
+## choices-misc: misc choices notes
 
-### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
+Why did prior policy unify Opts with choices?
 
-Matching stays based on name, kind, and scope (adding choices to the matching
-criteria would turn conflicts into silent non-matches). If an unscoped
-opt-spec matches both kinds of Opt (eg `<x=A|B>` and a bare `<x>` in the
-variants):
-
-- Help only (eg `<x> : help`): allowed. Both Opts get the help text. The
-  duplication is visible in the help output, and the user can fix it
-  with a scope.
-
-- Names choices, itself or via sub-specs: error; use a scope. Otherwise
-  the choiceless Opt would silently gain the choices, a behavior change
-  that the help output does not reveal.
-
-### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
-
-A merged Opt can have separate positions in the grammar:
-
-  - `<action=pitch> <action=balk|stop>` is one merged Opt occupying two
-    positions. The Opt data model lacks the positional attributes to keep
-    track of this under the prior policy of unifying Positionals having
-    choices.
-
-  - That concern is now pushing us toward a fuller embrace of opt-independence
-    and instead trying to support the things drove us toward unification via
-    other strategies (eg in usage/help text, arg-parsing error reporting,
-    etc).
-
-Some things that motivated unification of Opts with choices in the first place:
-
-  - Unified help entry for a subcommand positional.
+  - Unified help entry for a subcommand positional -- a common CLI pattern.
 
   - Behaviroal consistency among different ways of writing the same grammar.
      - In separate variants: `<step=start>` and `<step=stop>`.
@@ -483,16 +449,9 @@ Some things that motivated unification of Opts with choices in the first place:
     single unified Opt (due to its choices), but internally Argle will think
     that the arg-variant choices (as one kind of example) are all independent.
 
-Current work on this issue:
+Opt-spec matching and choices compatibility:
 
-  - Policies: misc/policy-clarifications.md
-  - Scenario mockups: misc/scenario-mockups.md
-
-### choices-misc: misc choices notes
-
-Rough text and notes:
-
-  - Choices:
+  - Silence or equality:
 
         Variant choices | Opt-spec choices | Result
         ---------------------------------------------------------------
@@ -525,29 +484,10 @@ Rough text and notes:
       - But the mixed-bag situation conveys mixed signals -- hence the error
         to force some clarity from the user.
 
-Rough notes on sub-specs:
-
-  - NOTE: Perhaps sub-specs should be addressed in a separate policy.
-
-  - A sub-spec attaches to the immediately preceding parent opt-spec.
-
-  - A sub-spec must be compatible with the parent opt-spec and, indirectly,
-    with the variant Opts matched by the parent.
-
-  - Choices compatibility:
-
-    - Call C the set of choice(s) documented in the sub-spec.
-    - C must be a subset of E, the set of choices from the parent opt-spec and
-      the Opts matched by it.
-    - With several matched Opts, the sub-spec attaches to the Opts whose
-      choices include those in C.
-
-### per-choice-help: P2: Per-choice help text
+### per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
 
 We do want to support per-choice help text. That's a feature I have wanted
 many times as a long-suffering argparse user.
-
-### per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
 
 Per-choice help text must be done via sub-specs. Applies to both parameters
 (the old policy) and now positionals (the new policy to make things consistent
@@ -569,62 +509,22 @@ the edit-list we assembled in a separate section below.
   `<c=red|green>`). A choices-only parameter (`<red|green>`) cannot be
   reached by a sub-spec, because `<red>` reads as a parameter name.
 
-### variant-choices-authoritative: P6: Variant-declared choices are authoritative
+Rough notes on sub-specs:
 
-If a variant declares choices for a VarInput, they are authoritative.
-Opt-specs (regular or sub-spec) may name only those choices; naming any other
-is an error. Not every choice needs to be documented. If the variant declares
-no choices, the opt-specs supply them.
+  - NOTE: Perhaps sub-specs should be addressed in a separate policy.
 
-- NOTE: this is currently under review and might change.
+  - A sub-spec attaches to the immediately preceding parent opt-spec.
 
-- When an opt-spec matches several Opts (see P16), the authoritative
-  set is the union of their choices (cf P14). Restating choices only
-  validates and documents: it never changes any Opt's own choices. If
-  the variants declare no choices, the opt-spec does supply them, by
-  broadcast, subject to P8.
+  - A sub-spec must be compatible with the parent opt-spec and, indirectly,
+    with the variant Opts matched by the parent.
 
-- A parent (regular) opt-spec must either restate the full
-  authoritative set or say nothing about choices. A subset or superset
-  is an error. Agreement means set equality, so order does not matter.
+  - Choices compatibility:
 
-      --color <c=red|green|blue> : OK (full agreement)
-      --color <c> : OK (silent about choices)
-      --color <c=red|green> : Error (subset)
-
-- Sub-specs name choices one at a time (see P5) and need not cover all
-  of them. A sub-spec attaches to the matched Opt(s) whose choices
-  include the named choice, not to every match.
-
-- Tentative: help-text display order of choices comes from the
-  sub-specs if any, otherwise from the variants.
-
-### documenting-choices: P9: Documenting choices
-
-By default, Argle does not list plural choices in usage text or in the formal
-portion of opt-descs. Instead, it appends them to the Opt's help text (see
-scenario-mockups.md).
-
-  - A single choice displays as a literal in usage text (eg an arg-variant
-    like `<cmd=merge>`, as in `git merge [<options>]`).
-
-Example (defaults):
-
-    # opt-spec
-    --color <red|green|blue> : Highlight matching text
-
-    # Usage text.
-    --color <c>
-
-    # opt-desc
-    --color <c>     Highlight matching text [red|green|blue]
-
-Follow-up notes:
-
-  - README.md:427 and README.md:447 show `<red|green|blue>` in usage and `<>`
-    in the opt-desc, with choices as `red, green, blue`; align later.
-
-  - scenario-mockups.md S6 can reference P9 as its resolution.
+    - Call C the set of choice(s) documented in the sub-spec.
+    - C must be a subset of E, the set of choices from the parent opt-spec and
+      the Opts matched by it.
+    - With several matched Opts, the sub-spec attaches to the Opts whose
+      choices include those in C.
 
 ## help-text: Help text
 
@@ -732,6 +632,33 @@ Follow-up notes:
   - Whether `{default}` in a per-choice sub-spec refers to the parent
     Opt or the choice.
   - Whether help text set via the API gets slot substitution.
+
+### documenting-choices: P9: Documenting choices
+
+By default, Argle does not list plural choices in usage text or in the formal
+portion of opt-descs. Instead, it appends them to the Opt's help text (see
+scenario-mockups.md).
+
+  - A single choice displays as a literal in usage text (eg an arg-variant
+    like `<cmd=merge>`, as in `git merge [<options>]`).
+
+Example (defaults):
+
+    # opt-spec
+    --color <red|green|blue> : Highlight matching text
+
+    # Usage text.
+    --color <c>
+
+    # opt-desc
+    --color <c>     Highlight matching text [red|green|blue]
+
+Follow-up notes:
+
+  - README.md:427 and README.md:447 show `<red|green|blue>` in usage and `<>`
+    in the opt-desc, with choices as `red, green, blue`; align later.
+
+  - scenario-mockups.md S6 can reference P9 as its resolution.
 
 ## api: API
 
@@ -943,9 +870,6 @@ Obsolete or stale:
 
   3. P7 is superseded. In the new layout I'd move it to the details section,
      or drop it.
-
-  4. P6's "NOTE: currently under review" may now be stale, since P6 was just
-     revised for P0.
 
   5. P13's status lines: "Config read: maybe resolvable via P14" (P14 now
      exists), tab-completion (resolved), and help and errors still marked
