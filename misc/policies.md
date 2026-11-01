@@ -433,61 +433,53 @@ __DETAILS_TO_MOVE__:
 
 ### opt-spec-matching-choices: Opt-spec matching: choice compatibility
 
-__HERE__
+Choice compatibility analysis:
+
+  - General policies for choices are similar to those of other dimensions:
+
+    - Silence or equality.
+      - Silence: based on presence of explicit choice syntax.
+      - Equality: set-equality.
+
+    - No mixed bags.
+      - The relevant VarInputs from the matched Opts must be consistent:
+        choice-free or choice-bearing.
+
+  - Positional:
+    - S: opt-spec choices.
+    - V: union of choices from the matched Positionals.
+
+  - Parameter:
+    - S: opt-spec choices.
+    - V: union of choices across relevant Parameters from matched Options.
+      - Relevance is straighforward, based on position.
 
 __DETAILS_TO_MOVE__:
 
-  - Why did prior policy unify Opts with choices?
+  - For choice compatibility in opt-spec matching, why does Argle unify
+    (create a union of) the choices from the variants?
 
-    - Unified help entry for a subcommand positional -- a common CLI pattern.
+    - Under the previous opt-independence policy, the lone exception was
+      unification for Opts with choices.
 
-    - Behaviroal consistency among different ways of writing the same grammar.
-       - In separate variants: `<step=start>` and `<step=stop>`.
-       - In one variant: `<step=start|stop>`
+      - The main driver of the exception: typical subcommand program (eg git).
 
-    - Error messages that list valid choices.
+        - The primary `<command>` positional seems like it should be a unified
+          Opt: it drives variant-based grammar.
 
-    - Even if Argle perceives Opts as fully independent, users might not. For
-      example, they might call get(), thinking that they will be configuring a
-      single unified Opt (due to its choices), but internally Argle will think
-      that the arg-variant choices (as one kind of example) are all independent.
+        - And one would want behavioral consistency between these two:
+          - Separate variants: `<step=start>` and `<step=stop>`.
+          - One variant: `<step=start|stop>`
+          - If the second is a unified Opt, shouldn't the first be?
 
-  - Opt-spec matching and choices compatibility:
+    - But strict opt-independence has real benefits.
 
-    - Silence or equality:
-
-          Variant choices | Opt-spec choices | Result
-          ---------------------------------------------------------------
-          none            | none             | OK: no choices involved
-          none            | S                | OK: opt-spec supplies S
-          V               | none             | OK: opt-spec silent, so V stands
-          V               | S                | OK only if S == V
-
-          Where:
-            - S is the set of choices supplied by the opt-spec.
-            - V is the union of choices from matched Opts.
-            - S and V are tested for set equality.
-
-    - No mixed-bag scenarios:
-
-      - An opt-spec with choices must match either (a) choiceless Opts, or (b)
-        choice-bearing Opts, but (c) never a mixed bag.
-
-      - Admitting that such uses cases are super rare, when we concoct mixed-bag
-        scenarios, we have a hard time discerning a clear user intent, so the
-        error forces the user to be specific.
-        - The user can use scopes in the opt-specs (to avoid a mixed-bag match)
-          or add choice(s) to the choiceless Opts in the variants (making the
-          bag no long mixed)
-
-      - The no-mixed-bag policy is not just sticklerism.
-        - If same-name Opts in variants all have choices, that's a signal the
-          user intends them to be unified for configuration purposes.
-        - Ditto if same-name Opts in variants are choiceless.
-        - But the mixed-bag situation conveys mixed signals -- hence the error
-          to force some clarity from the user.
+      - The union of choices from the variants allows Argle to be strict and
+        still support a common use case.
 
 ## sub-spec-validity: misc choices notes
+
+__HERE__
 
 We do want to support per-choice help text. That's a feature I have wanted
 many times as a long-suffering argparse user.
