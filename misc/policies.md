@@ -1,41 +1,42 @@
 <!--
 
-  # todos: TODOs
-  # argle-policies: Policies
-    ## grammar: Grammar and identity
-      ### grammar-opt-independence: P0: Strict Opt independence in the grammar
-      ### grammar-vs-surfaces: P13: Terminology: grammar vs surfaces
-      ### surface-unification: P101: Opts are generally unified at surfaces
-      ### opt-path-property: P17: Add an Opt.path property
-    ## opt-specs: Opt-specs and matching
-      ### opt-spec-matching: P16: Opt-spec matching
-      ### opt-spec-matching-names: Opt-spec matching: names and aliases
-      ### opt-spec-matching-uniqueness: P19: An Opt cannot be matched more than once
-      ### opt-spec-matching-no-match: P20: Opt-specs that match nothing
-      ### opt-spec-matching-quantifier: Opt-spec matching: quantifier compatibility
-      ### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
-      ### raw notes that need a home (were in reboot-status.md)
-        #### conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
-        #### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
-    ## choices: Choices
-      ### rough notes that need a home
-      ### per-choice-help: P2: Per-choice help text
-      ### per-choice-help-sub-specs: P5: Per-choice help text via sub-specs
-      ### variant-choices-authoritative: P6: Variant-declared choices are authoritative
-      ### documenting-choices: P9: Documenting choices
-    ## help-text: Help text
-      ### help-text-defaults: P10: Help text defaults
-      ### help-text-slots: P11: Help-text slots (tentative)
-      ### slot-hooks: P12: Slot hooks (tentative)
-    ## api: API
-      ### api-reads: P14: API reads (tentative)
-      ### query-result-repr: P18: Query-result repr (tentative)
-    ## dispatch: Dispatch
-      ### dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
-  # other-material: Other material to edit, move, delete
-    ## opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
-    ## per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
-    ## audit-notes: notes on audit
+  # todos                                 | TODOs
+  # argle-policies                        | Policies
+    ## grammar                            | Grammar and identity
+      ### grammar-opt-independence        | P0: Strict Opt independence in the grammar
+      ### grammar-vs-surfaces             | P13: Terminology: grammar vs surfaces
+      ### surface-unification             | P101: Opts are generally unified at surfaces
+      ### opt-path-property               | P17: Add an Opt.path property
+    ## opt-specs                          | Opt-specs and matching
+      ### opt-spec-matching               | P16: Opt-spec matching
+      ### opt-spec-matching-compatibility | P21: Opt-spec matching and compatibility generally
+      ### opt-spec-matching-names         | Opt-spec matching: names and aliases
+      ### opt-spec-matching-uniqueness    | P19: An Opt cannot be matched more than once
+      ### opt-spec-matching-no-match      | P20: Opt-specs that match nothing
+      ### opt-spec-matching-quantifier    | Opt-spec matching: quantifier compatibility
+      ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
+    ## choices                            | Choices
+      ### same-name-choice-choiceless     | P8: Same-named choice-bearing and choiceless Opts
+      ### conflict-choices                | SPEC_ISSUE: variant vs opt-spec conflicts: choices
+      ### choices-misc                    | misc choices notes
+      ### per-choice-help                 | P2: Per-choice help text
+      ### per-choice-help-sub-specs       | P5: Per-choice help text via sub-specs
+      ### variant-choices-authoritative   | P6: Variant-declared choices are authoritative
+      ### documenting-choices             | P9: Documenting choices
+    ## help-text                          | Help text
+      ### help-text-defaults              | P10: Help text defaults
+      ### help-text-slots                 | P11: Help-text slots (tentative)
+      ### slot-hooks                      | P12: Slot hooks (tentative)
+    ## api                                | API
+      ### api-reads                       | P14: API reads (tentative)
+      ### query-result-repr               | P18: Query-result repr (tentative)
+    ## anonymous-parameters               | Anonymous parameters are supported
+    ## dispatch                           | Dispatch
+      ### dispatch-opt-independence       | P15: Dispatch and Opt independence (tentative)
+  # other-material                        | Other material to edit, move, delete
+    ## opt-spec-unmatched-follow-up       | Follow-up notes (P19 and P20)
+    ## per-choice-help-edit-list          | Edit list P5: per-choice help must be in sub-specs
+    ## audit-notes                        | notes on audit
 
 -->
 
@@ -360,7 +361,8 @@ How to determine quantifier compatibility:
     - Comparison is done with own-quantifier (not quantification coming from
       enclosing groups/variant).
 
-  - This analysis applies to the Opt, not quantifiers on its parameters.
+  - This analysis applies to the Opt's quantifiers; parameters are a separate
+    dimension.
 
 __DETAILS_TO_MOVE__:
 
@@ -407,41 +409,6 @@ __DETAILS_TO_MOVE__:
 
 ### opt-spec-matching-parameters: Opt-spec matching: parameter compatibility
 
-OTHER PARAM-RELATED STUFF TO ADDRESS NOW:
-
-  __HERE__
-
-  1. The quantifier section (`misc/policies.md:363`) says "This analysis
-     applies to the Opt, not quantifiers on its parameters." That's now
-     answered: parameter quantifiers are part of the parameter-structure
-     equality test. The line could become a cross-reference to
-     opt-spec-matching-parameters.
-
-  2. P9 still holds the anonymous-parameter rationale (`misc/policies.md:685`
-     through `misc/policies.md:697`: why not `<>`, why the first letter, why
-     allow `<>`). It duplicates what's now in the anonymous-parameters section
-     and should be removed from P9. The README follow-up note can stay in P9,
-     since it concerns choice display too.
-
-  3. Per-parameter help text is a real gap. P5's note (`misc/policies.md:618`)
-     says "I suspect some of these policies will also apply to per-parameter
-     help text for options." Help for an individual parameter (e.g. `<x>`: X
-     coordinate) is a parameter question, not a choices question, and no
-     policy covers it. The mechanism is presumably a sub-spec matching a
-     parameter within its parent Option (`misc/spec-syntax.md:201`). That
-     needs a decision: is per-parameter help supported, and only through
-     sub-specs?
-
-  4. Anonymous parameters and sub-specs. If per-parameter help goes through
-     sub-specs, an anonymous parameter can't be reached, for the same reason
-     P5 gives for choices-only (`misc/policies.md:631`). That's a one-line
-     consequence for the anonymous-parameters section, and the workaround is
-     the usual one: name the parameter.
-
-  5. The raw note `conflict-parameters` (`misc/policies.md:508`) is still in
-     the file. Your follow-up bullet says it's resolved, so it can be marked
-     or removed.
-
 Opt-spec matching and parameter compatibility:
 
   - The opt-spec's parameters and those of the matching Opts must be equal or
@@ -470,58 +437,7 @@ __DETAILS_TO_MOVE__:
     - The three cases in `conflict-parameters` (`misc/policies.md:454`) are
       all errors under this draft, so that raw note could be marked resolved.
 
-### anonymous-parameters: Anonymous parameters are supported
-
-Anonymous parameters are supported:
-
-  - The are allowed in spec syntax:
-    - In a choices-only situation: `--color <red|green|blue>`.
-    - Or purely anonymous: `--point <> <>`.
-
-  - But they are displayed in usage/help text via first-letter of Option.name;
-    - Spec: `--point <> <>`.
-    - Usage/help:
-      - Default: `--point <p> <p>`
-      - Optional: `--point <> <>` (if user requests via API).
-
-  - Internally, the Parameter instance remains anonymous:
-    - The first-letter is a display policy, not a default Parameter.name.
-
-__DETAILS_TO_MOVE__:
-
-  - Why does Argle allow anonymous parameters at all?
-
-    - After all, we searched and found no prior art for anonymous parameters
-      among a variety of Unix commands and Git subcommands.
-
-    - In Argle, they are a logical consequence of something we do want to
-      support: choices-only parameters, which are anonymous by construction.
-
-  - Why does Argle allow anonymous parameters as spec input but use
-    first-letter of Option.name as the default display in help text output?
-
-    - Precisely because the device has no prior art.
-
-    - Anonymous is a logical alternative within the Argle spec syntax, but is
-      quite out in left field as a device in help text.
-
-    - And Argle defaults to first-letter of Option.name because the argparse
-      use of the full Option.name (shown below) is repetitive, verbose, and a
-      bit illogical: if "point" refers to the whole Option, the parameter
-      values should have a different display.
-
-          # Spec.
-          --point <> <>
-          --color <red|blue|green>
-
-          # Default help text.
-          --point <p> <p>
-          --color <c>
-
-          # Help styles available as configuration options.
-          --point <point> <point>   # Full name (argparse style).
-          --point <> <>             # Anonymous, for the bold.
-          --color <red|blue|green>  # Choices as display.
+## choices: Choices
 
 ### same-name-choice-choiceless: P8: Same-named choice-bearing and choiceless Opts
 
@@ -538,17 +454,7 @@ variants):
   the choiceless Opt would silently gain the choices, a behavior change
   that the help output does not reveal.
 
-### raw notes that need a home (were in reboot-status.md)
-
-#### conflict-parameters: SPEC_ISSUE: variant vs opt-spec conflicts: parameters
-
-What about opt-specs that completely change the parameters of an Option?
-
-    --bar <b1> <b2>        # In a variant
-    --bar <b1> [<b2>]      # In an opt-spec
-    --bar <x> <y> <z>      # Ditto -- but more divergent
-
-#### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
+### conflict-choices: SPEC_ISSUE: variant vs opt-spec conflicts: choices
 
 A merged Opt can have separate positions in the grammar:
 
@@ -582,9 +488,7 @@ Current work on this issue:
   - Policies: misc/policy-clarifications.md
   - Scenario mockups: misc/scenario-mockups.md
 
-## choices: Choices
-
-### rough notes that need a home
+### choices-misc: misc choices notes
 
 Rough text and notes:
 
@@ -714,21 +618,6 @@ Example (defaults):
 
     # opt-desc
     --color <c>     Highlight matching text [red|green|blue]
-
-__DETAILS_TO_MOVE__:
-
-  - Why not display `<>` by default? No prior art: no usage or help text in
-    git, common man pages, or documented conventions uses empty placeholders.
-    The choices-only form, by contrast, has precedent (argparse displays
-    choices in place of a metavar).
-
-  - Why first letter rather than the full Option.name (the argparse default)?
-    `--width <width>` is redundant and verbose. The letter keeps opt-descs
-    compact, and the escape hatch is ordinary.
-
-  - Why allow `<>` at all? Supporting choices-only already requires the
-    machinery for nameless parameters (Result shape, display). Forbidding the
-    bare form would be a best-practice rule with no other rationale.
 
 Follow-up notes:
 
@@ -908,6 +797,68 @@ not the unified view. Eg:
     ])
 
 - The unified view remains available via attribute reads (P14).
+
+## anonymous-parameters: Anonymous parameters are supported
+
+Anonymous parameters are supported:
+
+  - The are allowed in spec syntax:
+    - In a choices-only situation: `--color <red|green|blue>`.
+    - Or purely anonymous: `--point <> <>`.
+
+  - But they are displayed in usage/help text via first-letter of Option.name;
+    - Spec: `--point <> <>`.
+    - Usage/help:
+      - Default: `--point <p> <p>`
+      - Optional: `--point <> <>` (if user requests via API).
+
+  - Internally, the Parameter instance remains anonymous:
+    - The first-letter is a display policy, not a default Parameter.name.
+
+__DETAILS_TO_MOVE__:
+
+  - Why does Argle allow anonymous parameters at all?
+
+    - After all, we searched and found no prior art for anonymous parameters
+      among a variety of Unix commands and Git subcommands.
+
+    - In Argle, they are a logical consequence of something we do want to
+      support: choices-only parameters, which are anonymous by construction.
+
+    - And choices-only parameters does have precedence in other libraries (eg,
+      argparse) and programs (eg, `git diff --diff-algorithm` and several
+      other git commands).
+
+  - Why does Argle allow anonymous parameters as spec input but use
+    first-letter of Option.name as the default display in help text output?
+
+    - Precisely because the device has no prior art.
+
+    - Anonymous is a logical alternative within the Argle spec syntax, but is
+      quite out in left field as a device in help text.
+
+    - And Argle defaults to first-letter of Option.name because the argparse
+      use of the full Option.name (shown below) is repetitive, verbose, and a
+      bit illogical: if "point" refers to the whole Option, the parameter
+      values should have a different display.
+
+          # Spec.
+          --point <> <>
+          --color <red|blue|green>
+
+          # Default help text.
+          --point <p> <p>
+          --color <c>
+
+          # Help styles available as configuration options.
+          --point <point> <point>   # Full name (argparse style).
+          --point <> <>             # Anonymous, for the bold.
+          --color <red|blue|green>  # Choices as display.
+
+  - Why does Argle allow anonymous parameters, but not positionals?
+
+    - Because a top-level Opt requires a name: Positional is an Opt; Parameter
+      is a child of one.
 
 ## dispatch: Dispatch
 
