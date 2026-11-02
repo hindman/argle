@@ -1,4 +1,4 @@
-<!--
+<!-- TOC
 
   # todos                                 | TODOs
   # argle-policies                        | Policies
@@ -16,7 +16,7 @@
       ### opt-spec-matching-quantifier    | Opt-spec matching: quantifier compatibility
       ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
       ### opt-spec-matching-choices       | Opt-spec matching: choice compatibility
-    ## sub-spec-validity                  | Sub-spec validity
+    ## sub-spec-validity                  | misc choices notes
     ## help-text                          | Help text
       ### help-text-defaults              | P10: Help text defaults
       ### help-text-slots                 | P11: Help-text slots (tentative)
