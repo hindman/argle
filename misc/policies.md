@@ -1,4 +1,4 @@
-<!-- TOC
+<!-- TOC-SLUG
 
   # todos                                 | TODOs
   # argle-policies                        | Policies
