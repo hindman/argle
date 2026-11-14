@@ -1,3 +1,4 @@
+
 <!-- TOC-SLUG
 
   # todos                                 | TODOs
@@ -17,11 +18,10 @@
       ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
       ### opt-spec-matching-choices       | Opt-spec matching: choice compatibility
     ## help-text                          | Help text
-      ### sub-specs
-      ### help-text-defaults              | P10: Help text defaults
-      ### help-text-slots                 | P11: Help-text slots
-      ### slot-hooks                      | P12: Slot hooks
       ### documenting-choices             | P9: Documenting choices
+      ### help-text-autogen-opt-descs     | Help text: auto-generated opt-descs
+      ### help-text-slots                 | P11: Help-text slots
+      ### sub-specs                       | Sub-specs policy
     ## api                                | API
       ### api-reads                       | P14: API reads
       ### query-result-repr               | P18: Query-result repr
@@ -473,7 +473,115 @@ __DETAILS_TO_MOVE__:
 
 ## help-text: Help text
 
-### sub-specs
+### documenting-choices: P9: Documenting choices
+
+How choices are documented in grammatical parts of Argle help text:
+
+  - Relevant parts:
+    - Usage text.
+    - The grammatical portion of opt-descs.
+
+  - Multiple choices:
+    - Display the VarInput.name, not the choices.
+    - Document choices by appending them to the opt-desc help text.
+
+  - Single choice:
+    - Display the choice as a literal.
+    - Common example: the action in a subcommand program.
+
+__DETAILS_TO_MOVE__:
+
+  - README.md:427 and README.md:447 show `<red|green|blue>` in usage and `<>`
+    in the opt-desc, with choices as `red, green, blue`.
+
+### help-text-autogen-opt-descs: Help text: auto-generated opt-descs
+
+Auto-generated opt-descs:
+
+  - If no opt-specs, Argle will auto-generate opt-descs.
+
+  - If user supplies some opt-specs, but not an exhaustive list, Argle will
+    append an "Arguments" section listing the missing opt-descs.
+
+  - Via the API, user can request:
+    - No auto-generation of missing opt-descs.
+    - Raise if the user's opt-descs are not exhaustive.
+
+__DETAILS_TO_MOVE__:
+
+  - Why does Argle auto-generate opt-descs by default?
+
+    - It is probably the behavior most users want.
+
+    - It is the only mechanism by choices will be documented, given Argle's
+      defaults.
+
+### help-text-slots: P11: Help-text slots
+
+User need ways to control placement of Argle-generated documentation:
+  - Program info:
+    - Program name.
+    - Version.
+  - Opt attributes within an opt-desc's help text:
+    - Choices.
+    - Default.
+    - Type.
+  - Auto-generated opt-descs.
+
+The mechanism to support that: slots:
+
+  - Spec syntax for slots:
+    - Name in braces: `{SLOT_NAME}`
+    - Braces alone do not signal a slot: the full constuct is required.
+    - To include literal text in a spec that looks like a slot, backslash the
+      construct: `\{literal}`
+
+  - Some built-in slots:
+
+        {usage}       | Usage text
+        -----------------------------------------------
+        {opts}        | All Opts
+        {options}     | Options
+        {positionals} | Positionals
+        {opts_other}  | Other Opts (not in opt-specs)
+        -----------------------------------------------
+        {default}     | Opt default
+        {choices}     | Opt choices
+        {prog}        | Program name
+        {version}     | Program version
+
+Slots will be inserted blockwise or inline:
+  - Some slots will require one or the other.
+  - Others might be flexible, depending on context within the spec:
+    - Slot on its own line.
+    - Slot inside a line of text.
+
+User can register:
+
+  - Custom slots.
+    - With various mechanisms for supplying data needed by the slot:
+      - Blob of text.
+      - List of relevant Opts.
+      - Etc.
+
+  - Slot hooks:
+    - A function to be called when a slot needs its data.
+
+    - Takes:
+      - Context instance (same as dispatch).
+
+    - Returns:
+      - Relevant data to fulfill the slot.
+      - Can vary by slot:
+        - `str`: text with default handling (wrapped).
+        - Text object: text plus instructions (eg `wrap=False`).
+        - Opts selection: a query result or query-path.
+    
+    - Key point:
+      - Slot hooks do not munge generated help text.
+      - They receive context and return data.
+
+### sub-specs: Sub-specs policy
 
 __HERE__
 
@@ -517,102 +625,6 @@ Sub-specs and opt-spec matching compatibility:
       the Opts matched by it.
     - With several matched Opts, the sub-spec attaches to the Opts whose
       choices include those in C.
-
-### help-text-defaults: P10: Help text defaults
-
-- If user supplies only variants (no opt-specs), Argle will generate a
-  typical listing of opt-descs. Why this is a helpful default:
-
-  - Following git, we intend to display VarInput choices in opt-desc
-    help-text, not in the opt-desc CLI-grammar (see P9).
-
-  - If Argle did not generate opt-descs in this scenario, choices would
-    remain undocumented. So the auto-generated opt-descs provide a home
-    for the listing of choices.
-
-- If the user supplies some opt-specs but not a complete list of them, the
-  generated help text will follow the presentation/ordering of the
-  opt-specs (and other help-text elements). Then at the end Argle will
-  append an "Arguments:" section listing the opt-descs for which the user
-  did not supply corresponding opt-specs.
-
-  - Why auto-generate and append by default? Same reason as above: it will
-    be the only means of displaying choices.
-
-  - The API will allow users to request things like:
-    - Do NOT auto-generate the missing opt-descs.
-    - Raise if the user's opt-descs are not exhaustive (meaning: all Opts
-      in the variants were matched by an opt-spec).
-
-### help-text-slots: P11: Help-text slots
-
-- One mechanism for placing generated or custom content in help text:
-  named slots, written `{name}`.
-
-- Registry: Argle pre-registers built-in slots. Users register their
-  own via the API, each with a hook (see P12). Built-ins are just
-  slots that Argle ships.
-
-- Placement determines behavior, not syntax:
-  - Slot alone on a line: block insertion.
-  - Slot inside text (opt-help-text, block-quote): inline insertion.
-
-- Likely built-ins:
-  - Block: `{opts}`, `{options}`, `{positionals}`, `{usage}`, `{opts_other}`.
-  - Inline, Opt-level: `{default}`, `{choices}`, maybe `{name}`.
-  - Inline, parser-level: `{prog}`, `{version}`.
-
-  - Some builtins might require block insertion/placement, and forbid inline.
-
-- Validation and escaping: braces enclosing an unregistered name are an
-  error (catches typos). Escape with a backslash (`\{default}`), per the
-  Quoting rules. No format-spec mini-language.
-
-- To support complex needs, favor a user-slot where their callable supplies
-  the text or data needed to drive the slot content.
-
-### slot-hooks: P12: Slot hooks
-
-- Registration, roughly: `p.slot('add_opts', func)`.
-
-- A slot hook receives context (the parser, plus the current Opt when there is
-  one) and returns data representing what to insert. It does not munge
-  generated help text.
-
-- Slot hook return types:
-  - `str`: text with default handling (wrapped).
-  - Text object: text plus instructions (eg `wrap=False`).
-  - Opts selection: a query result or query-path. Argle renders the
-    opt-descs.
-  - List of the above, for mixed content (eg heading plus Opts block).
-    - Needed? Or can the user just put multiple slots in the spec?
-
-### documenting-choices: P9: Documenting choices
-
-By default, Argle does not list plural choices in usage text or in the formal
-portion of opt-descs. Instead, it appends them to the Opt's help text (see
-scenario-mockups.md).
-
-  - A single choice displays as a literal in usage text (eg an arg-variant
-    like `<cmd=merge>`, as in `git merge [<options>]`).
-
-Example (defaults):
-
-    # opt-spec
-    --color <red|green|blue> : Highlight matching text
-
-    # Usage text.
-    --color <c>
-
-    # opt-desc
-    --color <c>     Highlight matching text [red|green|blue]
-
-Follow-up notes:
-
-  - README.md:427 and README.md:447 show `<red|green|blue>` in usage and `<>`
-    in the opt-desc, with choices as `red, green, blue`; align later.
-
-  - scenario-mockups.md S6 can reference P9 as its resolution.
 
 ## api: API
 
