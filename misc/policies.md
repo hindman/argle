@@ -16,21 +16,18 @@
       ### opt-spec-matching-quantifier    | Opt-spec matching: quantifier compatibility
       ### opt-spec-matching-parameters    | Opt-spec matching: parameter compatibility
       ### opt-spec-matching-choices       | Opt-spec matching: choice compatibility
-    ## sub-spec-validity                  | misc choices notes
     ## help-text                          | Help text
+      ### sub-specs
       ### help-text-defaults              | P10: Help text defaults
-      ### help-text-slots                 | P11: Help-text slots (tentative)
-      ### slot-hooks                      | P12: Slot hooks (tentative)
+      ### help-text-slots                 | P11: Help-text slots
+      ### slot-hooks                      | P12: Slot hooks
       ### documenting-choices             | P9: Documenting choices
     ## api                                | API
-      ### api-reads                       | P14: API reads (tentative)
-      ### query-result-repr               | P18: Query-result repr (tentative)
+      ### api-reads                       | P14: API reads
+      ### query-result-repr               | P18: Query-result repr
     ## anonymous-parameters               | Anonymous parameters are supported
-    ## dispatch-opt-independence          | P15: Dispatch and Opt independence (tentative)
+    ## dispatch-opt-independence          | P15: Dispatch and Opt independence
   # other-material                        | Other material to edit, move, delete
-    ## opt-spec-unmatched-follow-up       | Follow-up notes (P19 and P20)
-    ## per-choice-help-edit-list          | Edit list P5: per-choice help must be in sub-specs
-    ## audit-notes                        | notes on audit
 
 -->
 
@@ -118,7 +115,7 @@ Policy summary of Opt independence/unification, by surface:
     ------------------------------------------------------------
     Opt-specs      | Unified via broadcast
     Help text      | Unified by default; independence via scopes
-    Error msgs     | TBD
+    Error msgs     | __
     Result         | Purpose is to unify by Opt.dest
     API Opt writes | Unified via broadcast; independence via query-path
     API Opt reads  | Unified by default, with API workarounds
@@ -226,8 +223,8 @@ __DETAILS_TO_MOVE__:
   - For opt-spec matching compatibility, why disallow mixed bags?
     - Uniform variants signal clear intent (all compact, or all fully
       specified).
-    - A mixed bag sends mixed signals: the silent Opt may be deliberate (a
-      flag) or an omission, and Argle cannot tell which.
+    - A mixed bag sends mixed signals: the silent Opt may be deliberate or an
+      omission, and Argle cannot tell which.
 
 ### opt-spec-matching-names: Opt-spec matching: names and aliases
 
@@ -252,9 +249,9 @@ __DETAILS_TO_MOVE__:
 
         -x --blort --fubb <a> <b> : Help text for Option(fubb)
 
-  - Ordering of aliases and option name in an opt-spec affects but might not
-    dictate ordering/presentation in generated help text (the latter can be
-    configured).
+  - Ordering of aliases and option name in an opt-spec affects, but might not
+    dictate, the ordering/presentation in generated help text (the latter can
+    be configured).
 
 ### opt-spec-matching-uniqueness: P19: An Opt cannot be matched more than once
 
@@ -278,15 +275,12 @@ __DETAILS_TO_MOVE__:
           --foo : Help blah
           --foo : Help blah blah
 
-    - The user's goal can be achieved in a better way oriented about the needs
-      of display.
+    - Showing an opt-desc in multiple spots is a display concern:
+      - Tentative mechanism: slots (see P11).
 
     - Keeping Opt configuration single-source:
       - Simplifies Argle policy.
       - Provides clarity to users.
-
-    - Showing an opt-desc in multiple spots is a display concern:
-      - Tentative mechanism: slots (see P11).
 
     - Alternative considered:
       - A bare opt-spec acting as an opt-spec mention.
@@ -311,7 +305,7 @@ An opt-spec that matches no Opt declares a new Opt:
   - Target situations:
     - Zero user-defined variants: appended to Argle-generated variant.
     - One variant: appended to it.
-    - Multiple: opt-spec scope must point to one partial or variant.
+    - Multiple variants: opt-spec scope must point to one partial or variant.
 
 __DETAILS_TO_MOVE__:
 
@@ -439,7 +433,7 @@ Choice compatibility analysis:
 
     - Silence or equality.
       - Silence: based on presence of explicit choice syntax.
-      - Equality: set-equality.
+      - Equality: set-equality (between S and V below).
 
     - No mixed bags.
       - The relevant VarInputs from the matched Opts must be consistent:
@@ -477,28 +471,23 @@ __DETAILS_TO_MOVE__:
       - The union of choices from the variants allows Argle to be strict and
         still support a common use case.
 
-## sub-spec-validity: misc choices notes
+## help-text: Help text
+
+### sub-specs
 
 __HERE__
 
-We do want to support per-choice help text. That's a feature I have wanted
-many times as a long-suffering argparse user.
+We do want to support per-choice help text.
 
 Per-choice help text must be done via sub-specs. Applies to both parameters
 (the old policy) and now positionals (the new policy to make things consistent
-and to ensure that this help text has sufficient context for end-users). See
-the edit-list we assembled in a separate section below.
+and to ensure that this help text has sufficient context for end-users).
 
-- NOTE: I suspect some of these policies will also apply to per-parameter
-  help text for options.
-
-- Help text on a regular opt-spec always belongs to the Opt itself,
-  never to a choice, regardless of how many choices it names.
-
-- A per-choice sub-spec must name exactly one choice. Synonymous
-  choices (eg `ls --color` accepting always|yes|force) are handled by
-  documenting one and mentioning the others in its help text.
-  First-class choice aliases would be a separate future feature.
+- A per-choice sub-spec must name exactly one choice.
+  - If the VarInput allow multiple choices synonyms, the user can either
+    document each choice via individual sub-specs.
+  - Or the user can document one choice in a sub-spec and mention the synonyms
+    in the help text for that sub-spec.
 
 - Per-choice help for a parameter requires a named parameter (eg
   `<c=red|green>`). A choices-only parameter (`<red|green>`) cannot be
@@ -515,14 +504,8 @@ Sub-specs and opt-spec matching compatibility:
 
   - A sub-spec does select within the matches. For example, in a typical
     subcommand program where the parent opt-spec matched various `<cmd=foo>`
-    Opts from the variants, each sub-spec selects the Opts the relevant Opts,
-    based on the choices it documents.
-
-Rough notes on sub-specs:
-
-  - NOTE: Perhaps sub-specs should be addressed in a separate policy.
-
-  - A sub-spec attaches to the immediately preceding parent opt-spec.
+    Opts from the variants, each sub-spec selects the relevant Opts, based on
+    the choices it documents.
 
   - A sub-spec must be compatible with the parent opt-spec and, indirectly,
     with the variant Opts matched by the parent.
@@ -534,8 +517,6 @@ Rough notes on sub-specs:
       the Opts matched by it.
     - With several matched Opts, the sub-spec attaches to the Opts whose
       choices include those in C.
-
-## help-text: Help text
 
 ### help-text-defaults: P10: Help text defaults
 
@@ -563,15 +544,10 @@ Rough notes on sub-specs:
     - Raise if the user's opt-descs are not exhaustive (meaning: all Opts
       in the variants were matched by an opt-spec).
 
-### help-text-slots: P11: Help-text slots (tentative)
-
-- Some of these notes are questionable:
-  - Re-assess and edit.
-  - Render-once not needed: eg {opts} vs {opts_rest} and/or broad vs explicit.
+### help-text-slots: P11: Help-text slots
 
 - One mechanism for placing generated or custom content in help text:
-  named slots, written `{name}`. Replaces the earlier ideas of `@`
-  directives plus a separate inline-interpolation syntax.
+  named slots, written `{name}`.
 
 - Registry: Argle pre-registers built-in slots. Users register their
   own via the API, each with a hook (see P12). Built-ins are just
@@ -582,65 +558,34 @@ Rough notes on sub-specs:
   - Slot inside text (opt-help-text, block-quote): inline insertion.
 
 - Likely built-ins:
-  - Block: `{opts}`, `{options}`, `{positionals}`, `{usage}`.
+  - Block: `{opts}`, `{options}`, `{positionals}`, `{usage}`, `{opts_other}`.
   - Inline, Opt-level: `{default}`, `{choices}`, maybe `{name}`.
   - Inline, parser-level: `{prog}`, `{version}`.
+
+  - Some builtins might require block insertion/placement, and forbid inline.
 
 - Validation and escaping: braces enclosing an unregistered name are an
   error (catches typos). Escape with a backslash (`\{default}`), per the
   Quoting rules. No format-spec mini-language.
 
-- Substitution happens inside Argle's rendering pipeline, before
-  wrapping, so line widths reflect the inserted text.
-
-- Render-once rule: each Opt, or each data item, renders once, and
-  explicit placement wins. Slots are processed in spec order. An Opts
-  block includes only Opts not yet rendered; the default tail section
-  (P10) is effectively a final `{opts}`. An explicit inline slot
-  suppresses the auto-append of that item (eg choices per P9).
-
-- Corollary: to move the default tail, place an Opts slot (eg
-  `{opts}` before an epilogue). Render-once leaves nothing for the
-  tail, so no extra rule is needed.
-
 - To support complex needs, favor a user-slot where their callable supplies
   the text or data needed to drive the slot content.
 
-### slot-hooks: P12: Slot hooks (tentative)
+### slot-hooks: P12: Slot hooks
 
 - Registration, roughly: `p.slot('add_opts', func)`.
 
-- A hook receives context (the parser, plus the current Opt when
-  there is one) and returns a description of what to insert. It does
-  not munge generated help text.
+- A slot hook receives context (the parser, plus the current Opt when there is
+  one) and returns data representing what to insert. It does not munge
+  generated help text.
 
-- Return types:
+- Slot hook return types:
   - `str`: text with default handling (wrapped).
   - Text object: text plus instructions (eg `wrap=False`).
   - Opts selection: a query result or query-path. Argle renders the
-    opt-descs and applies the render-once rule.
+    opt-descs.
   - List of the above, for mixed content (eg heading plus Opts block).
-
-- An Opts selection is valid only for a block slot. Returning one
-  from an inline slot is an error.
-
-- Render-once is resolved when Argle processes the returned value, not
-  when the hook builds its query. Hooks can select broadly (eg
-  `cmd=add.*`) without tracking what was already rendered.
-
-- Escape-hatch tiers: (1) built-in slots, no code; (2) user slots
-  and the general API; (3) later: hooks that receive a structured help
-  model before rendering.
-
-- Open:
-  - Line type for a block slot in the spec (Line types needs a rule
-    so `{opts}` is not read as a variant or opt-spec).
-  - Per-scope generated sections (S4/S5), and whether they are common
-    enough to justify spec-level scoping later.
-  - Default split of positionals and options into separate sections.
-  - Whether `{default}` in a per-choice sub-spec refers to the parent
-    Opt or the choice.
-  - Whether help text set via the API gets slot substitution.
+    - Needed? Or can the user just put multiple slots in the spec?
 
 ### documenting-choices: P9: Documenting choices
 
@@ -671,7 +616,7 @@ Follow-up notes:
 
 ## api: API
 
-### api-reads: P14: API reads (tentative)
+### api-reads: P14: API reads
 
 Reading an attribute from a query result unifies across its OptNodes: the
 distinct union of values, in spec order.
@@ -722,7 +667,7 @@ distinct union of values, in spec order.
   - spec (the Opt.spec TODO)
   - position and parent (implicit in the tree)
 
-### query-result-repr: P18: Query-result repr (tentative)
+### query-result-repr: P18: Query-result repr
 
 A repr is a diagnostic, so it shows the raw Opts, each with its path (P17),
 not the unified view. Eg:
@@ -796,7 +741,7 @@ __DETAILS_TO_MOVE__:
     - Because a top-level Opt requires a name: Positional is an Opt; Parameter
       is a child of one.
 
-## dispatch-opt-independence: P15: Dispatch and Opt independence (tentative)
+## dispatch-opt-independence: P15: Dispatch and Opt independence
 
 - Default: dispatch unifies Opts by name. Argle calls a dispatch
   function at most once per (NAME, FUNC, RESULT): the matched Opt's
@@ -817,8 +762,6 @@ __DETAILS_TO_MOVE__:
 
 # other-material: Other material to edit, move, delete
 
-## opt-spec-unmatched-follow-up: Follow-up notes (P19 and P20)
-
 - `misc/spec-syntax.md:173` and `misc/spec-syntax.md:176` need rewording to
   match. Line 176 currently reads as permitting the repeats that P19 forbids.
 
@@ -826,11 +769,6 @@ __DETAILS_TO_MOVE__:
   variant-naming form (`clone : ...`, from
   `misc/examples/argle-mock-ups/argle-repo.py:47`) is not yet in
   `misc/spec-syntax.md`.
-
-- The raw note `opt-spec-conflicts` (below) is resolved by P19 and can be
-  marked as such or removed.
-
-## per-choice-help-edit-list: Edit list P5: per-choice help must be in sub-specs
 
 misc/notes.txt:2013 — sub-specs configure "a choice of a Positional or Parameter"
 - ok
@@ -858,53 +796,4 @@ misc/examples/argparse-vs-argle/wrangle:85 — parent `<task>` line already pres
 
 README.md:324 — same as wrangle
 - ditto
-
-## audit-notes: notes on audit
-
-Contradictions:
-
-  1. P8 and help grouping. P8 allows `<x> : help` across `<x=A|B>` and a bare
-     `<x>` because "the duplication is visible in the help output." But under
-     the help grouping we've discussed (auto-generated entries grouped by name
-     and kind), those two Opts would merge into one entry, so nothing would be
-     visible. One of the two needs to give.
-
-  2. What "Opt" means. P14 says OptNode, P0 says "each Opt occurrence ... is a
-     distinct Opt," and P15–P18 use "Opt" for the per-node thing. Pick one
-     usage for the policies.
-
-Obsolete or stale:
-
-  3. P7 is superseded. In the new layout I'd move it to the details section,
-     or drop it.
-
-  5. P13's status lines: "Config read: maybe resolvable via P14" (P14 now
-     exists), tab-completion (resolved), and help and errors still marked
-     ASSESS/RESOLVE (now deferred to the mockups).
-
-  6. P11 says the default tail is "effectively a final `{opts}`." S2b refined
-     that: `{opts}` renders entries with no heading, and the tail is a heading
-     plus `{opts}`. P11 wasn't updated.
-
-Overlaps:
-
-  7. The default tail is described in both P10 and P11. P10 should own the
-     default and P11 the slot mechanics.
-
-  8. The single-choice-literal rule appears in both the P9 note and P13's
-     usage bullet.
-
-  9. P0's "surfaces (help, errors, Result)" is the short version of P13's full
-     list.
-
-Missing or orphaned:
-
-  10. Help grouping of auto-generated opt-descs (by name and kind, with
-      choices unioned) was discussed but never recorded as a policy. It's
-      needed for item 1 and for the mockups.
-
-  12. P12's open item "default split of positionals and options" already has a
-      design in notes.txt: the `opt_listing_heading` setting with
-      `unified`/`by_kind`/`minimal`, where unified uses "Arguments"
-      (misc/notes.txt:1052). That's worth linking.
 

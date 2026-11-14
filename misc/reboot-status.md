@@ -32,7 +32,7 @@ documentation and policy documents a lot.
 
 # todos: TODOs
 
-- Edit policy-clarifications.md:
+- Edit policies.md:
   - See __HERE__ and the file's TODOs.
 
 - Create scenario-mockups.md
